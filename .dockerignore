@@ -1,0 +1,16 @@
+node_modules
+dist
+coverage
+.git
+.github
+.vscode
+.idea
+.claude
+docs
+# UI build imports `../../docs/_design/{tokens,components}.css` — keep that subtree.
+!docs/_design
+test
+*.log
+.env
+.env.*
+!.env.example

@@ -1,0 +1,9 @@
+/**
+ * chatlab documentation site — minimal overrides on top of Infima.
+ */
+
+:root {
+  --ifm-color-primary: #0d9488;
+  --ifm-color-primary-dark: #0f766e;
+  --ifm-color-primary-darker: #115e59;
+}

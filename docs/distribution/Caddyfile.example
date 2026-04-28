@@ -1,0 +1,15 @@
+# Caddyfile companion to compose.example.yml.
+#
+# Caddy fetches a Let's Encrypt certificate on first request and proxies all
+# traffic to the chatlab container on the internal Compose network.
+
+{$CHATLAB_DOMAIN} {
+    # Enable HSTS once you've confirmed TLS works.
+    # header Strict-Transport-Security "max-age=31536000; includeSubDomains"
+
+    encode gzip
+
+    # WebSocket upgrade for /ws — same upstream, Caddy handles Upgrade headers
+    # transparently when reverse-proxying.
+    reverse_proxy chatlab:4480
+}

@@ -1,0 +1,81 @@
+name: ci
+
+# Per ADR 0010 §4 — runs on every PR to main and every push to main:
+#   typecheck, vitest (with coverage), build, redocly lint.
+# Documentation-only changes (docs/**, docs-site/**, *.md) are exercised by
+# lint-docs.yml; this workflow is the gate for code changes.
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "src/**"
+      - "test/**"
+      - "package.json"
+      - "package-lock.json"
+      - "tsconfig.json"
+      - "tsconfig.ui.json"
+      - "vite.config.ts"
+      - "vitest.config.ts"
+      - "docs/specs/api/openapi.yaml"
+      - ".github/workflows/ci.yml"
+  push:
+    branches: [main]
+    paths:
+      - "src/**"
+      - "test/**"
+      - "package.json"
+      - "package-lock.json"
+      - "tsconfig.json"
+      - "tsconfig.ui.json"
+      - "vite.config.ts"
+      - "vitest.config.ts"
+      - "docs/specs/api/openapi.yaml"
+      - ".github/workflows/ci.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-and-test:
+    name: typecheck + test + build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version-file: ".nvmrc"
+          cache: npm
+
+      - name: Install
+        run: npm ci
+
+      - name: Type check
+        run: npm run typecheck
+
+      - name: Test (with coverage gate)
+        run: npm test -- --coverage
+
+      - name: Build
+        run: npm run build
+
+      - name: Bundle-size gate (JS gzip ≤ 200 kB)
+        run: |
+          JS_FILE=$(find dist/ui/assets -name "*.js" -not -name "*.map" | head -1)
+          GZ=$(gzip -9 -c "$JS_FILE" | wc -c)
+          echo "JS bundle gzip: $((GZ / 1024)) kB"
+          if [ "$GZ" -gt "$((200 * 1024))" ]; then
+            echo "ERROR: JS bundle ($((GZ / 1024)) kB gzip) exceeds the 200 kB limit."
+            exit 1
+          fi
+
+      - name: Lint OpenAPI YAML
+        run: |
+          npx -y @redocly/cli@2.30.3 lint docs/specs/api/openapi.yaml \
+            --skip-rule no-server-example.com

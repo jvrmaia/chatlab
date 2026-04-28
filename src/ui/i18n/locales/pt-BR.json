@@ -1,0 +1,156 @@
+{
+  "common": {
+    "cancel": "Cancelar",
+    "create": "Criar",
+    "save": "Salvar",
+    "edit": "Editar",
+    "delete": "Excluir",
+    "send": "Enviar",
+    "loading": "…",
+    "saving": "...",
+    "dismiss": "Fechar",
+    "preview": "Pré-visualizar"
+  },
+  "header": {
+    "activeWorkspace": "Workspace ativo",
+    "tabChats": "Conversas",
+    "tabAdmin": "Admin"
+  },
+  "ws": {
+    "connecting": "conectando ao chatlab…",
+    "lost": "conexão perdida — tentando reconectar…"
+  },
+  "privacy": {
+    "warning": "As conversas são enviadas em texto simples para o provedor configurado. Não use dados pessoais reais sem mascaramento.",
+    "dismissAria": "Dispensar aviso de privacidade nesta sessão"
+  },
+  "chatList": {
+    "title": "conversas",
+    "noAgents": "sem agentes — vá para admin",
+    "activeCount_one": "{{count}} ativa",
+    "activeCount_other": "{{count}} ativas",
+    "newChat": "Nova conversa",
+    "agent": "Agente",
+    "pickAgent": "Escolha um agente…",
+    "theme": "Tema",
+    "themePlaceholder": "ex.: aprendendo Python",
+    "validation": "Escolha um agente e escreva um tema.",
+    "deletedAgent": "(agente removido)",
+    "ariaList": "Conversas",
+    "emptyHintBefore": "Sem conversas ainda. Clique em ",
+    "emptyHintAfter": " para iniciar uma."
+  },
+  "chatView": {
+    "deletedAgent": "(removido)",
+    "emptyHint": "Comece a conversa digitando abaixo.",
+    "agentFailed": "Agente falhou",
+    "unknownError": "erro desconhecido",
+    "imageAlt": "imagem",
+    "documentAlt": "documento",
+    "selectChat": "Selecione uma conversa para começar.",
+    "noChatsNoAgents": "sem conversas ainda — vá em admin → agentes para configurar seu primeiro agente",
+    "noChatsHasAgents": "sem conversas ainda — clique em + na barra lateral para iniciar uma"
+  },
+  "composer": {
+    "attachAria": "Anexar arquivo",
+    "placeholder": "Digite uma mensagem...",
+    "placeholderDisabled": "Configure um agente para começar a conversar",
+    "sendAria": "Enviar mensagem"
+  },
+  "feedback": {
+    "rateGood": "avaliar como boa",
+    "rateBad": "avaliar como ruim",
+    "removePositive": "remover avaliação positiva",
+    "removeNegative": "remover avaliação negativa"
+  },
+  "annotations": {
+    "title": "notas da conversa",
+    "unsaved": "não salvo",
+    "modeAria": "Modo das notas",
+    "editTab": "Editar",
+    "previewTab": "Pré-visualizar",
+    "placeholder": "Notas em Markdown sobre esta conversa...",
+    "emptyPreview": "nada para pré-visualizar ainda",
+    "savedAt": "salvo em {{time}}",
+    "noNotesYet": "sem notas ainda"
+  },
+  "devDrawer": {
+    "showAria": "Mostrar eventos",
+    "title": "Eventos",
+    "hideAria": "Ocultar eventos",
+    "hide": "Ocultar",
+    "empty": "sem eventos ainda"
+  },
+  "theme": {
+    "switchToLight": "Mudar para tema claro",
+    "switchToDark": "Mudar para tema escuro",
+    "light": "Claro",
+    "dark": "Escuro",
+    "densityAria": "Densidade da UI",
+    "compact": "Compacto",
+    "cozy": "Confortável",
+    "comfy": "Espaçoso"
+  },
+  "locale": {
+    "toggleAria": "Trocar idioma",
+    "english": "English",
+    "portuguese": "Português"
+  },
+  "admin": {
+    "tabWorkspaces": "Workspaces",
+    "tabAgents": "Agentes"
+  },
+  "agents": {
+    "title": "Agentes",
+    "configuredCount_one": "{{count}} configurado",
+    "configuredCount_other": "{{count}} configurados",
+    "newAgent": "Novo agente",
+    "editAgent": "Editar agente",
+    "deleteConfirm": "Excluir este agente?",
+    "noAgents": "Nenhum agente configurado ainda.",
+    "tableName": "Nome",
+    "tableProvider": "Provedor",
+    "tableModel": "Modelo",
+    "fieldName": "Nome",
+    "fieldNamePlaceholder": "ex.: Suporte GPT-4o",
+    "fieldProvider": "Provedor",
+    "fieldModel": "Modelo",
+    "fieldApiKey": "Chave de API",
+    "fieldApiKeyOptional": "Chave de API (opcional)",
+    "apiKeyKept": "preservada ({{masked}})",
+    "apiKeyRequired": "obrigatória",
+    "apiKeyLeaveBlank": "deixe em branco",
+    "fieldBaseUrl": "URL base (opcional)",
+    "fieldSystemPrompt": "System prompt",
+    "systemPromptPlaceholder": "Você é um agente de suporte cordial...",
+    "fieldContext": "Contexto",
+    "contextSuffix": "msgs",
+    "probeTitle": "Sondar",
+    "probeSaveFirst": "Salve antes de sondar."
+  },
+  "workspaces": {
+    "title": "Workspaces",
+    "summary_one": "{{count}} configurado · 1 ativo",
+    "summary_other": "{{count}} configurados · 1 ativo",
+    "newWorkspace": "Novo workspace",
+    "fieldNickname": "Apelido",
+    "nicknamePlaceholder": "ex.: experimento-1",
+    "fieldStorage": "Armazenamento",
+    "storageMemory": "memory (efêmero)",
+    "storageSqlite": "sqlite (em arquivo, rápido)",
+    "storageDuckdb": "duckdb (em arquivo, analítico)",
+    "tableNickname": "Apelido",
+    "tableStorage": "Armazenamento",
+    "tablePath": "Caminho",
+    "tableActive": "Ativo",
+    "activate": "Ativar",
+    "active": "ativo",
+    "noPath": "—",
+    "deletePrompt": "Digite o apelido ({{label}}) para confirmar a exclusão. O workspace e seus arquivos de dados serão removidos.",
+    "deleteMismatch": "O apelido não confere. Cancelado.",
+    "validationNickname": "O apelido é obrigatório."
+  },
+  "errors": {
+    "switchWorkspaceFailed": "Falha ao trocar de workspace: {{message}}"
+  }
+}

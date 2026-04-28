@@ -1,0 +1,392 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>ChatLab — Design System</title>
+<script type="text/javascript" nonce="874ec0e10a964db4aa4c9bf7069" src="//local.adguard.org?ts=1777538345010&amp;type=content-script&amp;dmn=claude.ai&amp;url=https%3A%2F%2Fclaude.ai%2Fdesign%2Fv1%2Fdesign%2Fprojects%2F019ddbcb-e083-7775-a9a7-fad27ccd965f%2Fdownload%3Fpath%3DDesign%2520System.html&amp;app=com.google.Chrome&amp;css=2&amp;js=1&amp;rel=1&amp;rji=1&amp;sbe=1&amp;stealth=1&amp;st-push&amp;st-loc&amp;st-java&amp;st-dnt&amp;st-1pcttl=4320"></script><script type="text/javascript" nonce="874ec0e10a964db4aa4c9bf7069" src="//local.adguard.org?ts=1777538345010&amp;name=AdGuard%20Extra&amp;type=user-script"></script><link rel="stylesheet" href="tokens.css" />
+<link rel="stylesheet" href="components.css" />
+<style>
+  body { padding: 0; }
+  .ds { max-width: 1180px; margin: 0 auto; padding: 0 48px 96px; }
+  .nav { position: sticky; top: 0; z-index: 10; background: var(--bg-overlay); backdrop-filter: blur(10px); border-bottom: 1px solid var(--line-soft); padding: 12px 48px; display: flex; align-items: center; justify-content: space-between; }
+  .nav a.link { padding: 6px 12px; border-radius: var(--r-sm); color: var(--ink-2); font-size: var(--fs-sm); text-decoration: none; }
+  .nav a.link:hover { background: var(--bg-sunken); color: var(--ink-1); }
+  .nav-links { display: flex; gap: 2px; }
+  .ver { font-family: var(--font-mono); font-size: var(--fs-xs); color: var(--ink-3); }
+  .logo { display: inline-flex; align-items: center; gap: 10px; font-weight: 600; font-size: var(--fs-md); color: var(--ink-1); text-decoration: none; letter-spacing: -0.01em; }
+  .logo .mark { width: 24px; height: 24px; border-radius: 7px; background: var(--accent-600); position: relative; flex-shrink: 0; }
+  .logo .mark::before, .logo .mark::after { content: ""; position: absolute; background: var(--accent-ink); border-radius: 1.5px; }
+  .logo .mark::before { width: 12px; height: 2px; top: 9px; left: 6px; }
+  .logo .mark::after { width: 8px; height: 2px; top: 13px; left: 6px; }
+  .hero { display: flex; align-items: flex-end; justify-content: space-between; gap: 56px; padding: 80px 0 64px; border-bottom: 1px solid var(--line-soft); }
+  .eyebrow { font-family: var(--font-mono); font-size: var(--fs-xs); color: var(--accent-700); text-transform: uppercase; letter-spacing: 0.04em; margin: 0 0 14px; }
+  .h1 { font-size: 56px; font-weight: 600; letter-spacing: -0.025em; line-height: 1; margin: 0 0 18px; max-width: 16ch; }
+  .h1 em { font-style: normal; color: var(--accent-700); }
+  .lede { font-size: var(--fs-md); color: var(--ink-2); max-width: 56ch; margin: 0; line-height: 1.65; }
+  .meta { font-family: var(--font-mono); font-size: var(--fs-xs); color: var(--ink-3); text-align: right; line-height: 1.85; min-width: 220px; }
+  .meta b { color: var(--ink-1); font-weight: 500; }
+  .wordmark { font-weight: 700; font-size: 220px; line-height: 0.82; letter-spacing: -0.06em; color: var(--accent-100); user-select: none; padding: 64px 0 64px; border-bottom: 1px solid var(--line-soft); }
+  .wordmark em { font-style: normal; color: var(--accent-600); }
+  .sec { padding: 64px 0 16px; border-top: 1px solid var(--line-soft); }
+  .sec:first-of-type { padding-top: 64px; }
+  .sec-head { display: flex; align-items: baseline; gap: 16px; margin-bottom: 32px; }
+  .sec-num { font-family: var(--font-mono); font-size: var(--fs-xs); color: var(--ink-3); letter-spacing: 0.04em; }
+  .sec-title { font-size: var(--fs-2xl); font-weight: 600; letter-spacing: -0.01em; margin: 0; }
+  .sec-lede { font-size: var(--fs-sm); color: var(--ink-2); margin-left: auto; max-width: 48ch; line-height: 1.6; text-align: right; }
+  .sub { font-family: var(--font-mono); font-size: var(--fs-xs); color: var(--ink-3); text-transform: uppercase; letter-spacing: 0.04em; margin: 32px 0 14px; }
+  .grid { display: grid; gap: 12px; }
+  .g3 { grid-template-columns: repeat(3, 1fr); }
+  .g4 { grid-template-columns: repeat(4, 1fr); }
+  .g6 { grid-template-columns: repeat(6, 1fr); }
+  .g7 { grid-template-columns: repeat(7, 1fr); }
+  .principle { padding: 22px; border: 1px solid var(--line-soft); border-radius: var(--r-lg); background: var(--bg-surface); }
+  .principle .pn { font-family: var(--font-mono); font-size: var(--fs-xs); color: var(--accent-700); margin-bottom: 12px; letter-spacing: 0.04em; }
+  .principle h3 { font-size: var(--fs-md); font-weight: 600; margin: 0 0 6px; letter-spacing: -0.01em; }
+  .principle p { font-size: var(--fs-sm); color: var(--ink-2); margin: 0; line-height: 1.6; }
+  .sw { background: var(--bg-surface); border: 1px solid var(--line-soft); border-radius: var(--r-md); overflow: hidden; }
+  .sw .chip { aspect-ratio: 16/8; }
+  .sw .m { padding: 10px 12px 14px; }
+  .sw .nm { font-size: var(--fs-sm); font-weight: 500; }
+  .sw .vl { font-family: var(--font-mono); font-size: 11px; color: var(--ink-3); margin-top: 2px; }
+  .scale { display: grid; grid-template-columns: repeat(7, 1fr); border: 1px solid var(--line-soft); border-radius: var(--r-md); overflow: hidden; }
+  .scale-step { aspect-ratio: 1.1; padding: 10px; display: flex; flex-direction: column; justify-content: flex-end; font-family: var(--font-mono); font-size: 10px; }
+  .type-row { display: grid; grid-template-columns: 200px 1fr 220px; gap: 32px; padding: 22px 0; border-top: 1px solid var(--line-soft); align-items: baseline; }
+  .type-row:first-of-type { border-top: 0; padding-top: 0; }
+  .ts { font-family: var(--font-mono); font-size: var(--fs-xs); color: var(--ink-3); line-height: 1.7; }
+  .ts b { color: var(--ink-1); font-weight: 500; display: block; font-family: var(--font-sans); font-size: var(--fs-sm); margin-bottom: 4px; }
+  .tm { font-family: var(--font-mono); font-size: var(--fs-xs); color: var(--ink-3); text-align: right; line-height: 1.7; }
+  .sp-row { display: grid; grid-template-columns: 60px 60px 1fr; align-items: center; gap: 20px; padding: 8px 0; border-top: 1px solid var(--line-soft); }
+  .sp-row:first-child { border: 0; }
+  .sp-tok, .sp-px { font-family: var(--font-mono); font-size: var(--fs-xs); }
+  .sp-tok { color: var(--ink-1); font-weight: 500; }
+  .sp-px { color: var(--ink-3); }
+  .sp-bar { height: 12px; background: var(--accent-300); border-radius: 2px; }
+  .rad { aspect-ratio: 1.4; background: var(--accent-100); border: 1px solid var(--accent-200); padding: 12px; display: flex; align-items: flex-end; justify-content: space-between; font-family: var(--font-mono); font-size: 11px; color: var(--accent-700); }
+  .sh { aspect-ratio: 1.4; background: var(--bg-canvas); border-radius: var(--r-md); padding: 18px; display: flex; flex-direction: column; gap: 10px; }
+  .sh-d { flex: 1; background: var(--bg-surface); border-radius: var(--r-md); }
+  .sh-l { font-family: var(--font-mono); font-size: 11px; color: var(--ink-3); }
+  .demo { border: 1px solid var(--line-soft); border-radius: var(--r-lg); overflow: hidden; background: var(--bg-surface); }
+  .demo-h { padding: 10px 16px; border-bottom: 1px solid var(--line-soft); display: flex; justify-content: space-between; align-items: center; background: var(--bg-sunken); font-family: var(--font-mono); font-size: var(--fs-xs); color: var(--ink-2); }
+  .demo-s { padding: 32px; display: flex; flex-wrap: wrap; gap: 12px; align-items: center; min-height: 100px; background: radial-gradient(circle at 1px 1px, var(--line-soft) 1px, transparent 0) 0 0/16px 16px, var(--bg-canvas); }
+  .demo-s.col { flex-direction: column; align-items: stretch; }
+  .demo-s.center { justify-content: center; }
+  .bb-stage { display: flex; flex-direction: column; gap: 8px; width: 100%; max-width: 480px; margin: 0 auto; }
+  .bb { max-width: 80%; padding: 10px 14px; border-radius: var(--r-lg); font-size: var(--fs-sm); line-height: 1.5; }
+  .bb.user { align-self: flex-end; background: var(--bubble-user); color: var(--bubble-user-ink); border-bottom-right-radius: var(--r-xs); }
+  .bb.agent { align-self: flex-start; background: var(--bubble-agent); color: var(--bubble-agent-ink); border: 1px solid var(--line-soft); border-bottom-left-radius: var(--r-xs); }
+  .log { display: grid; grid-template-columns: 60px 56px 1fr auto; gap: 12px; padding: 5px 12px; font-family: var(--font-mono); font-size: 11px; border-radius: var(--r-sm); align-items: center; }
+  .log + .log { margin-top: 2px; }
+  .log .t { color: var(--ink-3); }
+  .log .l { font-weight: 600; letter-spacing: 0.04em; }
+  .log.info .l { color: var(--info); }
+  .log.ok .l { color: var(--success); }
+  .log.warn .l { color: var(--warn); }
+  .log .m { color: var(--ink-1); }
+  .log .x { color: var(--ink-3); }
+  .av { width: 32px; height: 32px; border-radius: var(--r-md); background: var(--accent-100); color: var(--accent-700); display: inline-flex; align-items: center; justify-content: center; font-family: var(--font-mono); font-size: var(--fs-xs); font-weight: 600; }
+  .av.lg { width: 44px; height: 44px; font-size: var(--fs-sm); border-radius: var(--r-lg); }
+  .av.sm { width: 24px; height: 24px; font-size: 10px; border-radius: var(--r-sm); }
+  .row { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+  .col { display: flex; flex-direction: column; gap: 12px; width: 100%; }
+  .cta { margin-top: 56px; padding: 40px 48px; border-radius: var(--r-xl); background: linear-gradient(135deg, var(--accent-50), var(--bg-sunken)); border: 1px solid var(--accent-100); display: grid; grid-template-columns: 1fr auto; gap: 32px; align-items: center; }
+  .cta h3 { font-size: var(--fs-2xl); font-weight: 600; letter-spacing: -0.015em; margin: 0 0 6px; }
+  .cta p { font-size: var(--fs-sm); color: var(--ink-2); margin: 0; max-width: 56ch; line-height: 1.6; }
+  .cta a.btn { display: inline-flex; align-items: center; gap: 8px; padding: 0 22px; height: 44px; background: var(--accent-600); color: var(--accent-ink); border-radius: var(--r-md); font-size: var(--fs-sm); font-weight: 500; text-decoration: none; }
+  .cta a.btn:hover { background: var(--accent-700); }
+  .foot { margin-top: 64px; padding-top: 24px; border-top: 1px solid var(--line-soft); display: flex; justify-content: space-between; font-family: var(--font-mono); font-size: var(--fs-xs); color: var(--ink-3); }
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <a class="logo" href="#"><span class="mark"></span>ChatLab <span style="color:var(--ink-3); font-weight: 400;">/ Design System</span></a>
+  <div class="nav-links">
+    <a class="link" href="#principles">Principles</a>
+    <a class="link" href="#color">Color</a>
+    <a class="link" href="#type">Type</a>
+    <a class="link" href="#space">Space</a>
+    <a class="link" href="#components">Components</a>
+    <a class="link" href="ChatLab.html">→ Prototype</a>
+  </div>
+  <span class="ver">v1.0 · 2026.04</span>
+</nav>
+
+<main class="ds">
+
+  <header class="hero">
+    <div>
+      <p class="eyebrow">Design System / 01</p>
+      <h1 class="h1">A calm system<br/>for <em>long sessions</em>.</h1>
+      <p class="lede">ChatLab is a workbench for testing and tuning conversational agents. The system favors warm neutrals, low-saturation accents, and generous space — built to be lived in for hours without fatigue.</p>
+    </div>
+    <div class="meta">
+      <div><b>Stack</b> &nbsp;Web · light/dark</div>
+      <div><b>Type</b> &nbsp;&nbsp;IBM Plex Sans + Mono</div>
+      <div><b>Grid</b> &nbsp;&nbsp;8pt · 3 densities</div>
+      <div><b>Tokens</b> 64 · <b>Comp</b> 18</div>
+      <div><b>Status</b> Stable</div>
+    </div>
+  </header>
+
+  <div class="wordmark">chat<em>lab</em></div>
+
+  <section class="sec" id="principles">
+    <div class="sec-head">
+      <span class="sec-num">/01</span>
+      <h2 class="sec-title">Principles</h2>
+      <p class="sec-lede">Three commitments that guide every visual decision.</p>
+    </div>
+    <div class="grid g3">
+      <div class="principle">
+        <div class="pn">P/01</div>
+        <h3>Easy on the eyes</h3>
+        <p>Warm off-whites and graphite text — never pure white or black. Saturation stays under 0.10 except in semantic states. The accent is a desaturated sage; it whispers.</p>
+      </div>
+      <div class="principle">
+        <div class="pn">P/02</div>
+        <h3>Space, not decoration</h3>
+        <p>Hierarchy comes from spacing, weight, and alignment — not boxes inside boxes. Hairlines only. Every component earns its line.</p>
+      </div>
+      <div class="principle">
+        <div class="pn">P/03</div>
+        <h3>Honest density</h3>
+        <p>A pro tool surfaces real data: tokens, latency, model IDs, event logs. Mono carries technical truth; sans carries conversation. They stay in their lanes.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec" id="color">
+    <div class="sec-head">
+      <span class="sec-num">/02</span>
+      <h2 class="sec-title">Color</h2>
+      <p class="sec-lede">Warm neutrals (h=90) paired with a desaturated sage accent (h=165, c=0.08). Saturation is reserved for meaning.</p>
+    </div>
+
+    <div class="sub">Surface — warm neutrals</div>
+    <div class="grid g4">
+      <div class="sw"><div class="chip" style="background:var(--bg-canvas)"></div><div class="m"><div class="nm">Canvas</div><div class="vl">--bg-canvas</div></div></div>
+      <div class="sw"><div class="chip" style="background:var(--bg-surface)"></div><div class="m"><div class="nm">Surface</div><div class="vl">--bg-surface</div></div></div>
+      <div class="sw"><div class="chip" style="background:var(--bg-sunken)"></div><div class="m"><div class="nm">Sunken</div><div class="vl">--bg-sunken</div></div></div>
+      <div class="sw"><div class="chip" style="background:var(--line-strong)"></div><div class="m"><div class="nm">Line strong</div><div class="vl">--line-strong</div></div></div>
+    </div>
+
+    <div class="sub">Ink — text</div>
+    <div class="grid g4">
+      <div class="sw"><div class="chip" style="background:var(--ink-1)"></div><div class="m"><div class="nm">Ink 1 · primary</div><div class="vl">--ink-1</div></div></div>
+      <div class="sw"><div class="chip" style="background:var(--ink-2)"></div><div class="m"><div class="nm">Ink 2 · secondary</div><div class="vl">--ink-2</div></div></div>
+      <div class="sw"><div class="chip" style="background:var(--ink-3)"></div><div class="m"><div class="nm">Ink 3 · tertiary</div><div class="vl">--ink-3</div></div></div>
+      <div class="sw"><div class="chip" style="background:var(--ink-4)"></div><div class="m"><div class="nm">Ink 4 · placeholder</div><div class="vl">--ink-4</div></div></div>
+    </div>
+
+    <div class="sub">Accent — sage 165° · the only saturated voice</div>
+    <div class="scale">
+      <div class="scale-step" style="background:var(--accent-50); color:var(--accent-700)"><b>50</b></div>
+      <div class="scale-step" style="background:var(--accent-100); color:var(--accent-700)"><b>100</b></div>
+      <div class="scale-step" style="background:var(--accent-200); color:var(--accent-700)"><b>200</b></div>
+      <div class="scale-step" style="background:var(--accent-300); color:var(--accent-700)"><b>300</b></div>
+      <div class="scale-step" style="background:var(--accent-500); color:var(--accent-ink)"><b>500</b></div>
+      <div class="scale-step" style="background:var(--accent-600); color:var(--accent-ink)"><b>600</b></div>
+      <div class="scale-step" style="background:var(--accent-700); color:var(--accent-ink)"><b>700</b></div>
+    </div>
+
+    <div class="sub">Semantic — only in states</div>
+    <div class="grid g4">
+      <div class="sw"><div class="chip" style="background:var(--success)"></div><div class="m"><div class="nm">Success</div><div class="vl">--success</div></div></div>
+      <div class="sw"><div class="chip" style="background:var(--warn)"></div><div class="m"><div class="nm">Warn</div><div class="vl">--warn</div></div></div>
+      <div class="sw"><div class="chip" style="background:var(--danger)"></div><div class="m"><div class="nm">Danger</div><div class="vl">--danger</div></div></div>
+      <div class="sw"><div class="chip" style="background:var(--info)"></div><div class="m"><div class="nm">Info</div><div class="vl">--info</div></div></div>
+    </div>
+  </section>
+
+  <section class="sec" id="type">
+    <div class="sec-head">
+      <span class="sec-num">/03</span>
+      <h2 class="sec-title">Typography</h2>
+      <p class="sec-lede">IBM Plex Sans for prose; Plex Mono for technical data. Generous leading and humanist letter-shapes reduce reading fatigue over long sessions.</p>
+    </div>
+    <div>
+      <div class="type-row">
+        <div class="ts"><b>Display</b>Plex Sans · 600<br/>40 / 1.05 / -0.02em</div>
+        <div style="font-size:40px; font-weight:600; letter-spacing:-0.02em; line-height:1.05;">A calm system for long sessions.</div>
+        <div class="tm">--fs-4xl<br/>page heroes only</div>
+      </div>
+      <div class="type-row">
+        <div class="ts"><b>Heading L</b>Plex Sans · 600<br/>24 / 1.2 / -0.01em</div>
+        <div style="font-size:24px; font-weight:600; letter-spacing:-0.01em; line-height:1.2;">Workspaces &amp; agents</div>
+        <div class="tm">--fs-2xl<br/>section titles</div>
+      </div>
+      <div class="type-row">
+        <div class="ts"><b>Heading M</b>Plex Sans · 600<br/>17 / 1.35</div>
+        <div style="font-size:17px; font-weight:600;">Customer Support · prod</div>
+        <div class="tm">--fs-lg<br/>card titles</div>
+      </div>
+      <div class="type-row">
+        <div class="ts"><b>Body</b>Plex Sans · 400<br/>14 / 1.5</div>
+        <div style="font-size:14px; line-height:1.5; max-width:560px;">A long-running agent that handles common support questions and escalates anything ambiguous to the human queue. Uses tools to look up orders and tickets.</div>
+        <div class="tm">--fs-base<br/>chat &amp; UI</div>
+      </div>
+      <div class="type-row">
+        <div class="ts"><b>Caption</b>Plex Sans · 500<br/>12 / 1.5 / 0.04em uppercase</div>
+        <div style="font-size:12px; font-weight:500; letter-spacing:0.04em; text-transform:uppercase; color:var(--ink-2);">Last active · 4 minutes ago</div>
+        <div class="tm">--fs-xs<br/>labels</div>
+      </div>
+      <div class="type-row">
+        <div class="ts"><b>Mono · data</b>Plex Mono · 400<br/>12 / 1.6</div>
+        <div style="font-family:var(--font-mono); font-size:12px; color:var(--ink-2);">model: claude-sonnet-4 · 1,247 tok · 642 ms · $0.018</div>
+        <div class="tm">--font-mono<br/>technical truth</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec" id="space">
+    <div class="sec-head">
+      <span class="sec-num">/04</span>
+      <h2 class="sec-title">Space &amp; Form</h2>
+      <p class="sec-lede">8pt grid, soft radii, and barely-there shadows. The system avoids hard edges and dramatic depth.</p>
+    </div>
+
+    <div class="sub">Spacing scale · 8pt base</div>
+    <div>
+      <div class="sp-row"><span class="sp-tok">--sp-1</span><span class="sp-px">4px</span><div class="sp-bar" style="width:4px"></div></div>
+      <div class="sp-row"><span class="sp-tok">--sp-2</span><span class="sp-px">8px</span><div class="sp-bar" style="width:8px"></div></div>
+      <div class="sp-row"><span class="sp-tok">--sp-3</span><span class="sp-px">12px</span><div class="sp-bar" style="width:12px"></div></div>
+      <div class="sp-row"><span class="sp-tok">--sp-4</span><span class="sp-px">16px</span><div class="sp-bar" style="width:16px"></div></div>
+      <div class="sp-row"><span class="sp-tok">--sp-5</span><span class="sp-px">20px</span><div class="sp-bar" style="width:20px"></div></div>
+      <div class="sp-row"><span class="sp-tok">--sp-6</span><span class="sp-px">24px</span><div class="sp-bar" style="width:24px"></div></div>
+      <div class="sp-row"><span class="sp-tok">--sp-7</span><span class="sp-px">32px</span><div class="sp-bar" style="width:32px"></div></div>
+      <div class="sp-row"><span class="sp-tok">--sp-8</span><span class="sp-px">40px</span><div class="sp-bar" style="width:40px"></div></div>
+      <div class="sp-row"><span class="sp-tok">--sp-9</span><span class="sp-px">56px</span><div class="sp-bar" style="width:56px"></div></div>
+      <div class="sp-row"><span class="sp-tok">--sp-10</span><span class="sp-px">72px</span><div class="sp-bar" style="width:72px"></div></div>
+    </div>
+
+    <div class="sub">Radii</div>
+    <div class="grid g6">
+      <div class="rad" style="border-radius:var(--r-xs)"><span>xs</span><span>4</span></div>
+      <div class="rad" style="border-radius:var(--r-sm)"><span>sm</span><span>6</span></div>
+      <div class="rad" style="border-radius:var(--r-md)"><span>md</span><span>10</span></div>
+      <div class="rad" style="border-radius:var(--r-lg)"><span>lg</span><span>14</span></div>
+      <div class="rad" style="border-radius:var(--r-xl)"><span>xl</span><span>18</span></div>
+      <div class="rad" style="border-radius:var(--r-pill)"><span>pill</span><span>full</span></div>
+    </div>
+
+    <div class="sub">Shadows · soft &amp; layered</div>
+    <div class="grid g4">
+      <div class="sh"><div class="sh-d" style="box-shadow:var(--shadow-xs)"></div><div class="sh-l">--shadow-xs</div></div>
+      <div class="sh"><div class="sh-d" style="box-shadow:var(--shadow-sm)"></div><div class="sh-l">--shadow-sm</div></div>
+      <div class="sh"><div class="sh-d" style="box-shadow:var(--shadow-md)"></div><div class="sh-l">--shadow-md</div></div>
+      <div class="sh"><div class="sh-d" style="box-shadow:var(--shadow-lg)"></div><div class="sh-l">--shadow-lg</div></div>
+    </div>
+  </section>
+
+  <section class="sec" id="components">
+    <div class="sec-head">
+      <span class="sec-num">/05</span>
+      <h2 class="sec-title">Components</h2>
+      <p class="sec-lede">A small core of primitives. Buttons, inputs, badges, bubbles, logs.</p>
+    </div>
+
+    <div class="sub">Buttons · 4 variants × 3 sizes</div>
+    <div class="demo">
+      <div class="demo-h"><span>Button</span><span style="font-family:var(--font-mono); font-size:11px; color:var(--ink-3);">.btn .btn--*</span></div>
+      <div class="demo-s">
+        <button class="btn btn--primary">New chat</button>
+        <button class="btn btn--secondary">Cancel</button>
+        <button class="btn btn--ghost">Filter</button>
+        <button class="btn btn--danger">Delete</button>
+      </div>
+      <div class="demo-s" style="border-top: 1px solid var(--line-soft);">
+        <button class="btn btn--primary btn--sm">Small</button>
+        <button class="btn btn--primary">Default</button>
+        <button class="btn btn--primary btn--lg">Large</button>
+        <button class="btn btn--secondary btn--icon">+</button>
+      </div>
+    </div>
+
+    <div class="sub" style="margin-top: 32px;">Form fields</div>
+    <div class="demo">
+      <div class="demo-h"><span>Input · Textarea · Select</span><span style="font-family:var(--font-mono); font-size:11px; color:var(--ink-3);">.input .textarea .select</span></div>
+      <div class="demo-s col" style="max-width: 480px; margin: 0 auto;">
+        <div class="field">
+          <label class="field__label">Agent name</label>
+          <input class="input" placeholder="Customer Support" />
+        </div>
+        <div class="field">
+          <label class="field__label">Model</label>
+          <select class="select"><option>claude-sonnet-4</option><option>claude-opus-4</option></select>
+        </div>
+        <div class="field">
+          <label class="field__label">System prompt</label>
+          <textarea class="textarea" placeholder="You are a helpful support agent…"></textarea>
+        </div>
+      </div>
+    </div>
+
+    <div class="sub" style="margin-top: 32px;">Badges &amp; status</div>
+    <div class="demo">
+      <div class="demo-h"><span>Badge · Dot</span><span style="font-family:var(--font-mono); font-size:11px; color:var(--ink-3);">.badge .dot</span></div>
+      <div class="demo-s">
+        <span class="badge badge--success">Active</span>
+        <span class="badge badge--warn">Configuring</span>
+        <span class="badge badge--danger">Error</span>
+        <span class="badge badge--info">Streaming</span>
+        <span class="badge badge--accent">v2.1</span>
+        <span class="badge">Production</span>
+        <span style="display:inline-flex; align-items:center; gap:8px; font-size:var(--fs-sm); color:var(--ink-2);"><span class="dot dot--active"></span>Online</span>
+        <span style="display:inline-flex; align-items:center; gap:8px; font-size:var(--fs-sm); color:var(--ink-2);"><span class="dot dot--idle"></span>Idle</span>
+        <span style="display:inline-flex; align-items:center; gap:8px; font-size:var(--fs-sm); color:var(--ink-2);"><span class="dot dot--warn"></span>Configuring</span>
+      </div>
+    </div>
+
+    <div class="sub" style="margin-top: 32px;">Conversation bubbles</div>
+    <div class="demo">
+      <div class="demo-h"><span>Bubble · user / agent</span><span style="font-family:var(--font-mono); font-size:11px; color:var(--ink-3);">.bb .bb--user .bb--agent</span></div>
+      <div class="demo-s">
+        <div class="bb-stage">
+          <div class="bb agent">Hi! I&rsquo;m your support agent. I can help with orders, refunds, or account issues. What&rsquo;s on your mind today?</div>
+          <div class="bb user">Hey, my order #4821 is showing as delivered but I never got it.</div>
+          <div class="bb agent">Let me check that for you. One moment…</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sub" style="margin-top: 32px;">Event log</div>
+    <div class="demo">
+      <div class="demo-h"><span>Log row · timestamps + level + message + meta</span><span style="font-family:var(--font-mono); font-size:11px; color:var(--ink-3);">.log .log--*</span></div>
+      <div class="demo-s col">
+        <div class="log info"><span class="t">14:32:08</span><span class="l">INFO</span><span class="m">stream.start</span><span class="x">model=sonnet-4</span></div>
+        <div class="log info"><span class="t">14:32:08</span><span class="l">TOOL</span><span class="m">lookup_order(id=&quot;4821&quot;)</span><span class="x">142ms</span></div>
+        <div class="log ok"><span class="t">14:32:09</span><span class="l">OK</span><span class="m">tool returned: { status: &quot;in_transit&quot; }</span><span class="x">+1.1s</span></div>
+        <div class="log warn"><span class="t">14:32:11</span><span class="l">WARN</span><span class="m">retry attempt 1 of 3</span><span class="x">timeout</span></div>
+      </div>
+    </div>
+
+    <div class="sub" style="margin-top: 32px;">Avatars</div>
+    <div class="demo">
+      <div class="demo-h"><span>Avatar · 3 sizes</span><span style="font-family:var(--font-mono); font-size:11px; color:var(--ink-3);">.av .av--lg .av--sm</span></div>
+      <div class="demo-s">
+        <span class="av sm">CS</span>
+        <span class="av">CS</span>
+        <span class="av lg">CS</span>
+        <span class="av" style="background: oklch(92% 0.04 280); color: oklch(40% 0.08 280);">RJ</span>
+        <span class="av" style="background: oklch(92% 0.04 50); color: oklch(40% 0.08 50);">DM</span>
+        <span class="av" style="background: oklch(92% 0.04 200); color: oklch(40% 0.08 200);">SL</span>
+      </div>
+    </div>
+  </section>
+
+  <div class="cta">
+    <div>
+      <h3>See the system in motion.</h3>
+      <p>The full ChatLab prototype — workspaces, agents, the chat surface, event logs, and tweaks for theme, accent, and density.</p>
+    </div>
+    <a class="btn" href="ChatLab.html">Open prototype →</a>
+  </div>
+
+  <footer class="foot">
+    <span>ChatLab Design System · v1.0</span>
+    <span>Maintained by Design</span>
+  </footer>
+</main>
+</body>
+</html>
