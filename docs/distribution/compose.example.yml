@@ -1,0 +1,58 @@
+# Example docker-compose for chatlab + Caddy reverse proxy with auto-HTTPS.
+#
+# Usage (single VM, public DNS already pointing at the host):
+#   1. Set CHATLAB_DOMAIN=chatlab.example.com (or whatever DNS you control).
+#   2. Set CHATLAB_REQUIRE_TOKEN to a strong shared secret, OR leave unset to
+#      let the entrypoint generate one and print it on first boot.
+#   3. docker compose -f compose.example.yml up -d
+#
+# Caddy fetches a Let's Encrypt cert on first request to your domain and
+# proxies to the chatlab container on the internal network.
+#
+# Caveats:
+#   - This file is an example, not a tested production deployment. The
+#     SECURITY.md bind-safety contract still applies — keep CHATLAB_HOST set
+#     to 0.0.0.0 here (the public surface is fronted by Caddy with TLS).
+#   - For internal-only deployments (corporate VPN, tailscale), drop the
+#     Caddy service and expose the chatlab port directly behind the VPN.
+
+services:
+  chatlab:
+    image: jvrmaia/chatlab:latest
+    restart: unless-stopped
+    environment:
+      CHATLAB_HOST: "0.0.0.0"
+      CHATLAB_PORT: "4480"
+      CHATLAB_REQUIRE_TOKEN: "${CHATLAB_REQUIRE_TOKEN:?CHATLAB_REQUIRE_TOKEN must be set — use \"openssl rand -hex 32\" to generate one}"
+      CHATLAB_FEEDBACK_RETENTION_DAYS: "30"
+      CHATLAB_LOG_LEVEL: "info"
+    volumes:
+      - chatlab-data:/data
+    expose:
+      - "4480"
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:4480/healthz').then(r=>{if(r.status!==200)process.exit(1)}).catch(()=>process.exit(1))"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      CHATLAB_DOMAIN: "${CHATLAB_DOMAIN:?CHATLAB_DOMAIN must be set — e.g. chatlab.example.com}"
+    volumes:
+      - ./Caddyfile.example:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+    depends_on:
+      chatlab:
+        condition: service_healthy
+
+volumes:
+  chatlab-data:
+  caddy-data:
+  caddy-config:

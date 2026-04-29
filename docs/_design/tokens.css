@@ -1,0 +1,209 @@
+/* ============================================================
+   ChatLab — Design Tokens
+   Easy-on-the-eyes long-session palette (warm off-white + sage accent)
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
+
+:root {
+  /* ---------- COLOR — Light (default) ---------- */
+  /* Warm neutrals — never pure white/black */
+  --bg-canvas:        oklch(98.6% 0.004 90);   /* page bg, warmest */
+  --bg-surface:       oklch(99.5% 0.003 90);   /* cards, panels */
+  --bg-sunken:        oklch(97.0% 0.005 90);   /* nested surfaces, code */
+  --bg-overlay:       oklch(99.5% 0.003 90 / 0.85);
+
+  --line-soft:        oklch(92.0% 0.006 90);   /* dividers, hairlines */
+  --line-strong:      oklch(86.0% 0.008 90);   /* card borders */
+
+  --ink-1:            oklch(22.0% 0.010 90);   /* primary text */
+  --ink-2:            oklch(40.0% 0.010 90);   /* secondary */
+  --ink-3:            oklch(55.0% 0.010 90);   /* tertiary, captions */
+  --ink-4:            oklch(70.0% 0.010 90);   /* placeholder, disabled */
+
+  /* Accent — sage/teal: refined from the original ChatLab green.
+     Hue 165 (between green and teal), low chroma for long-session comfort */
+  --accent-h: 165;
+  --accent-c: 0.08;
+
+  --accent-50:  oklch(96.0% 0.020 var(--accent-h));
+  --accent-100: oklch(92.0% 0.040 var(--accent-h));
+  --accent-200: oklch(85.0% 0.060 var(--accent-h));
+  --accent-300: oklch(75.0% 0.080 var(--accent-h));
+  --accent-500: oklch(58.0% var(--accent-c) var(--accent-h));
+  --accent-600: oklch(50.0% var(--accent-c) var(--accent-h));
+  --accent-700: oklch(42.0% var(--accent-c) var(--accent-h));
+  --accent-ink: oklch(99.5% 0.003 90);
+
+  /* Semantic */
+  --success:    oklch(58.0% 0.080 165);
+  --success-bg: oklch(95.0% 0.025 165);
+  --warn:       oklch(68.0% 0.090 75);
+  --warn-bg:    oklch(96.0% 0.030 75);
+  --danger:     oklch(58.0% 0.110 27);
+  --danger-bg:  oklch(96.0% 0.025 27);
+  --info:       oklch(60.0% 0.080 240);
+  --info-bg:    oklch(96.0% 0.020 240);
+
+  /* User bubble — warm, pairs with sage */
+  --bubble-user:    oklch(94.0% 0.030 var(--accent-h));
+  --bubble-user-ink: oklch(28.0% 0.030 var(--accent-h));
+  --bubble-agent:    oklch(99.5% 0.003 90);
+  --bubble-agent-ink: var(--ink-1);
+
+  /* ---------- TYPOGRAPHY ---------- */
+  --font-sans: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  --fs-xs:   12px;
+  --fs-sm:   13px;
+  --fs-base: 14px;
+  --fs-md:   15px;
+  --fs-lg:   17px;
+  --fs-xl:   20px;
+  --fs-2xl:  24px;
+  --fs-3xl:  32px;
+  --fs-4xl:  40px;
+
+  --lh-tight:  1.2;
+  --lh-snug:   1.35;
+  --lh-normal: 1.5;
+  --lh-relaxed: 1.65;
+
+  --fw-regular: 400;
+  --fw-medium:  500;
+  --fw-semibold: 600;
+  --fw-bold:    700;
+
+  /* tracking */
+  --tr-tight:  -0.01em;
+  --tr-normal: 0;
+  --tr-wide:   0.04em;
+
+  /* ---------- SPACING (8pt base, 4pt half-steps) ---------- */
+  --sp-0:  0;
+  --sp-1:  4px;
+  --sp-2:  8px;
+  --sp-3:  12px;
+  --sp-4:  16px;
+  --sp-5:  20px;
+  --sp-6:  24px;
+  --sp-7:  32px;
+  --sp-8:  40px;
+  --sp-9:  56px;
+  --sp-10: 72px;
+
+  /* ---------- RADII ---------- */
+  --r-xs: 4px;
+  --r-sm: 6px;
+  --r-md: 10px;
+  --r-lg: 14px;
+  --r-xl: 18px;
+  --r-pill: 999px;
+
+  /* ---------- SHADOWS — soft, layered ---------- */
+  --shadow-xs: 0 1px 2px oklch(20% 0.01 90 / 0.04);
+  --shadow-sm: 0 1px 2px oklch(20% 0.01 90 / 0.04), 0 2px 6px oklch(20% 0.01 90 / 0.04);
+  --shadow-md: 0 2px 4px oklch(20% 0.01 90 / 0.04), 0 8px 24px oklch(20% 0.01 90 / 0.06);
+  --shadow-lg: 0 4px 8px oklch(20% 0.01 90 / 0.05), 0 16px 48px oklch(20% 0.01 90 / 0.08);
+  --shadow-focus: 0 0 0 3px oklch(var(--accent-c) var(--accent-h) / 0.18);
+
+  /* ---------- MOTION ---------- */
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --dur-fast: 120ms;
+  --dur-base: 180ms;
+  --dur-slow: 280ms;
+
+  /* ---------- LAYOUT ---------- */
+  --col-rail:   72px;
+  --col-list:   300px;
+  --col-logs:   340px;
+  --topbar-h:   56px;
+  --inputbar-h: 76px;
+}
+
+/* ---------- DARK ---------- */
+:root[data-theme="dark"] {
+  --bg-canvas:    oklch(18.0% 0.006 240);
+  --bg-surface:   oklch(22.0% 0.006 240);
+  --bg-sunken:    oklch(15.5% 0.006 240);
+  --bg-overlay:   oklch(22.0% 0.006 240 / 0.85);
+
+  --line-soft:    oklch(28.0% 0.008 240);
+  --line-strong:  oklch(34.0% 0.010 240);
+
+  --ink-1:        oklch(94.0% 0.005 240);
+  --ink-2:        oklch(78.0% 0.006 240);
+  --ink-3:        oklch(62.0% 0.006 240);
+  --ink-4:        oklch(48.0% 0.006 240);
+
+  --accent-50:  oklch(28.0% 0.025 var(--accent-h));
+  --accent-100: oklch(33.0% 0.040 var(--accent-h));
+  --accent-200: oklch(40.0% 0.060 var(--accent-h));
+  --accent-300: oklch(50.0% 0.080 var(--accent-h));
+  --accent-500: oklch(70.0% var(--accent-c) var(--accent-h));
+  --accent-600: oklch(76.0% var(--accent-c) var(--accent-h));
+  --accent-700: oklch(82.0% var(--accent-c) var(--accent-h));
+  --accent-ink: oklch(15.0% 0.005 240);
+
+  --success-bg: oklch(28.0% 0.040 165);
+  --warn-bg:    oklch(28.0% 0.040 75);
+  --danger-bg:  oklch(28.0% 0.040 27);
+  --info-bg:    oklch(28.0% 0.040 240);
+
+  --bubble-user:     oklch(34.0% 0.050 var(--accent-h));
+  --bubble-user-ink: oklch(94.0% 0.020 var(--accent-h));
+  --bubble-agent:    oklch(24.0% 0.006 240);
+  --bubble-agent-ink: var(--ink-1);
+
+  --shadow-xs: 0 1px 2px oklch(0% 0 0 / 0.20);
+  --shadow-sm: 0 1px 2px oklch(0% 0 0 / 0.20), 0 2px 6px oklch(0% 0 0 / 0.16);
+  --shadow-md: 0 2px 4px oklch(0% 0 0 / 0.24), 0 8px 24px oklch(0% 0 0 / 0.28);
+  --shadow-lg: 0 4px 8px oklch(0% 0 0 / 0.32), 0 16px 48px oklch(0% 0 0 / 0.36);
+}
+
+/* ---------- DENSITY VARIANTS ---------- */
+:root[data-density="compact"] {
+  --sp-3: 8px; --sp-4: 12px; --sp-5: 14px; --sp-6: 18px; --sp-7: 24px;
+  --topbar-h: 48px;
+  --inputbar-h: 64px;
+}
+:root[data-density="cozy"] {
+  /* default — uses base values */
+}
+:root[data-density="comfy"] {
+  --sp-3: 14px; --sp-4: 20px; --sp-5: 24px; --sp-6: 28px; --sp-7: 36px;
+  --topbar-h: 64px;
+  --inputbar-h: 88px;
+}
+
+/* ---------- BASE ---------- */
+*,*::before,*::after { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background: var(--bg-canvas);
+  color: var(--ink-1);
+  font-family: var(--font-sans);
+  font-size: var(--fs-base);
+  line-height: var(--lh-normal);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-feature-settings: 'cv11', 'ss01';
+}
+
+button { font: inherit; color: inherit; }
+input, textarea, select { font: inherit; color: inherit; }
+
+::selection { background: var(--accent-200); color: var(--ink-1); }
+
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: var(--line-strong);
+  border-radius: 999px;
+  border: 2px solid var(--bg-canvas);
+}
+::-webkit-scrollbar-thumb:hover { background: var(--ink-4); }

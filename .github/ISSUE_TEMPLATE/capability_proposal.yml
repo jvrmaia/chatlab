@@ -1,0 +1,78 @@
+name: Capability proposal
+description: Propose a new chatlab capability.
+title: "[Capability] "
+labels: ["capability", "needs-spec"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        A "capability" is a discrete chatlab feature, observable from the outside. Each capability gets its own spec under `docs/specs/capabilities/`.
+
+        This template is for the **proposal stage** — we discuss the idea here before anyone writes the spec. Once it's a fit, the proposer (or a maintainer) opens a PR with a draft spec following [`docs/specs/capabilities/_template.md`](../../docs/specs/capabilities/_template.md).
+
+  - type: input
+    id: capability-name
+    attributes:
+      label: Capability name (kebab-case)
+      placeholder: message-reactions
+    validations:
+      required: true
+
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: One paragraph. What does this capability do, observed from the outside?
+    validations:
+      required: true
+
+  - type: textarea
+    id: motivation
+    attributes:
+      label: Motivation
+      description: Why does this matter for someone building a chat agent? What can they do with it that they currently can't?
+    validations:
+      required: true
+
+  - type: textarea
+    id: scope
+    attributes:
+      label: What's in scope?
+      description: A bullet list of behaviors this capability should cover.
+    validations:
+      required: true
+
+  - type: textarea
+    id: out-of-scope
+    attributes:
+      label: What's out of scope?
+      description: A bullet list of things a reader might reasonably expect this to cover but which it deliberately does not.
+
+  - type: textarea
+    id: dependencies
+    attributes:
+      label: Dependencies
+      description: Other capability specs that must exist first.
+      placeholder: |
+        - 0001-workspaces
+        - 0003-chats-and-messages
+
+  - type: dropdown
+    id: target-milestone
+    attributes:
+      label: Target milestone (best guess)
+      description: It's fine to pick "not sure" — maintainers will route it.
+      options:
+        - "v1.0"
+        - "v1.1"
+        - "v1.2"
+        - "post-1.x"
+        - "not sure"
+    validations:
+      required: true
+
+  - type: textarea
+    id: open-questions
+    attributes:
+      label: Known open questions
+      description: Things you already know aren't decided.

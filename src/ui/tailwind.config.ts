@@ -1,0 +1,134 @@
+import type { Config } from "tailwindcss";
+import { fileURLToPath } from "node:url";
+import { dirname, join } from "node:path";
+
+const here = dirname(fileURLToPath(import.meta.url));
+const v = (name: string): string => `var(--${name})`;
+
+export default {
+  content: [
+    join(here, "index.html"),
+    join(here, "App.tsx"),
+    join(here, "main.tsx"),
+    join(here, "api.ts"),
+    join(here, "components/**/*.{ts,tsx}"),
+  ],
+  darkMode: ["selector", ':root[data-theme="dark"]'],
+  theme: {
+    extend: {
+      colors: {
+        canvas: v("bg-canvas"),
+        surface: v("bg-surface"),
+        sunken: v("bg-sunken"),
+        overlay: v("bg-overlay"),
+        line: { soft: v("line-soft"), strong: v("line-strong") },
+        ink: {
+          1: v("ink-1"),
+          2: v("ink-2"),
+          3: v("ink-3"),
+          4: v("ink-4"),
+        },
+        accent: {
+          50: v("accent-50"),
+          100: v("accent-100"),
+          200: v("accent-200"),
+          300: v("accent-300"),
+          500: v("accent-500"),
+          600: v("accent-600"),
+          700: v("accent-700"),
+          ink: v("accent-ink"),
+        },
+        success: v("success"),
+        "success-bg": v("success-bg"),
+        warn: v("warn"),
+        "warn-bg": v("warn-bg"),
+        danger: v("danger"),
+        "danger-bg": v("danger-bg"),
+        info: v("info"),
+        "info-bg": v("info-bg"),
+        bubble: {
+          user: v("bubble-user"),
+          "user-ink": v("bubble-user-ink"),
+          agent: v("bubble-agent"),
+          "agent-ink": v("bubble-agent-ink"),
+        },
+      },
+      fontFamily: {
+        sans: [
+          "IBM Plex Sans",
+          "-apple-system",
+          "BlinkMacSystemFont",
+          "system-ui",
+          "sans-serif",
+        ],
+        mono: [
+          "IBM Plex Mono",
+          "ui-monospace",
+          "SFMono-Regular",
+          "Menlo",
+          "monospace",
+        ],
+      },
+      fontSize: {
+        xs: v("fs-xs"),
+        sm: v("fs-sm"),
+        base: v("fs-base"),
+        md: v("fs-md"),
+        lg: v("fs-lg"),
+        xl: v("fs-xl"),
+        "2xl": v("fs-2xl"),
+        "3xl": v("fs-3xl"),
+        "4xl": v("fs-4xl"),
+      },
+      lineHeight: {
+        tight: "1.2",
+        snug: "1.35",
+        normal: "1.5",
+        relaxed: "1.65",
+      },
+      letterSpacing: {
+        tight: "-0.01em",
+        normal: "0",
+        wide: "0.04em",
+      },
+      spacing: {
+        0: v("sp-0"),
+        1: v("sp-1"),
+        2: v("sp-2"),
+        3: v("sp-3"),
+        4: v("sp-4"),
+        5: v("sp-5"),
+        6: v("sp-6"),
+        7: v("sp-7"),
+        8: v("sp-8"),
+        9: v("sp-9"),
+        10: v("sp-10"),
+      },
+      borderRadius: {
+        xs: v("r-xs"),
+        sm: v("r-sm"),
+        md: v("r-md"),
+        lg: v("r-lg"),
+        xl: v("r-xl"),
+        full: v("r-pill"),
+      },
+      boxShadow: {
+        xs: v("shadow-xs"),
+        sm: v("shadow-sm"),
+        md: v("shadow-md"),
+        lg: v("shadow-lg"),
+        focus: v("shadow-focus"),
+      },
+      transitionDuration: {
+        fast: "120ms",
+        DEFAULT: "180ms",
+        slow: "280ms",
+      },
+      transitionTimingFunction: {
+        out: v("ease-out"),
+        "in-out": v("ease-in-out"),
+      },
+    },
+  },
+  plugins: [],
+} satisfies Config;

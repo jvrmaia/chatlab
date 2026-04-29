@@ -1,0 +1,984 @@
+openapi: 3.1.0
+info:
+  title: chatlab HTTP API
+  version: 1.0.0-rc.1
+  description: |
+    chatlab is a local development platform for chat agents — workspaces, multi-provider LLMs,
+    feedback corpus.
+
+    All endpoints under `/v1/*` require `Authorization: Bearer <token>`. Token is permissive by
+    default; set `CHATLAB_REQUIRE_TOKEN=<value>` for strict mode. `/healthz`, `/readyz`,
+    `/favicon.ico` are unauthenticated.
+
+    Errors are returned as `{ error: { message, type, code, error_subcode?, error_data?, request_id } }`.
+  license:
+    name: MIT
+    url: https://github.com/jvrmaia/chatlab/blob/main/LICENSE
+  contact:
+    url: https://github.com/jvrmaia/chatlab
+
+servers:
+  - url: http://127.0.0.1:4480
+    description: Default local chatlab
+
+tags:
+  - name: Health
+    description: Liveness and readiness probes (no auth).
+  - name: Workspaces
+    description: Workspace registry — create, list, activate, delete.
+  - name: Agents
+    description: Agent profiles scoped to the active workspace.
+  - name: Chats
+    description: Chats — `agent_id` + free-text `theme`.
+  - name: Messages
+    description: Messages within a chat. User appends; assistant replies asynchronously.
+  - name: Feedback
+    description: Per-message ratings + JSONL corpus export.
+  - name: Annotations
+    description: Per-chat free-text Markdown notes.
+  - name: Media
+    description: Multipart upload + binary download.
+
+components:
+  securitySchemes:
+    bearer:
+      type: http
+      scheme: bearer
+
+  parameters:
+    WorkspaceId:
+      in: path
+      name: id
+      required: true
+      schema: { type: string, format: uuid }
+      description: Workspace UUID.
+    AgentId:
+      in: path
+      name: id
+      required: true
+      schema: { type: string, format: uuid }
+      description: Agent UUID.
+    ChatId:
+      in: path
+      name: chatId
+      required: true
+      schema: { type: string, format: uuid }
+      description: Chat UUID.
+    MessageId:
+      in: path
+      name: messageId
+      required: true
+      schema: { type: string, format: uuid }
+      description: Message UUID.
+    MediaId:
+      in: path
+      name: mediaId
+      required: true
+      schema: { type: string, format: uuid }
+      description: Media UUID.
+
+  responses:
+    BadRequest:
+      description: Validation error
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/Error" }
+    Unauthorized:
+      description: Missing or invalid bearer token
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/Error" }
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/Error" }
+    Conflict:
+      description: Conflict with current resource state
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/Error" }
+    BadGateway:
+      description: Upstream provider error
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/Error" }
+    PayloadTooLarge:
+      description: Upload exceeds the size cap
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/Error" }
+    UnsupportedMediaType:
+      description: Mime type doesn't match declared media type
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/Error" }
+    Removed:
+      description: Resource removed
+      content:
+        application/json:
+          schema:
+            type: object
+            required: [removed]
+            properties:
+              removed: { type: boolean, enum: [true] }
+
+  schemas:
+    Workspace:
+      type: object
+      required: [id, nickname, storage_type, created_at, updated_at]
+      properties:
+        id: { type: string, format: uuid }
+        nickname: { type: string }
+        storage_type:
+          type: string
+          enum: [memory, sqlite, duckdb]
+        storage_path:
+          type: string
+          description: "Absolute path to the workspace's data file. Absent for `memory`; present for `sqlite` / `duckdb`."
+        created_at: { type: string, format: date-time }
+        updated_at: { type: string, format: date-time }
+
+    WorkspaceCreate:
+      type: object
+      required: [nickname, storage_type]
+      properties:
+        nickname: { type: string }
+        storage_type:
+          type: string
+          enum: [memory, sqlite, duckdb]
+
+    WorkspaceDeleted:
+      type: object
+      required: [removed_id, active]
+      properties:
+        removed_id: { type: string, format: uuid }
+        active: { $ref: "#/components/schemas/Workspace" }
+
+    Agent:
+      type: object
+      required: [id, workspace_id, name, provider, model, context_window, created_at, updated_at]
+      properties:
+        id: { type: string, format: uuid }
+        workspace_id: { type: string, format: uuid }
+        name: { type: string }
+        provider:
+          type: string
+          enum: [openai, anthropic, deepseek, gemini, maritaca, ollama, custom]
+        model: { type: string }
+        api_key:
+          type: string
+          description: "Masked in HTTP responses (`***last4`)."
+        base_url: { type: string }
+        system_prompt: { type: string }
+        context_window: { type: integer, minimum: 1, maximum: 200, default: 20 }
+        created_at: { type: string, format: date-time }
+        updated_at: { type: string, format: date-time }
+
+    AgentCreate:
+      type: object
+      required: [name, provider, model]
+      properties:
+        name: { type: string }
+        provider:
+          type: string
+          enum: [openai, anthropic, deepseek, gemini, maritaca, ollama, custom]
+        model: { type: string }
+        api_key: { type: string }
+        base_url: { type: string }
+        system_prompt: { type: string }
+        context_window: { type: integer, minimum: 1, maximum: 200, default: 20 }
+
+    AgentPatch:
+      type: object
+      properties:
+        name: { type: string }
+        provider:
+          type: string
+          enum: [openai, anthropic, deepseek, gemini, maritaca, ollama, custom]
+        model: { type: string }
+        api_key:
+          type: string
+          description: "Omit (or send empty string) to preserve the stored key."
+        base_url: { type: string }
+        system_prompt: { type: string }
+        context_window: { type: integer, minimum: 1, maximum: 200 }
+
+    Chat:
+      type: object
+      required: [id, workspace_id, agent_id, theme, created_at, updated_at]
+      properties:
+        id: { type: string, format: uuid }
+        workspace_id: { type: string, format: uuid }
+        agent_id: { type: string, format: uuid }
+        theme: { type: string, maxLength: 280 }
+        created_at: { type: string, format: date-time }
+        updated_at: { type: string, format: date-time }
+
+    ChatCreate:
+      type: object
+      required: [agent_id, theme]
+      properties:
+        agent_id: { type: string, format: uuid }
+        theme: { type: string, maxLength: 280 }
+
+    Attachment:
+      type: object
+      required: [media_id, mime_type]
+      properties:
+        media_id: { type: string, format: uuid }
+        mime_type: { type: string }
+        filename: { type: string }
+      description: "Attachment as it appears on a persisted message — `mime_type` is required because the server fills it in from the stored MediaRecord."
+
+    AttachmentInput:
+      type: object
+      required: [media_id]
+      properties:
+        media_id: { type: string, format: uuid }
+      description: "Attachment as supplied by the client when appending a message — only `media_id` is required; the server resolves `mime_type` and `filename` from the stored MediaRecord."
+
+    Message:
+      type: object
+      required: [id, chat_id, role, content, status, created_at]
+      properties:
+        id: { type: string, format: uuid }
+        chat_id: { type: string, format: uuid }
+        role:
+          type: string
+          enum: [user, assistant]
+        content: { type: string }
+        attachments:
+          type: array
+          items: { $ref: "#/components/schemas/Attachment" }
+        status:
+          type: string
+          enum: [ok, failed]
+        error:
+          type: string
+          description: "Populated when `status: failed` — the upstream `LlmError` message."
+        created_at: { type: string, format: date-time }
+
+    MessageCreate:
+      type: object
+      required: [content]
+      properties:
+        content: { type: string, maxLength: 16384 }
+        attachments:
+          type: array
+          items: { $ref: "#/components/schemas/AttachmentInput" }
+
+    Feedback:
+      type: object
+      required: [message_id, rating, rated_at]
+      properties:
+        message_id: { type: string, format: uuid }
+        rating:
+          type: string
+          enum: [up, down]
+        comment: { type: string, maxLength: 280 }
+        rated_at: { type: string, format: date-time }
+        agent_version: { type: string }
+        failure_category: { type: string }
+        flagged_for_review: { type: boolean }
+
+    FeedbackSet:
+      type: object
+      required: [rating]
+      properties:
+        rating:
+          type: string
+          enum: [up, down]
+        comment: { type: string, maxLength: 280 }
+        agent_version: { type: string }
+        failure_category: { type: string }
+        flagged_for_review: { type: boolean }
+
+    Annotation:
+      type: object
+      required: [chat_id, body, updated_at]
+      properties:
+        chat_id: { type: string, format: uuid }
+        body: { type: string, maxLength: 16384 }
+        updated_at:
+          type: [string, "null"]
+          description: "ISO timestamp of the last write, or `null` if the annotation has never been set."
+
+    AnnotationSet:
+      type: object
+      required: [body]
+      properties:
+        body: { type: string, maxLength: 16384 }
+
+    MediaRecord:
+      type: object
+      required: [id, type, mime_type, size, sha256, created_at]
+      properties:
+        id: { type: string, format: uuid }
+        type:
+          type: string
+          enum: [image, audio, video, document, sticker]
+        mime_type: { type: string }
+        size: { type: integer }
+        sha256: { type: string }
+        filename: { type: string }
+        created_at: { type: string, format: date-time }
+
+    FeedbackExportItem:
+      type: object
+      required: [schema_version, workspace_id, chat_id, theme, agent_message, prompt_message, rating, rated_at, annotation]
+      properties:
+        schema_version:
+          type: integer
+          enum: [1]
+          description: "Pinned at 1 for v1.0. v1.1 will bump to 2 alongside token-cost fields."
+        workspace_id: { type: string, format: uuid }
+        chat_id: { type: string, format: uuid }
+        theme: { type: string }
+        agent_message:
+          type: object
+          required: [id, created_at, content]
+          properties:
+            id: { type: string, format: uuid }
+            created_at: { type: string, format: date-time }
+            content: { type: string }
+        prompt_message:
+          oneOf:
+            - type: "null"
+            - type: object
+              required: [id, role, created_at, content]
+              properties:
+                id: { type: string, format: uuid }
+                role: { type: string, enum: [user] }
+                created_at: { type: string, format: date-time }
+                content: { type: string }
+        rating:
+          type: string
+          enum: [up, down]
+        comment: { type: string }
+        rated_at: { type: string, format: date-time }
+        annotation:
+          type: [string, "null"]
+        agent_version: { type: string }
+        failure_category: { type: string }
+        flagged_for_review: { type: boolean }
+
+    HealthStatus:
+      type: object
+      required: [status]
+      properties:
+        status: { type: string, enum: [ok] }
+        uptime_seconds: { type: integer }
+
+    Error:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: object
+          required: [message, type, code, request_id]
+          properties:
+            message: { type: string }
+            type: { type: string, description: "Always `ApiError`." }
+            code: { type: integer }
+            error_subcode:
+              oneOf:
+                - { type: string }
+                - { type: integer }
+            error_data:
+              type: object
+              additionalProperties: true
+            request_id: { type: string }
+
+security:
+  - bearer: []
+
+paths:
+  /healthz:
+    get:
+      tags: [Health]
+      operationId: livenessProbe
+      security: []
+      summary: Liveness probe
+      responses:
+        "200":
+          description: alive
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/HealthStatus" }
+
+  /readyz:
+    get:
+      tags: [Health]
+      operationId: readinessProbe
+      security: []
+      summary: Readiness probe
+      responses:
+        "200":
+          description: ready
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/HealthStatus" }
+        "503":
+          description: not ready
+
+  /v1/workspaces:
+    get:
+      tags: [Workspaces]
+      operationId: listWorkspaces
+      summary: List workspaces + active id
+      responses:
+        "200":
+          description: ok
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data, active_id]
+                properties:
+                  data:
+                    type: array
+                    items: { $ref: "#/components/schemas/Workspace" }
+                  active_id: { type: string, format: uuid }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+    post:
+      tags: [Workspaces]
+      operationId: createWorkspace
+      summary: Create a workspace
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/WorkspaceCreate" }
+      responses:
+        "201":
+          description: created
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Workspace" }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+
+  /v1/workspaces/active:
+    get:
+      tags: [Workspaces]
+      operationId: getActiveWorkspace
+      summary: Read the currently-active workspace
+      responses:
+        "200":
+          description: ok
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Workspace" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+
+  /v1/workspaces/{id}:
+    parameters:
+      - $ref: "#/components/parameters/WorkspaceId"
+    get:
+      tags: [Workspaces]
+      operationId: getWorkspace
+      summary: Read a workspace
+      responses:
+        "200":
+          description: ok
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Workspace" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "404": { $ref: "#/components/responses/NotFound" }
+    patch:
+      tags: [Workspaces]
+      operationId: patchWorkspace
+      summary: Rename a workspace (`storage_type` and `storage_path` are immutable)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                nickname: { type: string }
+      responses:
+        "200":
+          description: ok
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Workspace" }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "404": { $ref: "#/components/responses/NotFound" }
+    delete:
+      tags: [Workspaces]
+      operationId: deleteWorkspace
+      summary: Delete a workspace + its data files
+      parameters:
+        - in: query
+          name: confirm
+          required: true
+          schema: { type: string, enum: ["true"] }
+          description: Required typed confirmation.
+      responses:
+        "200":
+          description: deleted; the new active workspace is returned
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/WorkspaceDeleted" }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "404": { $ref: "#/components/responses/NotFound" }
+
+  /v1/workspaces/{id}/activate:
+    parameters:
+      - $ref: "#/components/parameters/WorkspaceId"
+    post:
+      tags: [Workspaces]
+      operationId: activateWorkspace
+      summary: Switch the running adapter to this workspace (idempotent)
+      description: |
+        If the AgentRunner has in-flight calls, the activation waits up to 2 s for them to drain.
+        If they don't, the activation fails with `409 ZZ_WORKSPACE_BUSY` and the client should retry.
+      responses:
+        "200":
+          description: activated
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Workspace" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "404": { $ref: "#/components/responses/NotFound" }
+        "409": { $ref: "#/components/responses/Conflict" }
+
+  /v1/agents:
+    get:
+      tags: [Agents]
+      operationId: listAgents
+      summary: List agents in the active workspace (api_keys masked)
+      responses:
+        "200":
+          description: ok
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    type: array
+                    items: { $ref: "#/components/schemas/Agent" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+    post:
+      tags: [Agents]
+      operationId: createAgent
+      summary: Create agent in the active workspace
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/AgentCreate" }
+      responses:
+        "201":
+          description: created
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Agent" }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+
+  /v1/agents/{id}:
+    parameters:
+      - $ref: "#/components/parameters/AgentId"
+    get:
+      tags: [Agents]
+      operationId: getAgent
+      summary: Read agent (api_key masked)
+      responses:
+        "200":
+          description: ok
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Agent" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "404": { $ref: "#/components/responses/NotFound" }
+    patch:
+      tags: [Agents]
+      operationId: patchAgent
+      summary: Update agent (omit `api_key` to preserve it)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/AgentPatch" }
+      responses:
+        "200":
+          description: ok
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Agent" }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "404": { $ref: "#/components/responses/NotFound" }
+    delete:
+      tags: [Agents]
+      operationId: deleteAgent
+      summary: Delete agent (409 if any chat references it)
+      responses:
+        "200": { $ref: "#/components/responses/Removed" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "404": { $ref: "#/components/responses/NotFound" }
+        "409": { $ref: "#/components/responses/Conflict" }
+
+  /v1/agents/{id}/probe:
+    parameters:
+      - $ref: "#/components/parameters/AgentId"
+    post:
+      tags: [Agents]
+      operationId: probeAgent
+      summary: One-shot prompt against the agent (does not persist)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                prompt:
+                  type: string
+                  description: "User prompt. Defaults to `Hello` when missing or empty."
+                  default: Hello
+      responses:
+        "200":
+          description: ok
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [content]
+                properties:
+                  content: { type: string }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "404": { $ref: "#/components/responses/NotFound" }
+        "502": { $ref: "#/components/responses/BadGateway" }
+
+  /v1/chats:
+    get:
+      tags: [Chats]
+      operationId: listChats
+      summary: List chats in the active workspace (newest-updated first)
+      responses:
+        "200":
+          description: ok
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    type: array
+                    items: { $ref: "#/components/schemas/Chat" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+    post:
+      tags: [Chats]
+      operationId: createChat
+      summary: Create chat (`agent_id` + `theme`)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/ChatCreate" }
+      responses:
+        "201":
+          description: created
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Chat" }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "404":
+          description: agent not found in active workspace
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+
+  /v1/chats/{chatId}:
+    parameters:
+      - $ref: "#/components/parameters/ChatId"
+    get:
+      tags: [Chats]
+      operationId: getChat
+      summary: Read chat
+      responses:
+        "200":
+          description: ok
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Chat" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "404": { $ref: "#/components/responses/NotFound" }
+    delete:
+      tags: [Chats]
+      operationId: deleteChat
+      summary: Delete chat + cascade messages, feedback, annotation
+      responses:
+        "200": { $ref: "#/components/responses/Removed" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "404": { $ref: "#/components/responses/NotFound" }
+
+  /v1/chats/{chatId}/messages:
+    parameters:
+      - $ref: "#/components/parameters/ChatId"
+    get:
+      tags: [Messages]
+      operationId: listChatMessages
+      summary: List messages in a chat (oldest-first)
+      description: |
+        Pagination (`limit` / `before` query params) is deferred to v1.1.
+      responses:
+        "200":
+          description: ok
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    type: array
+                    items: { $ref: "#/components/schemas/Message" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "404": { $ref: "#/components/responses/NotFound" }
+    post:
+      tags: [Messages]
+      operationId: appendChatMessage
+      summary: Append user message; assistant reply produced asynchronously
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/MessageCreate" }
+      responses:
+        "201":
+          description: persisted user message
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Message" }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "404":
+          description: chat or attached media not found
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+
+  /v1/messages/{messageId}/feedback:
+    parameters:
+      - $ref: "#/components/parameters/MessageId"
+    get:
+      tags: [Feedback]
+      operationId: getMessageFeedback
+      summary: Read feedback for a message
+      responses:
+        "200":
+          description: ok
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Feedback" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "404": { $ref: "#/components/responses/NotFound" }
+    post:
+      tags: [Feedback]
+      operationId: setMessageFeedback
+      summary: Set or replace a rating (assistant messages only)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/FeedbackSet" }
+      responses:
+        "200":
+          description: ok
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Feedback" }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "404": { $ref: "#/components/responses/NotFound" }
+    delete:
+      tags: [Feedback]
+      operationId: clearMessageFeedback
+      summary: Clear rating
+      responses:
+        "200": { $ref: "#/components/responses/Removed" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+
+  /v1/chats/{chatId}/feedback:
+    parameters:
+      - $ref: "#/components/parameters/ChatId"
+    get:
+      tags: [Feedback]
+      operationId: listChatFeedback
+      summary: Bulk read all feedback for a chat
+      responses:
+        "200":
+          description: ok
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    type: array
+                    items: { $ref: "#/components/schemas/Feedback" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+
+  /v1/chats/{chatId}/annotation:
+    parameters:
+      - $ref: "#/components/parameters/ChatId"
+    get:
+      tags: [Annotations]
+      operationId: getChatAnnotation
+      summary: "Read annotation (`body: \"\"`, `updated_at: null` if never written)"
+      responses:
+        "200":
+          description: ok
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Annotation" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+    put:
+      tags: [Annotations]
+      operationId: setChatAnnotation
+      summary: Set annotation (last-write-wins, ≤ 16 KB)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/AnnotationSet" }
+      responses:
+        "200":
+          description: ok
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Annotation" }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+
+  /v1/feedback/export:
+    get:
+      tags: [Feedback]
+      operationId: exportFeedback
+      summary: "Stream JSONL feedback corpus (`schema_version: 1`)"
+      parameters:
+        - in: query
+          name: since
+          schema: { type: string, format: date-time }
+        - in: query
+          name: until
+          schema: { type: string, format: date-time }
+        - in: query
+          name: rating
+          schema:
+            type: string
+            enum: [up, down]
+        - in: query
+          name: chat_id
+          schema: { type: string, format: uuid }
+      responses:
+        "200":
+          description: ok
+          content:
+            application/x-ndjson:
+              schema:
+                type: string
+                description: |
+                  One JSON line per rated assistant message. Each line is a
+                  `FeedbackExportItem` (`schema_version: 1`).
+              examples:
+                lineSchema:
+                  summary: Per-line shape
+                  value:
+                    $ref: "#/components/schemas/FeedbackExportItem"
+        "401": { $ref: "#/components/responses/Unauthorized" }
+
+  /v1/media:
+    post:
+      tags: [Media]
+      operationId: uploadMedia
+      summary: Upload binary
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [type, file]
+              properties:
+                type:
+                  type: string
+                  enum: [image, audio, video, document, sticker]
+                file:
+                  type: string
+                  format: binary
+      responses:
+        "201":
+          description: uploaded
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [id]
+                properties:
+                  id: { type: string, format: uuid }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "413": { $ref: "#/components/responses/PayloadTooLarge" }
+        "415": { $ref: "#/components/responses/UnsupportedMediaType" }
+
+  /v1/media/{mediaId}:
+    parameters:
+      - $ref: "#/components/parameters/MediaId"
+    get:
+      tags: [Media]
+      operationId: getMedia
+      summary: Read metadata + download URL
+      responses:
+        "200":
+          description: ok
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/MediaRecord"
+                  - type: object
+                    required: [download_url]
+                    properties:
+                      download_url: { type: string, format: uri }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "404": { $ref: "#/components/responses/NotFound" }
+    delete:
+      tags: [Media]
+      operationId: deleteMedia
+      summary: Delete media
+      responses:
+        "200": { $ref: "#/components/responses/Removed" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "404": { $ref: "#/components/responses/NotFound" }
+
+  /v1/media/{mediaId}/download:
+    parameters:
+      - $ref: "#/components/parameters/MediaId"
+    get:
+      tags: [Media]
+      operationId: downloadMedia
+      summary: Stream binary content
+      responses:
+        "200":
+          description: ok
+          content:
+            "*/*":
+              schema:
+                type: string
+                format: binary
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "404": { $ref: "#/components/responses/NotFound" }

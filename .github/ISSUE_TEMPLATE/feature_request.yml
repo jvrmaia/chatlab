@@ -1,0 +1,39 @@
+name: Feature request
+description: Suggest a non-capability improvement (DX, tooling, distribution, docs).
+title: "[Feature] "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this template for general improvements (DX, tooling, distribution, docs).
+
+        For "chatlab should also support feature X", use the **Capability proposal** template instead.
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem does this solve?
+      description: Describe the friction or limitation you're hitting. Concrete scenarios beat abstract requests.
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+      description: What would you like the project to do? If you have multiple ideas, list them and indicate which you prefer.
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: Any workarounds you've tried, or other approaches you weighed?
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Additional context
+      description: Anything else? Screenshots, links to similar features in other tools, etc.

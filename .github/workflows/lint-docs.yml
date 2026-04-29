@@ -1,0 +1,100 @@
+name: lint-docs
+
+on:
+  pull_request:
+    paths:
+      - "docs/**"
+      - "docs-site/**"
+      - "*.md"
+      - ".github/workflows/lint-docs.yml"
+      - ".github/workflows/docs-deploy.yml"
+  push:
+    branches: [main]
+    paths:
+      - "docs/**"
+      - "docs-site/**"
+      - "*.md"
+      - ".github/workflows/lint-docs.yml"
+      - ".github/workflows/docs-deploy.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: lint-docs-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  openapi:
+    name: OpenAPI lint (Redocly)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: ".nvmrc"
+      - name: Lint OpenAPI YAML
+        run: |
+          npx -y @redocly/cli@2.30.3 lint docs/specs/api/openapi.yaml \
+            --skip-rule no-server-example.com
+
+  markdown-links:
+    name: Markdown link check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check links
+        uses: lycheeverse/lychee-action@v2
+        with:
+          args: >
+            --no-progress
+            --exclude-loopback
+            --exclude '^https?://(localhost|127\.0\.0\.1|host\.docker\.internal|jvrmaia\.github\.io)'
+            --accept 200,403,429
+            './**/*.md'
+          fail: true
+
+  mermaid:
+    name: Mermaid render check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: ".nvmrc"
+      - name: Render every Mermaid block
+        run: |
+          set -euo pipefail
+          shopt -s globstar nullglob
+          fail=0
+          for f in docs/**/*.md README.md CONTRIBUTING.md CLAUDE.md; do
+            [ -e "$f" ] || continue
+            if grep -q '```mermaid' "$f"; then
+              echo "→ rendering $f"
+              if ! npx -y @mermaid-js/mermaid-cli@latest \
+                   -i "$f" -o "/tmp/$(basename "$f").rendered.md" \
+                   2>&1 | tee /tmp/mmdc.log; then
+                fail=1
+              fi
+              if grep -qi 'syntax error\|parse error\|✗' /tmp/mmdc.log; then
+                fail=1
+              fi
+            fi
+          done
+          exit "$fail"
+
+  docusaurus-build:
+    name: Docusaurus build (docs-site)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: ".nvmrc"
+          cache: npm
+          cache-dependency-path: docs-site/package-lock.json
+      - name: Install + build
+        run: |
+          npm ci --prefix docs-site
+          npm run build --prefix docs-site

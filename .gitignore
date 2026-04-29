@@ -83,6 +83,10 @@ out
 dist
 .output
 
+# Playwright capture artifacts (docs:capture). Captured PNGs/GIFs under docs/_assets/ ARE tracked.
+docs/_capture/test-results/
+docs/_capture/playwright-report/
+
 # Gatsby files
 .cache/
 # Comment in the public line in if your project uses Gatsby and not Next.js
@@ -106,6 +110,8 @@ dist
 
 # Docusaurus cache and generated files
 .docusaurus
+docs-site/build/
+docs-site/.docusaurus/
 
 # Serverless directories
 .serverless/

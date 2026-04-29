@@ -1,0 +1,71 @@
+name: dependency-scan
+
+# OSV-Scanner — see ADR 0012.
+# Scans manifests + lockfiles for known vulnerabilities (CVE / GHSA).
+#
+# Triggers:
+#   - PRs to main that touch any manifest/lockfile (per-PR gating).
+#   - Pushes to main on the same paths (post-merge sanity).
+#   - Daily cron at 05:00 UTC (catches advisories that landed on osv.dev
+#     after the last PR — the user-requested cadence in ADR 0012).
+#   - workflow_dispatch for ad-hoc runs.
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "**/package.json"
+      - "**/package-lock.json"
+      - "**/pnpm-lock.yaml"
+      - "**/yarn.lock"
+      - "osv-scanner.toml"
+      - ".github/workflows/dependency-scan.yml"
+  push:
+    branches: [main]
+    paths:
+      - "**/package.json"
+      - "**/package-lock.json"
+      - "**/pnpm-lock.yaml"
+      - "**/yarn.lock"
+  schedule:
+    - cron: "0 5 * * *"  # Daily at 05:00 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  security-events: write  # Required to publish SARIF findings to the Security tab
+  actions: read
+
+concurrency:
+  group: dependency-scan-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  osv-scan:
+    name: OSV-Scanner
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      # Use the reusable workflow shipped by Google. It runs the scanner,
+      # converts results to SARIF, and uploads to the Security tab.
+      - name: Run OSV-Scanner
+        uses: google/osv-scanner-action/osv-scanner-action@v1
+        with:
+          scan-args: |-
+            --recursive
+            --skip-git
+            --format=sarif
+            --output=osv-results.sarif
+            ./
+
+      - name: Upload SARIF to Security tab
+        if: always()
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: osv-results.sarif
+          category: osv-scanner

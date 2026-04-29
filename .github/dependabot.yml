@@ -1,0 +1,47 @@
+# Dependabot configuration — see ADR 0012.
+# https://docs.github.com/en/code-security/dependabot/dependabot-version-updates/configuration-options-for-the-dependabot.yml-file
+version: 2
+updates:
+  # Root npm package (the chatlab application).
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "daily"
+      time: "06:00"
+      timezone: "America/Sao_Paulo"
+    open-pull-requests-limit: 5
+    labels:
+      - "dependencies"
+      - "npm"
+    commit-message:
+      prefix: "chore(deps)"
+    groups:
+      # Group minor + patch bumps so reviewers don't drown in single-version PRs.
+      minor-and-patch:
+        update-types:
+          - "minor"
+          - "patch"
+      # Major bumps still get individual PRs — they need attention.
+
+  # GitHub Actions used in workflows (codeql, lint-docs, secret-scan, dep-scan, release, docs-deploy).
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "daily"
+      time: "06:00"
+      timezone: "America/Sao_Paulo"
+    open-pull-requests-limit: 5
+    labels:
+      - "dependencies"
+      - "github-actions"
+    commit-message:
+      prefix: "chore(actions)"
+    groups:
+      actions-minor-and-patch:
+        update-types:
+          - "minor"
+          - "patch"
+
+  # When `docs-site/` lands (per ADR 0009), uncomment this block and add a `directory: "/docs-site"`
+  # entry mirroring the root npm config above. Until then, Dependabot would error on the missing
+  # manifest if listed.
