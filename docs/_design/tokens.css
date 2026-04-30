@@ -18,7 +18,7 @@
 
   --ink-1:            oklch(22.0% 0.010 90);   /* primary text */
   --ink-2:            oklch(40.0% 0.010 90);   /* secondary */
-  --ink-3:            oklch(55.0% 0.010 90);   /* tertiary, captions */
+  --ink-3:            oklch(52.0% 0.010 90);   /* tertiary, captions (WCAG AA on bg-sunken) */
   --ink-4:            oklch(70.0% 0.010 90);   /* placeholder, disabled */
 
   /* Accent — sage/teal: refined from the original ChatLab green.
@@ -38,9 +38,9 @@
   /* Semantic */
   --success:    oklch(58.0% 0.080 165);
   --success-bg: oklch(95.0% 0.025 165);
-  --warn:       oklch(68.0% 0.090 75);
+  --warn:       oklch(53.0% 0.090 75);   /* WCAG AA body text on warn-bg (4.76:1) */
   --warn-bg:    oklch(96.0% 0.030 75);
-  --danger:     oklch(58.0% 0.110 27);
+  --danger:     oklch(50.0% 0.110 27);   /* WCAG AA body text on danger-bg (5.56:1) */
   --danger-bg:  oklch(96.0% 0.025 27);
   --info:       oklch(60.0% 0.080 240);
   --info-bg:    oklch(96.0% 0.020 240);
@@ -148,7 +148,9 @@
   --accent-ink: oklch(15.0% 0.005 240);
 
   --success-bg: oklch(28.0% 0.040 165);
+  --warn:       oklch(78.0% 0.090 75);   /* dark-theme override — WCAG AA on dark warn-bg (7.25:1) */
   --warn-bg:    oklch(28.0% 0.040 75);
+  --danger:     oklch(72.0% 0.110 27);   /* dark-theme override — WCAG AA on dark danger-bg (5.70:1) */
   --danger-bg:  oklch(28.0% 0.040 27);
   --info-bg:    oklch(28.0% 0.040 240);
 

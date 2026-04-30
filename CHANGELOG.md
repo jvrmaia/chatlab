@@ -27,6 +27,7 @@ First stable public release. Capabilities `0001`–`0006` are now `Status: Imple
 - **Privacy banner**. CLI boot banner gains `[!] cloud provider configured` line when the active workspace has any non-Ollama agent. UI mounts a dismissable `<PrivacyBanner>` with the same warning. Documented in `docs/legal/data-handling.md`.
 - **Workspace-swap-during-inflight regression test** (`test/agents/runner-swap.test.ts`).
 - **ARIA fixes** in DevDrawer (`role="log"`, `aria-live`), AnnotationsPanel (`aria-controls`), ChatList (`role="list"` / `"listitem"` + `aria-current`).
+- **Design-token contrast tightened to WCAG AA**. `--warn` (68% → 53% L), `--danger` (58% → 50% L), `--ink-3` (55% → 52% L) for light theme; dark-theme overrides added for `--warn` (78% L) and `--danger` (72% L). All six measured pairs (`--warn`/`--warn-bg`, `--danger`/`--danger-bg`, `--ink-3`/`--bg-sunken` in both themes) now pass AA body-text (4.5:1). Findings + math: [`docs/reviews/2026-04-30-axe-contrast-check.md`](docs/reviews/2026-04-30-axe-contrast-check.md).
 
 ### Tooling
 
