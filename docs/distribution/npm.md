@@ -1,17 +1,17 @@
 # Distribution: NPM
 
-> **Status:** Pre-publish — contract below is what `npx chatlab` will do **after** the first npm publish. Today chatlab runs from source — see [`manual.md`](./manual.md) or [`docs/quickstart.md`](../quickstart.md).
+> **Package name:** the npm name `chatlab` (no scope) was already taken by an unrelated package, so chatlab is published as **`@jvrmaia/chatlab`**. The CLI binary remains `chatlab` — after install, you type `chatlab` regardless of the scoped package name.
 
 The NPM distribution targets Node-shop developers who already have a JavaScript/TypeScript toolchain and want the lowest-friction way to spin up chatlab.
 
-## Quick start (after publish)
+## Quick start
 
 ```bash
 # Run without installing
-npx chatlab
+npx @jvrmaia/chatlab
 
-# Or install globally
-npm install -g chatlab
+# Or install globally — the bin is still `chatlab`
+npm install -g @jvrmaia/chatlab
 chatlab
 ```
 
@@ -56,7 +56,7 @@ If you set `CHATLAB_HOST` to anything other than `127.0.0.1` / `localhost` / `::
 ### Minimal start/stop
 
 ```ts
-import { startChatlab } from "chatlab";
+import { startChatlab } from "@jvrmaia/chatlab";
 
 const cl = await startChatlab({ port: 0 });   // 0 = ephemeral port
 console.log(cl.url);                           // -> http://127.0.0.1:51234
@@ -86,7 +86,7 @@ The returned object exposes:
 ### A complete script: configure an agent and run a chat
 
 ```ts
-import { startChatlab } from "chatlab";
+import { startChatlab } from "@jvrmaia/chatlab";
 
 const cl = await startChatlab({ port: 0 });
 const headers = {

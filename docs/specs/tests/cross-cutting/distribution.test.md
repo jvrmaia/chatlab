@@ -11,7 +11,7 @@
 
 | Channel | Test scenarios |
 | --- | --- |
-| **NPM** — `npx chatlab` | `DST-01`, `DST-02`, `DST-03` |
+| **NPM** — `npx @jvrmaia/chatlab` | `DST-01`, `DST-02`, `DST-03` |
 | **Docker** — `docker run jvrmaia/chatlab` | `DST-04`, `DST-05`, `DST-06`, `DST-07` |
 | **From source** — `git clone && npm install && npm start` | `DST-08`, `DST-09` |
 | **Cross-channel parity** — same env vars, same behavior | `DST-10` |
@@ -26,10 +26,10 @@ Where relevant, scenarios run across **macOS** (latest), **Ubuntu** (22.04), and
 
 ## Test scenarios
 
-### DST-01 — `npx chatlab` cold-installs and runs
+### DST-01 — `npx @jvrmaia/chatlab` cold-installs and runs
 - **OS matrix:** macOS, Ubuntu, Windows-WSL2
 - **Setup:** clean `~/.npm`; Node from `.nvmrc` installed.
-- **Steps:** `npx -y chatlab@<rc-version>`.
+- **Steps:** `npx -y @jvrmaia/chatlab@<rc-version>`.
 - **Expected:**
   - Listens on `:4480` within 10 s of cold install.
   - `/healthz` returns `200`.
@@ -37,7 +37,7 @@ Where relevant, scenarios run across **macOS** (latest), **Ubuntu** (22.04), and
 
 ### DST-02 — Programmatic API (in-process startChatlab)
 - **OS:** any
-- **Steps:** import `startChatlab` from `chatlab` in a script; spin up; assert running; stop.
+- **Steps:** import `startChatlab` from `@jvrmaia/chatlab` in a script; spin up; assert running; stop.
 - **Expected:** matches the documented surface in `npm.md§Programmatic API`.
 
 ### DST-03 — All env vars documented in `npm.md` actually take effect

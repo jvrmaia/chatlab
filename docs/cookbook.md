@@ -111,7 +111,7 @@ curl -X PATCH $CL/v1/agents/$AGENT_ID -H "Authorization: Bearer $TOKEN" \
 The master key in `$CHATLAB_HOME/master.key` (or `$CHATLAB_MASTER_KEY` env) decrypts every agent profile's API key. Rotation is "decrypt with old, re-encrypt with new" per agent. Run this in a script that boots chatlab in-process so we can use the typed API:
 
 ```ts
-import { startChatlab } from "chatlab";
+import { startChatlab } from "@jvrmaia/chatlab";
 import { writeFileSync } from "node:fs";
 import { randomBytes } from "node:crypto";
 
@@ -249,7 +249,7 @@ For converting the JSONL into Parquet / pandas / HuggingFace `datasets`, see [`e
 ### Start chatlab in-process for a one-off script
 
 ```ts
-import { startChatlab } from "chatlab";
+import { startChatlab } from "@jvrmaia/chatlab";
 
 const cl = await startChatlab({ port: 0 });
 try {
@@ -265,7 +265,7 @@ try {
 ### Use the `Core` instance directly (skip HTTP)
 
 ```ts
-import { startChatlab } from "chatlab";
+import { startChatlab } from "@jvrmaia/chatlab";
 
 const cl = await startChatlab({ port: 0 });
 const core = cl.core;
@@ -283,7 +283,7 @@ Useful for harness code that needs to set up state much faster than serial HTTP 
 ### Drive a real LLM agent from a Node test
 
 ```ts
-import { startChatlab } from "chatlab";
+import { startChatlab } from "@jvrmaia/chatlab";
 
 const cl = await startChatlab({ port: 0 });
 const headers = { Authorization: "Bearer t", "Content-Type": "application/json" };

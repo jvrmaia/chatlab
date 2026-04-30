@@ -1,5 +1,5 @@
 {
-  "name": "chatlab",
+  "name": "@jvrmaia/chatlab",
   "version": "1.0.0",
   "description": "Local development platform for chat agents — workspaces, multi-provider LLMs, feedback corpus.",
   "license": "MIT",

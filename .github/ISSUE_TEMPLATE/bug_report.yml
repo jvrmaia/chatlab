@@ -31,7 +31,7 @@ body:
       label: Steps to reproduce
       description: Minimal reproduction. Code, commands, or a link to a repo.
       placeholder: |
-        1. Run `npx chatlab`
+        1. Run `npx @jvrmaia/chatlab`
         2. Open `http://localhost:4480/ui`
         3. ...
     validations:

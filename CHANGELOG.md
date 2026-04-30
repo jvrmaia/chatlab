@@ -10,6 +10,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 First stable public release. Capabilities `0001`–`0006` are now `Status: Implemented`. Two TRB reviews on the same date frame the gate (the rc and the GA snapshot); a UAT panel of six downstream-role evaluators backlogged 21 user stories for v1.1+. Capability `0007-eval-harness` drafted for v1.1.
 
+> **npm package name:** the unscoped `chatlab` was already taken on the npm registry by an unrelated package, so chatlab publishes as **`@jvrmaia/chatlab`**. The CLI binary stays `chatlab` — after `npm install -g @jvrmaia/chatlab`, the user types `chatlab` regardless. Docker image (`jvrmaia/chatlab`) and GitHub repo (`jvrmaia/chatlab`) are unaffected.
+
 ### Providers
 
 - **`custom` provider added** — point chatlab at the agent **you're building**. Uses chatlab's `openai-compat` adapter under the hood; defaults `base_url` to `http://localhost:8000/v1` and `model` to `my-agent`. The headline use case for the project, finally a first-class option in the UI dropdown. See [`docs/providers.md#custom`](docs/providers.md#custom-your-agent-under-development) and the cookbook recipe.

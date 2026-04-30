@@ -1,12 +1,12 @@
 # 1. Install chatlab
 
-| Mode | Status | When to pick |
+| Mode | Command | When to pick |
 | --- | --- | --- |
-| **From source** | Available today | You want `main` or to hack on chatlab. |
-| **NPM** (`npx chatlab`) | Pre-publish | After v1.0 ships to npmjs. |
-| **Docker** | Pre-publish | Reproducible container in CI. |
+| **From source** | `git clone … && npm install && npm run build && npm start` | You want `main` or to hack on chatlab. |
+| **NPM** | `npx @jvrmaia/chatlab` (or `npm i -g @jvrmaia/chatlab`) | Lowest-friction trial; same on every Node host. |
+| **Docker** | `docker run jvrmaia/chatlab:latest` | Reproducible container, polyglot teams, CI. |
 
-Until v1.0 hits npm, **from-source is the path**.
+The npm name `chatlab` was already taken by an unrelated package, so chatlab is scoped — but the **CLI binary is still `chatlab`** after install.
 
 ## From source
 

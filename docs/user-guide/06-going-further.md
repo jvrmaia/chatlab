@@ -7,7 +7,7 @@ You've installed chatlab, configured a workspace + agent, opened chats with them
 Boot chatlab in-process for integration tests:
 
 ```ts
-import { startChatlab } from "chatlab";
+import { startChatlab } from "@jvrmaia/chatlab";
 
 const cl = await startChatlab({ port: 0 });   // ephemeral port
 console.log(cl.url);                            // -> http://127.0.0.1:51234
@@ -31,7 +31,7 @@ This is exactly how chatlab's own integration tests work — see `test/agents/ru
 ## Programmatic workspace control
 
 ```ts
-import { WorkspaceRegistry } from "chatlab";
+import { WorkspaceRegistry } from "@jvrmaia/chatlab";
 
 const registry = new WorkspaceRegistry({ home: "/tmp/my-chatlab-home" });
 await registry.init();

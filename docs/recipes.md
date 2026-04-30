@@ -271,7 +271,7 @@ curl -X DELETE -H "Authorization: Bearer $TOKEN" $CL/v1/media/$MEDIA_ID
 If your code is a Node.js process, you can boot chatlab in-process:
 
 ```ts
-import { startChatlab } from "chatlab";
+import { startChatlab } from "@jvrmaia/chatlab";
 
 const cl = await startChatlab({ port: 0 });   // 0 = random ephemeral port
 console.log(cl.url);                            // -> http://127.0.0.1:51234

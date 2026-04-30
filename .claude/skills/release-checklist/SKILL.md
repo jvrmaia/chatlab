@@ -93,7 +93,7 @@ Do **not** run these yourself unless explicitly asked. `git push --tags` trigger
 Tell the user to:
 
 - Watch `release.yml` run on GitHub Actions.
-- Verify the npm package installs: `npx chatlab@<version> --version`.
+- Verify the npm package installs: `npx @jvrmaia/chatlab@<version> --version`.
 - Verify the Docker image: `docker pull jvrmaia/chatlab:<version>`.
 - Confirm the GitHub Release got created with notes from `CHANGELOG.md`.
 
