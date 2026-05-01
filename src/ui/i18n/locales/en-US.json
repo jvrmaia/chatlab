@@ -1,0 +1,156 @@
+{
+  "common": {
+    "cancel": "Cancel",
+    "create": "Create",
+    "save": "Save",
+    "edit": "Edit",
+    "delete": "Delete",
+    "send": "Send",
+    "loading": "…",
+    "saving": "...",
+    "dismiss": "Dismiss",
+    "preview": "Preview"
+  },
+  "header": {
+    "activeWorkspace": "Active workspace",
+    "tabChats": "Chats",
+    "tabAdmin": "Admin"
+  },
+  "ws": {
+    "connecting": "connecting to chatlab…",
+    "lost": "connection lost — reconnecting…"
+  },
+  "privacy": {
+    "warning": "Conversations are sent in cleartext to the configured provider. Don't use real personal data without redaction.",
+    "dismissAria": "Dismiss privacy notice for this session"
+  },
+  "chatList": {
+    "title": "chats",
+    "noAgents": "no agents — go to admin",
+    "activeCount_one": "{{count}} active",
+    "activeCount_other": "{{count}} active",
+    "newChat": "New chat",
+    "agent": "Agent",
+    "pickAgent": "Pick an agent…",
+    "theme": "Theme",
+    "themePlaceholder": "e.g., learning Python",
+    "validation": "Pick an agent and write a theme.",
+    "deletedAgent": "(deleted agent)",
+    "ariaList": "Chats",
+    "emptyHintBefore": "No chats yet. Click ",
+    "emptyHintAfter": " to start one."
+  },
+  "chatView": {
+    "deletedAgent": "(deleted)",
+    "emptyHint": "Start the conversation by typing below.",
+    "agentFailed": "Agent failed",
+    "unknownError": "unknown error",
+    "imageAlt": "image",
+    "documentAlt": "document",
+    "selectChat": "Select a chat to start.",
+    "noChatsNoAgents": "no chats yet — go to admin → agents to configure your first agent",
+    "noChatsHasAgents": "no chats yet — click + in the sidebar to start one"
+  },
+  "composer": {
+    "attachAria": "Attach file",
+    "placeholder": "Type a message...",
+    "placeholderDisabled": "Configure an agent to start chatting",
+    "sendAria": "Send message"
+  },
+  "feedback": {
+    "rateGood": "rate good",
+    "rateBad": "rate bad",
+    "removePositive": "remove positive rating",
+    "removeNegative": "remove negative rating"
+  },
+  "annotations": {
+    "title": "chat notes",
+    "unsaved": "unsaved",
+    "modeAria": "Chat notes mode",
+    "editTab": "Edit",
+    "previewTab": "Preview",
+    "placeholder": "Markdown notes about this chat...",
+    "emptyPreview": "nothing to preview yet",
+    "savedAt": "saved at {{time}}",
+    "noNotesYet": "no notes yet"
+  },
+  "devDrawer": {
+    "showAria": "Show events",
+    "title": "Events",
+    "hideAria": "Hide events",
+    "hide": "Hide",
+    "empty": "no events yet"
+  },
+  "theme": {
+    "switchToLight": "Switch to light theme",
+    "switchToDark": "Switch to dark theme",
+    "light": "Light",
+    "dark": "Dark",
+    "densityAria": "UI density",
+    "compact": "Compact",
+    "cozy": "Cozy",
+    "comfy": "Comfy"
+  },
+  "locale": {
+    "toggleAria": "Switch language",
+    "english": "English",
+    "portuguese": "Português"
+  },
+  "admin": {
+    "tabWorkspaces": "Workspaces",
+    "tabAgents": "Agents"
+  },
+  "agents": {
+    "title": "Agents",
+    "configuredCount_one": "{{count}} configured",
+    "configuredCount_other": "{{count}} configured",
+    "newAgent": "New agent",
+    "editAgent": "Edit agent",
+    "deleteConfirm": "Delete this agent?",
+    "noAgents": "No agents configured yet.",
+    "tableName": "Name",
+    "tableProvider": "Provider",
+    "tableModel": "Model",
+    "fieldName": "Name",
+    "fieldNamePlaceholder": "e.g., Support GPT-4o",
+    "fieldProvider": "Provider",
+    "fieldModel": "Model",
+    "fieldApiKey": "API key",
+    "fieldApiKeyOptional": "API key (optional)",
+    "apiKeyKept": "kept ({{masked}})",
+    "apiKeyRequired": "required",
+    "apiKeyLeaveBlank": "leave blank",
+    "fieldBaseUrl": "Base URL (optional)",
+    "fieldSystemPrompt": "System prompt",
+    "systemPromptPlaceholder": "You are a friendly support agent...",
+    "fieldContext": "Context",
+    "contextSuffix": "msgs",
+    "probeTitle": "Probe",
+    "probeSaveFirst": "Save first to probe."
+  },
+  "workspaces": {
+    "title": "Workspaces",
+    "summary_one": "{{count}} configured · 1 active",
+    "summary_other": "{{count}} configured · 1 active",
+    "newWorkspace": "New workspace",
+    "fieldNickname": "Nickname",
+    "nicknamePlaceholder": "e.g., experiment-1",
+    "fieldStorage": "Storage",
+    "storageMemory": "memory (ephemeral)",
+    "storageSqlite": "sqlite (file-backed, fast)",
+    "storageDuckdb": "duckdb (file-backed, analytical)",
+    "tableNickname": "Nickname",
+    "tableStorage": "Storage",
+    "tablePath": "Path",
+    "tableActive": "Active",
+    "activate": "Activate",
+    "active": "active",
+    "noPath": "—",
+    "deletePrompt": "Type the nickname ({{label}}) to confirm deletion. The workspace and its data file will be removed.",
+    "deleteMismatch": "Nickname did not match. Aborted.",
+    "validationNickname": "Nickname is required."
+  },
+  "errors": {
+    "switchWorkspaceFailed": "Failed to switch workspace: {{message}}"
+  }
+}

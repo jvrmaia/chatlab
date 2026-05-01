@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import type { UiAgent } from "../api.js";
 import { Icon } from "./Icon.js";
 
@@ -13,6 +14,7 @@ function hasCloudAgent(agents: UiAgent[]): boolean {
 }
 
 export function PrivacyBanner({ agents }: Props): JSX.Element | null {
+  const { t } = useTranslation();
   const [dismissed, setDismissed] = useState<boolean>(() => {
     try {
       return sessionStorage.getItem(STORAGE_KEY) === "1";
@@ -39,14 +41,13 @@ export function PrivacyBanner({ agents }: Props): JSX.Element | null {
     >
       <Icon name="alert" size={14} />
       <span className="flex-1">
-        Conversations are sent in cleartext to the configured provider. Don't use real personal
-        data without redaction.
+        {t("privacy.warning")}
       </span>
       <button
         type="button"
         className="btn btn--ghost btn--icon btn--sm"
-        aria-label="Dismiss privacy notice for this session"
-        title="Dismiss"
+        aria-label={t("privacy.dismissAria")}
+        title={t("common.dismiss")}
         onClick={() => setDismissed(true)}
       >
         <Icon name="x" size={12} />

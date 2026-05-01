@@ -1,4 +1,5 @@
 import { useEffect, useRef } from "react";
+import { useTranslation } from "react-i18next";
 import type { UiAgent, UiChat, UiFeedback, UiMessage } from "../api.js";
 import { AnnotationsPanel } from "./AnnotationsPanel.js";
 import { Composer } from "./Composer.js";
@@ -28,6 +29,7 @@ export function ChatView({
   onSendFile,
   onRate,
 }: Props) {
+  const { t } = useTranslation();
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -45,7 +47,7 @@ export function ChatView({
         <div className="min-w-0 flex-1">
           <div className="truncate font-semibold">{chat.theme}</div>
           <div className="flex items-center gap-2 truncate font-mono text-xs text-ink-3">
-            <span>{agent?.name ?? "(deleted)"}</span>
+            <span>{agent?.name ?? t("chatView.deletedAgent")}</span>
             {agent && (
               <>
                 <span className="badge badge--info">{agent.model}</span>
@@ -58,7 +60,7 @@ export function ChatView({
       <div ref={scrollRef} className="scroll-area flex-1 py-2">
         {messages.length === 0 ? (
           <div className="mt-12 text-center text-sm text-ink-3">
-            Start the conversation by typing below.
+            {t("chatView.emptyHint")}
           </div>
         ) : (
           messages.map((m) => (

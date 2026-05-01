@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { AgentsList } from "./AgentsList.js";
 import { WorkspacesPanel } from "./WorkspacesPanel.js";
 
@@ -10,21 +11,22 @@ interface Props {
 }
 
 export function AdminPanel({ refreshKey, bump }: Props) {
+  const { t } = useTranslation();
   const [tab, setTab] = useState<SubTab>("workspaces");
 
   return (
     <main className="flex flex-1 flex-col bg-canvas">
       <nav className="flex items-center border-b border-line-soft bg-surface px-4 py-2">
         <div className="tabs">
-          {(["workspaces", "agents"] as SubTab[]).map((t) => (
+          {(["workspaces", "agents"] as SubTab[]).map((sub) => (
             <button
-              key={t}
+              key={sub}
               type="button"
               className="tab"
-              aria-selected={tab === t}
-              onClick={() => setTab(t)}
+              aria-selected={tab === sub}
+              onClick={() => setTab(sub)}
             >
-              {t === "workspaces" ? "Workspaces" : "Agents"}
+              {sub === "workspaces" ? t("admin.tabWorkspaces") : t("admin.tabAgents")}
             </button>
           ))}
         </div>

@@ -4,7 +4,7 @@ Guidance for Claude Code (and other AI coding assistants) working in this reposi
 
 ## What this project is
 
-`chatlab` is an open-source local development platform for chat agents. It lets you configure six LLM clients (OpenAI, Anthropic, DeepSeek, Gemini, Maritaca, Ollama) plus a **`custom`** provider that points at the agent **the developer is building** (any OpenAI-compat endpoint), open chats with chosen agents and themes, exchange messages, rate replies, and export a JSONL feedback corpus. Six capabilities `Implemented` in v1.0 (`0007-eval-harness` drafted for v1.1); the project's current cut is **v1.0.0** (released 2026-04-30).
+`chatlab` is an open-source local development platform for chat agents. It lets you configure six LLM clients (OpenAI, Anthropic, DeepSeek, Gemini, Maritaca, Ollama) plus a **`custom`** provider that points at the agent **the developer is building** (any OpenAI-compat endpoint), open chats with chosen agents and themes, exchange messages, rate replies, and export a JSONL feedback corpus. Six capabilities `Implemented` in v1.0 (`0007-eval-harness` drafted for v1.1); the project's current cut is **v1.1.0** (released 2026-05-01) — adds bilingual en-US / pt-BR for the Web UI and the public-facing docs subset.
 
 > **Working directory.** The local clone path is `/Users/jvrmaia/Workspace/jvrmaia/zapzap-emulator/` even though the GitHub repo is `chatlab`. Don't try to rename the working directory.
 
@@ -37,7 +37,8 @@ Read the [README](./README.md) and [`docs/ROADMAP.md`](./docs/ROADMAP.md) before
 
 ## Conventions
 
-- **Documentation language is English.** Conversation with the user can be Portuguese; committed text is English.
+- **Bilingual en-US + pt-BR.** English is canonical for everything in the repo (specs, ADRs, CHANGELOG, SECURITY, reviews, HTTP/CLI/OpenAPI strings, code comments). Only the **Web UI** (`src/ui/`) and the **public-facing docs subset** (`README`, `quickstart`, `recipes`, `troubleshooting`, `project-overview`, `user-guide/`, `distribution/`) carry pt-BR translations. UI strings live in `src/ui/i18n/locales/{en-US,pt-BR}.json` (consumed via `react-i18next`). Doc translations live in `docs-site/i18n/pt-BR/docusaurus-plugin-content-docs/current/` (mirrors the `docs/` tree). When editing an EN doc that has a pt-BR mirror, update the pt-BR equivalent or flag it `<!-- needs-translation-update -->` in the header.
+- **Conversation with the user can be Portuguese; committed text follows the rule above.**
 - **Stack** (each row links to the ADR that locked it in):
   - Runtime: Node.js 22 + TypeScript — [ADR 0002](./docs/specs/adr/0002-language-and-runtime.md)
   - HTTP: Express — [ADR 0004](./docs/specs/adr/0004-http-framework.md)

@@ -1,4 +1,6 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
+import { useLocaleFormat } from "../i18n/format.js";
 import { Icon } from "./Icon.js";
 
 interface Props {
@@ -15,13 +17,8 @@ interface ParsedEvent {
   ts: string;
 }
 
-function parseEvent(e: unknown): ParsedEvent {
-  const ts = new Date().toLocaleTimeString([], {
-    hour: "2-digit",
-    minute: "2-digit",
-    second: "2-digit",
-    hour12: false,
-  });
+function parseEvent(e: unknown, formatTimeWithSeconds: (d: Date | string | number) => string): ParsedEvent {
+  const ts = formatTimeWithSeconds(new Date());
   if (typeof e !== "object" || e === null) {
     return { raw: e, level: "info", type: String(e), meta: "", ts };
   }
@@ -40,6 +37,8 @@ function parseEvent(e: unknown): ParsedEvent {
 }
 
 export function DevDrawer({ events }: Props) {
+  const { t } = useTranslation();
+  const { formatTimeWithSeconds } = useLocaleFormat();
   const [open, setOpen] = useState(false);
 
   if (!open) {
@@ -50,8 +49,8 @@ export function DevDrawer({ events }: Props) {
           onClick={() => setOpen(true)}
           className="btn btn--ghost btn--icon btn--sm"
           style={{ width: 32, borderRadius: 0 }}
-          title="Show events"
-          aria-label="Show events"
+          title={t("devDrawer.showAria")}
+          aria-label={t("devDrawer.showAria")}
         >
           <Icon name="terminal" size={14} />
         </button>
@@ -59,7 +58,7 @@ export function DevDrawer({ events }: Props) {
     );
   }
 
-  const parsed = events.slice(-100).reverse().map(parseEvent);
+  const parsed = events.slice(-100).reverse().map((e) => parseEvent(e, formatTimeWithSeconds));
 
   return (
     <aside
@@ -68,22 +67,22 @@ export function DevDrawer({ events }: Props) {
     >
       <header className="flex items-center justify-between border-b border-line-soft px-3 py-2">
         <span className="inline-flex items-center gap-2 text-sm font-medium">
-          <Icon name="terminal" size={14} /> Events
+          <Icon name="terminal" size={14} /> {t("devDrawer.title")}
           <span className="badge">{events.length}</span>
         </span>
         <button
           type="button"
           onClick={() => setOpen(false)}
           className="btn btn--ghost btn--icon btn--sm"
-          aria-label="Hide events"
-          title="Hide"
+          aria-label={t("devDrawer.hideAria")}
+          title={t("devDrawer.hide")}
         >
           <Icon name="x" size={14} />
         </button>
       </header>
       <div className="scroll-area flex-1 px-2 py-2" role="log" aria-live="polite" aria-relevant="additions">
         {parsed.length === 0 ? (
-          <div className="px-2 py-4 font-mono text-xs text-ink-3">no events yet</div>
+          <div className="px-2 py-4 font-mono text-xs text-ink-3">{t("devDrawer.empty")}</div>
         ) : (
           parsed.map((e, i) => (
             <div key={i} className={`log log--${e.level}`}>

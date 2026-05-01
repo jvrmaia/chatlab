@@ -1,4 +1,5 @@
 import { useEffect, useState, type FormEvent, type ReactNode } from "react";
+import { useTranslation } from "react-i18next";
 import {
   createAgent,
   deleteAgent,
@@ -28,6 +29,7 @@ const PROVIDERS: UiAgentProvider[] = [
 ];
 
 export function AgentsList({ refreshKey, onChanged }: Props) {
+  const { t } = useTranslation();
   const [agents, setAgents] = useState<UiAgent[]>([]);
   const [editing, setEditing] = useState<UiAgent | null>(null);
   const [creating, setCreating] = useState(false);
@@ -41,7 +43,7 @@ export function AgentsList({ refreshKey, onChanged }: Props) {
   }, [refreshKey]);
 
   async function handleDelete(id: string): Promise<void> {
-    if (!window.confirm("Delete this agent?")) return;
+    if (!window.confirm(t("agents.deleteConfirm"))) return;
     try {
       await deleteAgent(id);
       onChanged();
@@ -54,8 +56,8 @@ export function AgentsList({ refreshKey, onChanged }: Props) {
     <section className="card max-w-3xl">
       <header className="card__header">
         <div>
-          <h2 className="card__title">Agents</h2>
-          <p className="card__subtitle">{agents.length} configured</p>
+          <h2 className="card__title">{t("agents.title")}</h2>
+          <p className="card__subtitle">{t("agents.configuredCount", { count: agents.length })}</p>
         </div>
         <button
           type="button"
@@ -66,7 +68,7 @@ export function AgentsList({ refreshKey, onChanged }: Props) {
           className="btn btn--primary btn--sm"
         >
           <Icon name="plus" size={14} />
-          New agent
+          {t("agents.newAgent")}
         </button>
       </header>
 
@@ -95,14 +97,14 @@ export function AgentsList({ refreshKey, onChanged }: Props) {
         )}
 
         {agents.length === 0 ? (
-          <p className="text-sm text-ink-3">No agents configured yet.</p>
+          <p className="text-sm text-ink-3">{t("agents.noAgents")}</p>
         ) : (
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-line-soft text-left font-mono text-xs uppercase tracking-wide text-ink-3">
-                <th className="py-2">Name</th>
-                <th className="py-2">Provider</th>
-                <th className="py-2">Model</th>
+                <th className="py-2">{t("agents.tableName")}</th>
+                <th className="py-2">{t("agents.tableProvider")}</th>
+                <th className="py-2">{t("agents.tableModel")}</th>
                 <th className="py-2" />
               </tr>
             </thead>
@@ -127,7 +129,7 @@ export function AgentsList({ refreshKey, onChanged }: Props) {
                         }}
                       >
                         <Icon name="edit" size={14} />
-                        Edit
+                        {t("common.edit")}
                       </button>
                       <button
                         type="button"
@@ -135,7 +137,7 @@ export function AgentsList({ refreshKey, onChanged }: Props) {
                         onClick={() => void handleDelete(a.id)}
                       >
                         <Icon name="trash" size={14} />
-                        Delete
+                        {t("common.delete")}
                       </button>
                     </div>
                   </td>
@@ -156,6 +158,7 @@ interface FormProps {
 }
 
 function AgentForm({ existing, onCancel, onSaved }: FormProps) {
+  const { t } = useTranslation();
   const [name, setName] = useState(existing?.name ?? "");
   const [provider, setProvider] = useState<UiAgentProvider>(existing?.provider ?? "openai");
   const [model, setModel] = useState(existing?.model ?? UI_PROVIDER_DEFAULTS.openai.model);
@@ -204,7 +207,7 @@ function AgentForm({ existing, onCancel, onSaved }: FormProps) {
 
   async function runProbe(): Promise<void> {
     if (!existing) {
-      setErr("Save first to probe.");
+      setErr(t("agents.probeSaveFirst"));
       return;
     }
     setBusy(true);
@@ -225,18 +228,18 @@ function AgentForm({ existing, onCancel, onSaved }: FormProps) {
       onSubmit={submit}
       className="space-y-3 rounded-md border border-line-soft bg-sunken p-3"
     >
-      <h3 className="font-medium">{existing ? "Edit agent" : "New agent"}</h3>
+      <h3 className="font-medium">{existing ? t("agents.editAgent") : t("agents.newAgent")}</h3>
       {err && <span className="badge badge--danger">{err}</span>}
-      <Field label="Name">
+      <Field label={t("agents.fieldName")}>
         <input
           required
           className="input"
           value={name}
           onChange={(e) => setName(e.target.value)}
-          placeholder="e.g., Support GPT-4o"
+          placeholder={t("agents.fieldNamePlaceholder")}
         />
       </Field>
-      <Field label="Provider">
+      <Field label={t("agents.fieldProvider")}>
         <select
           className="select"
           value={provider}
@@ -249,7 +252,7 @@ function AgentForm({ existing, onCancel, onSaved }: FormProps) {
           ))}
         </select>
       </Field>
-      <Field label="Model">
+      <Field label={t("agents.fieldModel")}>
         <input
           required
           className="input input--mono"
@@ -258,7 +261,7 @@ function AgentForm({ existing, onCancel, onSaved }: FormProps) {
           placeholder={defaults.model}
         />
       </Field>
-      <Field label={`API key${defaults.requires_api_key ? "" : " (optional)"}`}>
+      <Field label={defaults.requires_api_key ? t("agents.fieldApiKey") : t("agents.fieldApiKeyOptional")}>
         <input
           type="password"
           className="input"
@@ -266,14 +269,14 @@ function AgentForm({ existing, onCancel, onSaved }: FormProps) {
           onChange={(e) => setApiKey(e.target.value)}
           placeholder={
             existing?.api_key
-              ? `kept (${existing.api_key})`
+              ? t("agents.apiKeyKept", { masked: existing.api_key })
               : defaults.requires_api_key
-                ? "required"
-                : "leave blank"
+                ? t("agents.apiKeyRequired")
+                : t("agents.apiKeyLeaveBlank")
           }
         />
       </Field>
-      <Field label="Base URL (optional)">
+      <Field label={t("agents.fieldBaseUrl")}>
         <input
           className="input"
           value={baseUrl}
@@ -281,17 +284,17 @@ function AgentForm({ existing, onCancel, onSaved }: FormProps) {
           placeholder={defaults.base_url}
         />
       </Field>
-      <Field label="System prompt">
+      <Field label={t("agents.fieldSystemPrompt")}>
         <textarea
           rows={3}
           className="textarea"
           value={systemPrompt}
           onChange={(e) => setSystemPrompt(e.target.value)}
-          placeholder="You are a friendly support agent..."
+          placeholder={t("agents.systemPromptPlaceholder")}
         />
       </Field>
       <div className="field" style={{ flexDirection: "row", alignItems: "center", gap: "var(--sp-3)" }}>
-        <span className="field__label">Context</span>
+        <span className="field__label">{t("agents.fieldContext")}</span>
         <input
           type="number"
           min={1}
@@ -301,20 +304,20 @@ function AgentForm({ existing, onCancel, onSaved }: FormProps) {
           value={contextWindow}
           onChange={(e) => setContextWindow(Number(e.target.value))}
         />
-        <span className="font-mono text-xs text-ink-3">msgs</span>
+        <span className="font-mono text-xs text-ink-3">{t("agents.contextSuffix")}</span>
       </div>
       <div className="flex gap-2">
         <button type="submit" disabled={busy} className="btn btn--primary btn--sm">
-          {busy ? "..." : "Save"}
+          {busy ? t("common.saving") : t("common.save")}
         </button>
         <button type="button" onClick={onCancel} className="btn btn--secondary btn--sm">
-          Cancel
+          {t("common.cancel")}
         </button>
       </div>
 
       {existing && (
         <div className="border-t border-line-soft pt-3">
-          <h4 className="mb-2 font-medium text-xs uppercase tracking-wide text-ink-3">Probe</h4>
+          <h4 className="mb-2 font-medium text-xs uppercase tracking-wide text-ink-3">{t("agents.probeTitle")}</h4>
           <div className="flex gap-2">
             <input
               className="input"
@@ -327,7 +330,7 @@ function AgentForm({ existing, onCancel, onSaved }: FormProps) {
               disabled={busy}
               className="btn btn--secondary btn--sm"
             >
-              {busy ? "..." : "Send"}
+              {busy ? t("common.saving") : t("common.send")}
             </button>
           </div>
           {probeResult !== null && (

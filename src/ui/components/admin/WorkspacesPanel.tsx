@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   activateWorkspace,
   createWorkspace,
@@ -15,6 +16,7 @@ interface Props {
 }
 
 export function WorkspacesPanel({ refreshKey, onChanged }: Props) {
+  const { t } = useTranslation();
   const [workspaces, setWorkspaces] = useState<UiWorkspace[]>([]);
   const [activeId, setActiveId] = useState<string>("");
   const [creating, setCreating] = useState(false);
@@ -34,7 +36,7 @@ export function WorkspacesPanel({ refreshKey, onChanged }: Props) {
 
   async function handleCreate(): Promise<void> {
     if (!nickname.trim()) {
-      setErr("Nickname is required.");
+      setErr(t("workspaces.validationNickname"));
       return;
     }
     try {
@@ -58,12 +60,10 @@ export function WorkspacesPanel({ refreshKey, onChanged }: Props) {
   }
 
   async function handleDelete(id: string, label: string): Promise<void> {
-    const typed = window.prompt(
-      `Type the nickname (${label}) to confirm deletion. The workspace and its data file will be removed.`,
-    );
+    const typed = window.prompt(t("workspaces.deletePrompt", { label }));
     if (typed !== label) {
       if (typed !== null) {
-        window.alert("Nickname did not match. Aborted.");
+        window.alert(t("workspaces.deleteMismatch"));
       }
       return;
     }
@@ -79,8 +79,8 @@ export function WorkspacesPanel({ refreshKey, onChanged }: Props) {
     <section className="card max-w-3xl">
       <header className="card__header">
         <div>
-          <h2 className="card__title">Workspaces</h2>
-          <p className="card__subtitle">{workspaces.length} configured · 1 active</p>
+          <h2 className="card__title">{t("workspaces.title")}</h2>
+          <p className="card__subtitle">{t("workspaces.summary", { count: workspaces.length })}</p>
         </div>
         <button
           type="button"
@@ -88,7 +88,7 @@ export function WorkspacesPanel({ refreshKey, onChanged }: Props) {
           className="btn btn--primary btn--sm"
         >
           <Icon name={creating ? "x" : "plus"} size={14} />
-          {creating ? "Cancel" : "New workspace"}
+          {creating ? t("common.cancel") : t("workspaces.newWorkspace")}
         </button>
       </header>
 
@@ -98,24 +98,24 @@ export function WorkspacesPanel({ refreshKey, onChanged }: Props) {
         {creating && (
           <div className="space-y-3 rounded-md border border-line-soft bg-sunken p-3">
             <div className="field">
-              <span className="field__label">Nickname</span>
+              <span className="field__label">{t("workspaces.fieldNickname")}</span>
               <input
                 className="input"
                 value={nickname}
                 onChange={(e) => setNickname(e.target.value)}
-                placeholder="e.g., experiment-1"
+                placeholder={t("workspaces.nicknamePlaceholder")}
               />
             </div>
             <div className="field">
-              <span className="field__label">Storage</span>
+              <span className="field__label">{t("workspaces.fieldStorage")}</span>
               <select
                 className="select"
                 value={storageType}
                 onChange={(e) => setStorageType(e.target.value as StorageType)}
               >
-                <option value="memory">memory (ephemeral)</option>
-                <option value="sqlite">sqlite (file-backed, fast)</option>
-                <option value="duckdb">duckdb (file-backed, analytical)</option>
+                <option value="memory">{t("workspaces.storageMemory")}</option>
+                <option value="sqlite">{t("workspaces.storageSqlite")}</option>
+                <option value="duckdb">{t("workspaces.storageDuckdb")}</option>
               </select>
             </div>
             <div className="flex gap-2">
@@ -124,14 +124,14 @@ export function WorkspacesPanel({ refreshKey, onChanged }: Props) {
                 onClick={() => void handleCreate()}
                 className="btn btn--primary btn--sm"
               >
-                Create
+                {t("common.create")}
               </button>
               <button
                 type="button"
                 onClick={() => setCreating(false)}
                 className="btn btn--secondary btn--sm"
               >
-                Cancel
+                {t("common.cancel")}
               </button>
             </div>
           </div>
@@ -140,10 +140,10 @@ export function WorkspacesPanel({ refreshKey, onChanged }: Props) {
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-line-soft text-left font-mono text-xs uppercase tracking-wide text-ink-3">
-              <th className="py-2">Nickname</th>
-              <th className="py-2">Storage</th>
-              <th className="py-2">Path</th>
-              <th className="py-2 text-center">Active</th>
+              <th className="py-2">{t("workspaces.tableNickname")}</th>
+              <th className="py-2">{t("workspaces.tableStorage")}</th>
+              <th className="py-2">{t("workspaces.tablePath")}</th>
+              <th className="py-2 text-center">{t("workspaces.tableActive")}</th>
               <th className="py-2" />
             </tr>
           </thead>
@@ -155,16 +155,16 @@ export function WorkspacesPanel({ refreshKey, onChanged }: Props) {
                   <span className="badge">{w.storage_type}</span>
                 </td>
                 <td className="max-w-[16rem] truncate py-2 font-mono text-xs text-ink-3">
-                  {w.storage_path ?? "—"}
+                  {w.storage_path ?? t("workspaces.noPath")}
                 </td>
                 <td className="py-2 text-center">
                   {activeId === w.id ? (
                     <span
                       className="inline-flex items-center gap-2 text-xs text-success"
-                      aria-label="Active"
+                      aria-label={t("workspaces.tableActive")}
                     >
                       <span className="dot dot--active" />
-                      active
+                      {t("workspaces.active")}
                     </span>
                   ) : (
                     <button
@@ -172,7 +172,7 @@ export function WorkspacesPanel({ refreshKey, onChanged }: Props) {
                       className="btn btn--ghost btn--sm"
                       onClick={() => void handleActivate(w.id)}
                     >
-                      Activate
+                      {t("workspaces.activate")}
                     </button>
                   )}
                 </td>
@@ -183,7 +183,7 @@ export function WorkspacesPanel({ refreshKey, onChanged }: Props) {
                     onClick={() => void handleDelete(w.id, w.nickname)}
                   >
                     <Icon name="trash" size={14} />
-                    Delete
+                    {t("common.delete")}
                   </button>
                 </td>
               </tr>

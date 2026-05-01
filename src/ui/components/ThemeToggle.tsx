@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   applyDensity,
   applyTheme,
@@ -10,6 +11,7 @@ import {
 import { Icon } from "./Icon.js";
 
 export function ThemeToggle(): JSX.Element {
+  const { t } = useTranslation();
   const [theme, setTheme] = useState<Theme>(() => readStoredTheme());
   const [density, setDensity] = useState<Density>(() => readStoredDensity());
 
@@ -30,8 +32,8 @@ export function ThemeToggle(): JSX.Element {
         type="button"
         className="btn btn--ghost btn--icon btn--sm"
         onClick={toggleTheme}
-        aria-label={theme === "dark" ? "Switch to light theme" : "Switch to dark theme"}
-        title={theme === "dark" ? "Light" : "Dark"}
+        aria-label={theme === "dark" ? t("theme.switchToLight") : t("theme.switchToDark")}
+        title={theme === "dark" ? t("theme.light") : t("theme.dark")}
       >
         <Icon name={theme === "dark" ? "sun" : "moon"} />
       </button>
@@ -40,11 +42,11 @@ export function ThemeToggle(): JSX.Element {
         style={{ height: 28, fontSize: "var(--fs-xs)", paddingRight: 28 }}
         value={density}
         onChange={(e) => pickDensity(e.target.value as Density)}
-        aria-label="UI density"
+        aria-label={t("theme.densityAria")}
       >
-        <option value="compact">Compact</option>
-        <option value="cozy">Cozy</option>
-        <option value="comfy">Comfy</option>
+        <option value="compact">{t("theme.compact")}</option>
+        <option value="cozy">{t("theme.cozy")}</option>
+        <option value="comfy">{t("theme.comfy")}</option>
       </select>
     </div>
   );

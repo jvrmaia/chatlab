@@ -6,6 +6,47 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [1.1.0] — 2026-05-01
+
+Bilingual release. The Web UI and the public-facing docs subset are now bilingual en-US / pt-BR; English remains canonical for everything else (specs, ADRs, CHANGELOG, SECURITY, reviews, HTTP/CLI/OpenAPI strings).
+
+### UI
+
+- **`react-i18next` + `i18next-browser-languagedetector`** wired in `src/ui/i18n/`. JSON resources for `en-US` + `pt-BR` (~150 strings), declaration-merge for type-safe keys, `useLocaleFormat()` hook so `MessageBubble`, `AnnotationsPanel`, and `DevDrawer` timestamps follow the active locale (rather than browser default). All 15 `.tsx` components migrated to `t()`.
+- **`<LocaleToggle>`** in the header — `EN` / `PT` toggle, persisted to `localStorage["i18nextLng"]`, falls back to navigator language on first load. `convertDetectedLanguage` maps any `pt*` to `pt-BR` and everything else to `en-US`.
+- **Native dialogs localized** — `window.confirm`, `window.prompt`, `window.alert` calls in `AgentsList`, `WorkspacesPanel`, and `App` now route through `t()`.
+- **Server stays English.** HTTP error messages, OpenAPI descriptions, and the CLI banner remain English; the UI surfaces server `Error.message` raw. Localization of server-emitted strings is deferred (low ROI: errors are dev-facing and carry structured `error_subcode`).
+
+### Docs site
+
+- **Docusaurus i18n configured** (`docs-site/docusaurus.config.ts`) — `defaultLocale: "en-US"`, `locales: ["en-US", "pt-BR"]`, locale dropdown in the navbar.
+- **12 public-facing docs translated** to pt-BR: `quickstart`, `recipes`, `troubleshooting`, `project-overview`, all 7 `user-guide/*` pages, all 3 `distribution/*` pages. Each pt-BR page carries a "Tradução automática (AI) — sugestões via PR" banner.
+- **`README.pt-BR.md`** at repo root, with cross-link in `README.md`. Added to `package.json#files`.
+- **Sidebar/navbar/footer** translated (`docs-site/i18n/pt-BR/code.json`, `docusaurus-theme-classic/{navbar,footer}.json`, `docusaurus-plugin-content-docs/current.json`).
+- **`onBrokenLinks: "throw"` → `"warn"`.** Pt-BR is a partial translation; the un-translated docs (specs, ADRs, cookbook) still link to peers via relative `.md` paths that don't resolve cleanly inside the pt-BR locale build. Re-tighten in v1.2 once specs/ADRs are translated.
+
+### Capture pipeline
+
+- **`docs/_capture/screenshots.spec.ts`** pins `localStorage["i18nextLng"] = "en-US"` via `addInitScript` so the canonical screenshots stay stable regardless of capture host.
+
+### Tests + tooling
+
+- **`vitest.ui.config.ts`** new project config — `jsdom` environment, runs `src/ui/**/*.test.tsx`. `npm test` now runs server suite + UI suite sequentially (`npm run test:server` and `npm run test:ui` available individually).
+- **`@testing-library/react`, `jsdom`** added as dev deps.
+- **`src/ui/components/LocaleToggle.test.tsx`** — 3 tests covering render, default selection, persistence after toggle.
+- **3 new prod deps**: `i18next`, `react-i18next`, `i18next-browser-languagedetector`.
+
+### Conventions
+
+- **`CLAUDE.md`** convention updated — English is canonical for the repo; pt-BR translations are scoped to the public-facing docs subset and the UI. When editing a translated EN doc, update the pt-BR mirror or flag it `<!-- needs-translation-update -->`.
+
+### Known limitations (deferred)
+
+- Mermaid diagram labels stay English-only (Mermaid has no built-in i18n).
+- Server-emitted strings (HTTP error `message`, OpenAPI `description`/`summary`, CLI banner) remain English.
+- Specs, ADRs, CHANGELOG, SECURITY, reviews remain English-only.
+- pt-BR translations are AI-generated initial drafts pending native-speaker review.
+
 ## [1.0.0] — 2026-04-30
 
 First stable public release. Capabilities `0001`–`0006` are now `Status: Implemented`. Two TRB reviews on the same date frame the gate (the rc and the GA snapshot); a UAT panel of six downstream-role evaluators backlogged 21 user stories for v1.1+. Capability `0007-eval-harness` drafted for v1.1.
@@ -109,6 +150,7 @@ The first public release candidate of `chatlab`.
 - Env vars: `CHATLAB_HOME`, `CHATLAB_PORT`, `CHATLAB_HOST`, `CHATLAB_REQUIRE_TOKEN`, `CHATLAB_LOG_LEVEL`, `CHATLAB_FEEDBACK_RETENTION_DAYS`, `CHATLAB_WORKSPACE_ID`.
 - GitHub repo: `jvrmaia/chatlab`.
 
-[Unreleased]: https://github.com/jvrmaia/chatlab/compare/v1.0.0...HEAD
+[Unreleased]: https://github.com/jvrmaia/chatlab/compare/v1.1.0...HEAD
+[1.1.0]: https://github.com/jvrmaia/chatlab/releases/tag/v1.1.0
 [1.0.0]: https://github.com/jvrmaia/chatlab/releases/tag/v1.0.0
 [1.0.0-rc.1]: https://github.com/jvrmaia/chatlab/releases/tag/v1.0.0-rc.1

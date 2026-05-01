@@ -67,7 +67,10 @@
       "Bash(git -C /Users/jvrmaia/Workspace/jvrmaia/zapzap-emulator log --oneline -3)",
       "Bash(git -C /Users/jvrmaia/Workspace/jvrmaia/zapzap-emulator status)",
       "Bash(git *)",
-      "Bash(awk '/```mermaid/,/```$/' docs/ARCHITECTURE.md docs/ROADMAP.md docs/specs/adr/0008-mermaid-for-diagrams.md)"
+      "Bash(awk '/```mermaid/,/```$/' docs/ARCHITECTURE.md docs/ROADMAP.md docs/specs/adr/0008-mermaid-for-diagrams.md)",
+      "Bash(xargs -I {} sed -i '' -e 's|/user-guide/01-install|/user-guide/install|g' -e 's|/user-guide/02-workspaces-and-agents|/user-guide/workspaces-and-agents|g' -e 's|/user-guide/03-chats-and-messages|/user-guide/chats-and-messages|g' -e 's|/user-guide/04-multiple-chats|/user-guide/multiple-chats|g' -e 's|/user-guide/05-feedback-and-export|/user-guide/feedback-and-export|g' -e 's|/user-guide/06-going-further|/user-guide/going-further|g' {})",
+      "Bash(npx redocly@2.30.3 lint docs/specs/api/openapi.yaml)",
+      "Bash(npx @redocly/cli@2.30.3 lint docs/specs/api/openapi.yaml)"
     ]
   }
 }

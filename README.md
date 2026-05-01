@@ -1,5 +1,7 @@
 # chatlab
 
+> 🇧🇷 [Português](./README.pt-BR.md) · 🇺🇸 English
+
 > A local development platform for chat agents — pick a provider, talk to it, segregate scenarios via workspaces, capture feedback for fine-tuning. Runs on your laptop, no cloud, no setup theatre.
 
 `chatlab` is what you reach for when you're building a chat agent and want a tight inner loop: configure a provider once, open a chat with a chosen agent + theme, type messages, see replies, rate them, write notes, export a JSONL corpus when you're ready to fine-tune.

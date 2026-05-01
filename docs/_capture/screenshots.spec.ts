@@ -12,6 +12,19 @@ function shot(name: string): string {
 
 test.describe.configure({ mode: "serial" });
 
+// The UI is bilingual (en-US / pt-BR) and the i18next browser detector falls
+// back to navigator.language. Pin every screenshot capture to en-US so the
+// canonical screenshots stay stable regardless of where capture runs.
+test.beforeEach(async ({ page }) => {
+  await page.addInitScript(() => {
+    try {
+      window.localStorage.setItem("i18nextLng", "en-US");
+    } catch {
+      // localStorage may be unavailable in some sandboxes — let the detector fall through.
+    }
+  });
+});
+
 async function settle(page: Page, ms = 250): Promise<void> {
   await page.waitForTimeout(ms);
 }

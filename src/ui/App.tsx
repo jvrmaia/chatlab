@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   activateWorkspace,
   clearFeedback,
@@ -22,6 +23,7 @@ import { AdminPanel } from "./components/admin/AdminPanel.js";
 import { ChatList } from "./components/ChatList.js";
 import { ChatView } from "./components/ChatView.js";
 import { DevDrawer } from "./components/DevDrawer.js";
+import { LocaleToggle } from "./components/LocaleToggle.js";
 import { ThemeToggle } from "./components/ThemeToggle.js";
 import { PrivacyBanner } from "./components/PrivacyBanner.js";
 
@@ -30,6 +32,7 @@ const SELECTED_CHAT_KEY = "chatlab.selectedChatId";
 type TopTab = "chats" | "admin";
 
 export function App() {
+  const { t } = useTranslation();
   const [topTab, setTopTab] = useState<TopTab>("chats");
   const [workspaces, setWorkspaces] = useState<UiWorkspace[]>([]);
   const [activeWorkspaceId, setActiveWorkspaceId] = useState<string>("");
@@ -229,7 +232,7 @@ export function App() {
       bump();
     } catch (e) {
       console.error(e);
-      window.alert(`Failed to switch workspace: ${(e as Error).message}`);
+      window.alert(t("errors.switchWorkspaceFailed", { message: (e as Error).message }));
     }
   }
 
@@ -248,7 +251,7 @@ export function App() {
           onChange={(e) => void handleSwitchWorkspace(e.target.value)}
           className="select"
           style={{ height: 32, width: "auto", paddingRight: 32 }}
-          aria-label="Active workspace"
+          aria-label={t("header.activeWorkspace")}
         >
           {workspaces.map((w) => (
             <option key={w.id} value={w.id}>
@@ -258,18 +261,19 @@ export function App() {
         </select>
         <div className="flex-1" />
         <div className="tabs">
-          {(["chats", "admin"] as const).map((t) => (
+          {(["chats", "admin"] as const).map((tab) => (
             <button
-              key={t}
+              key={tab}
               type="button"
               className="tab"
-              aria-selected={topTab === t}
-              onClick={() => setTopTab(t)}
+              aria-selected={topTab === tab}
+              onClick={() => setTopTab(tab)}
             >
-              {t === "chats" ? "Chats" : "Admin"}
+              {tab === "chats" ? t("header.tabChats") : t("header.tabAdmin")}
             </button>
           ))}
         </div>
+        <LocaleToggle />
         <ThemeToggle />
       </header>
       <PrivacyBanner agents={agents} />
@@ -281,8 +285,8 @@ export function App() {
             }
           >
             {wsStatus === "connecting"
-              ? "connecting to chatlab…"
-              : "connection lost — reconnecting…"}
+              ? t("ws.connecting")
+              : t("ws.lost")}
           </span>
         </div>
       )}
@@ -312,11 +316,11 @@ export function App() {
             ) : (
               <main className="flex-1 flex items-center justify-center bg-canvas text-ink-2">
                 <div className="text-center max-w-sm px-6">
-                  <p className="text-lg">Select a chat to start.</p>
+                  <p className="text-lg">{t("chatView.selectChat")}</p>
                   <p className="mt-2 font-mono text-xs text-ink-3">
                     {agents.length === 0
-                      ? "no chats yet — go to admin → agents to configure your first agent"
-                      : "no chats yet — click + in the sidebar to start one"}
+                      ? t("chatView.noChatsNoAgents")
+                      : t("chatView.noChatsHasAgents")}
                   </p>
                 </div>
               </main>

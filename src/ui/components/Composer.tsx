@@ -1,4 +1,5 @@
 import { useState, type ChangeEvent, type DragEvent, type KeyboardEvent } from "react";
+import { useTranslation } from "react-i18next";
 import { Icon } from "./Icon.js";
 
 interface Props {
@@ -8,6 +9,7 @@ interface Props {
 }
 
 export function Composer({ onSend, onSendFile, disabled }: Props) {
+  const { t } = useTranslation();
   const [text, setText] = useState("");
   const [over, setOver] = useState(false);
 
@@ -52,8 +54,8 @@ export function Composer({ onSend, onSendFile, disabled }: Props) {
     >
       <label
         className="btn btn--ghost btn--icon"
-        aria-label="Attach file"
-        title="Attach file"
+        aria-label={t("composer.attachAria")}
+        title={t("composer.attachAria")}
       >
         <Icon name="paperclip" size={18} />
         <input
@@ -68,7 +70,7 @@ export function Composer({ onSend, onSendFile, disabled }: Props) {
         value={text}
         onChange={(e) => setText(e.target.value)}
         onKeyDown={handleKey}
-        placeholder={disabled ? "Configure an agent to start chatting" : "Type a message..."}
+        placeholder={disabled ? t("composer.placeholderDisabled") : t("composer.placeholder")}
         disabled={disabled}
         className="textarea flex-1"
         style={{ minHeight: 40, maxHeight: 160 }}
@@ -78,8 +80,8 @@ export function Composer({ onSend, onSendFile, disabled }: Props) {
         onClick={send}
         disabled={disabled || text.trim().length === 0}
         className="btn btn--primary btn--icon"
-        aria-label="Send message"
-        title="Send"
+        aria-label={t("composer.sendAria")}
+        title={t("common.send")}
       >
         <Icon name="send" size={18} />
       </button>

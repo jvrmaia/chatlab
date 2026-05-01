@@ -1,4 +1,6 @@
+import { useTranslation } from "react-i18next";
 import { mediaDownloadUrl, type UiFeedback, type UiMessage } from "../api.js";
+import { useLocaleFormat } from "../i18n/format.js";
 import { Icon } from "./Icon.js";
 import { MarkdownContent } from "./MarkdownContent.js";
 
@@ -9,6 +11,8 @@ interface Props {
 }
 
 export function MessageBubble({ message, feedback, onRate }: Props) {
+  const { t } = useTranslation();
+  const { formatTime } = useLocaleFormat();
   const isAssistant = message.role === "assistant";
   const failed = message.status === "failed";
 
@@ -28,8 +32,8 @@ export function MessageBubble({ message, feedback, onRate }: Props) {
       <div className={bubbleClass}>
         {failed ? (
           <div>
-            <div className="font-medium">Agent failed</div>
-            <div className="mt-1 font-mono text-xs">{message.error ?? "unknown error"}</div>
+            <div className="font-medium">{t("chatView.agentFailed")}</div>
+            <div className="mt-1 font-mono text-xs">{message.error ?? t("chatView.unknownError")}</div>
           </div>
         ) : (
           <>
@@ -44,17 +48,14 @@ export function MessageBubble({ message, feedback, onRate }: Props) {
           </>
         )}
         <div className="mt-1 text-right font-mono text-[11px] text-ink-3">
-          {new Date(message.created_at).toLocaleTimeString([], {
-            hour: "2-digit",
-            minute: "2-digit",
-          })}
+          {formatTime(message.created_at)}
         </div>
       </div>
       {isAssistant && !failed && (
         <div className="mt-1 flex gap-1">
           <button
             type="button"
-            aria-label={feedback?.rating === "up" ? "remove positive rating" : "rate good"}
+            aria-label={feedback?.rating === "up" ? t("feedback.removePositive") : t("feedback.rateGood")}
             onClick={() => tap("up")}
             className={`btn btn--icon btn--sm ${
               feedback?.rating === "up" ? "btn--accent" : "btn--ghost"
@@ -64,7 +65,7 @@ export function MessageBubble({ message, feedback, onRate }: Props) {
           </button>
           <button
             type="button"
-            aria-label={feedback?.rating === "down" ? "remove negative rating" : "rate bad"}
+            aria-label={feedback?.rating === "down" ? t("feedback.removeNegative") : t("feedback.rateBad")}
             onClick={() => tap("down")}
             className={`btn btn--icon btn--sm ${
               feedback?.rating === "down" ? "btn--danger" : "btn--ghost"
@@ -83,11 +84,12 @@ function Attachment({
 }: {
   attachment: { media_id: string; mime_type: string; filename?: string };
 }): JSX.Element {
+  const { t } = useTranslation();
   if (attachment.mime_type.startsWith("image/")) {
     return (
       <img
         src={mediaDownloadUrl(attachment.media_id)}
-        alt={attachment.filename ?? "image"}
+        alt={attachment.filename ?? t("chatView.imageAlt")}
         className="rounded-md max-h-64"
       />
     );
@@ -114,7 +116,7 @@ function Attachment({
       className="inline-flex items-center gap-1 underline text-accent-700"
     >
       <Icon name="paperclip" size={14} />
-      {attachment.filename ?? "document"}
+      {attachment.filename ?? t("chatView.documentAlt")}
     </a>
   );
 }

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { createChat, type UiAgent, type UiChat } from "../api.js";
 import { Icon } from "./Icon.js";
 
@@ -11,6 +12,7 @@ interface Props {
 }
 
 export function ChatList({ chats, agents, selectedId, onSelect, onCreated }: Props) {
+  const { t } = useTranslation();
   const [creating, setCreating] = useState(false);
   const [agentId, setAgentId] = useState<string>("");
   const [theme, setTheme] = useState<string>("");
@@ -19,7 +21,7 @@ export function ChatList({ chats, agents, selectedId, onSelect, onCreated }: Pro
 
   async function submit(): Promise<void> {
     if (!agentId || !theme.trim()) {
-      setErr("Pick an agent and write a theme.");
+      setErr(t("chatList.validation"));
       return;
     }
     setBusy(true);
@@ -38,7 +40,7 @@ export function ChatList({ chats, agents, selectedId, onSelect, onCreated }: Pro
   }
 
   function nameForAgent(id: string): string {
-    return agents.find((a) => a.id === id)?.name ?? "(deleted agent)";
+    return agents.find((a) => a.id === id)?.name ?? t("chatList.deletedAgent");
   }
 
   return (
@@ -48,15 +50,15 @@ export function ChatList({ chats, agents, selectedId, onSelect, onCreated }: Pro
     >
       <header className="flex items-center justify-between border-b border-line-soft px-3 py-3">
         <div>
-          <div className="font-semibold text-ink-1">chats</div>
+          <div className="font-semibold text-ink-1">{t("chatList.title")}</div>
           <div className="font-mono text-xs text-ink-3">
-            {agents.length === 0 ? "no agents — go to admin" : `${chats.length} active`}
+            {agents.length === 0 ? t("chatList.noAgents") : t("chatList.activeCount", { count: chats.length })}
           </div>
         </div>
         <button
           type="button"
-          aria-label="New chat"
-          title="New chat"
+          aria-label={t("chatList.newChat")}
+          title={t("chatList.newChat")}
           disabled={agents.length === 0}
           onClick={() => setCreating(!creating)}
           className="btn btn--primary btn--icon btn--sm"
@@ -68,13 +70,13 @@ export function ChatList({ chats, agents, selectedId, onSelect, onCreated }: Pro
       {creating && (
         <div className="space-y-3 border-b border-line-soft bg-sunken p-3">
           <div className="field">
-            <span className="field__label">Agent</span>
+            <span className="field__label">{t("chatList.agent")}</span>
             <select
               className="select"
               value={agentId}
               onChange={(e) => setAgentId(e.target.value)}
             >
-              <option value="">Pick an agent…</option>
+              <option value="">{t("chatList.pickAgent")}</option>
               {agents.map((a) => (
                 <option key={a.id} value={a.id}>
                   {a.name} — {a.provider}/{a.model}
@@ -83,12 +85,12 @@ export function ChatList({ chats, agents, selectedId, onSelect, onCreated }: Pro
             </select>
           </div>
           <div className="field">
-            <span className="field__label">Theme</span>
+            <span className="field__label">{t("chatList.theme")}</span>
             <input
               className="input"
               value={theme}
               onChange={(e) => setTheme(e.target.value)}
-              placeholder="e.g., learning Python"
+              placeholder={t("chatList.themePlaceholder")}
               maxLength={280}
             />
           </div>
@@ -100,7 +102,7 @@ export function ChatList({ chats, agents, selectedId, onSelect, onCreated }: Pro
               disabled={busy}
               className="btn btn--primary btn--sm"
             >
-              {busy ? "…" : "Create"}
+              {busy ? t("common.loading") : t("common.create")}
             </button>
             <button
               type="button"
@@ -110,16 +112,16 @@ export function ChatList({ chats, agents, selectedId, onSelect, onCreated }: Pro
               }}
               className="btn btn--secondary btn--sm"
             >
-              Cancel
+              {t("common.cancel")}
             </button>
           </div>
         </div>
       )}
 
-      <div className="scroll-area flex-1" role="list" aria-label="Chats">
+      <div className="scroll-area flex-1" role="list" aria-label={t("chatList.ariaList")}>
         {chats.length === 0 && !creating ? (
           <div className="p-3 text-xs text-ink-3">
-            No chats yet. Click <strong>+</strong> to start one.
+            {t("chatList.emptyHintBefore")}<strong>+</strong>{t("chatList.emptyHintAfter")}
           </div>
         ) : (
           chats.map((chat) => {
