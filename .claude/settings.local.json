@@ -55,7 +55,19 @@
       "Bash(tar xzf *)",
       "Bash(./gitleaks --version)",
       "Bash(/tmp/gitleaks detect *)",
-      "Bash(curl -s \"https://api.github.com/repos/google/osv-scanner-action/tags?per_page=5\")"
+      "Bash(curl -s \"https://api.github.com/repos/google/osv-scanner-action/tags?per_page=5\")",
+      "Bash(curl -sI https://jvrmaia.github.io/chatlab/quickstart)",
+      "Bash(curl -sI https://jvrmaia.github.io/chatlab/)",
+      "Bash(curl -s https://jvrmaia.github.io/chatlab/)",
+      "Bash(curl -sI \"https://jvrmaia.github.io/chatlab/quickstart/\")",
+      "Bash(curl -sI \"https://jvrmaia.github.io/chatlab/assets/js/main.36866508.js\")",
+      "Bash(curl -sI \"https://jvrmaia.github.io/chatlab/assets/css/styles.8a747104.css\")",
+      "Bash(curl -s https://jvrmaia.github.io/chatlab/quickstart/)",
+      "Bash(curl -s https://jvrmaia.github.io/chatlab/recipes/ -o /dev/null -w \"%{http_code}\\\\n\")",
+      "Bash(git -C /Users/jvrmaia/Workspace/jvrmaia/zapzap-emulator log --oneline -3)",
+      "Bash(git -C /Users/jvrmaia/Workspace/jvrmaia/zapzap-emulator status)",
+      "Bash(git *)",
+      "Bash(awk '/```mermaid/,/```$/' docs/ARCHITECTURE.md docs/ROADMAP.md docs/specs/adr/0008-mermaid-for-diagrams.md)"
     ]
   }
 }

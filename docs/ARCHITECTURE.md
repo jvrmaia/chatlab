@@ -132,8 +132,8 @@ These targets are aspirational for the in-process loop, not service-level guaran
 graph LR
   Adapter[StorageAdapter interface]
   Memory[MemoryAdapter]
-  SQLite[SqliteAdapter<br/>better-sqlite3]
-  DuckDB[DuckDbAdapter<br/>@duckdb/node-api]
+  SQLite["SqliteAdapter<br/>better-sqlite3"]
+  DuckDB["DuckDbAdapter<br/>@duckdb/node-api"]
 
   Adapter --- Memory
   Adapter --- SQLite
