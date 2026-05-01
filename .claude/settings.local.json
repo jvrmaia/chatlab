@@ -39,7 +39,23 @@
       "Bash(awk '/## \\\\[Unreleased\\\\]/{flag=1;next} /^## \\\\[/{flag=0} flag' /Users/jvrmaia/Workspace/jvrmaia/zapzap-emulator/CHANGELOG.md)",
       "Bash(git check-ignore *)",
       "Bash(git add *)",
-      "Bash(git commit *)"
+      "Bash(git commit *)",
+      "Bash(gh run *)",
+      "Read(//opt/homebrew/bin/**)",
+      "Bash(brew list *)",
+      "Bash(git fetch *)",
+      "Bash(git remote *)",
+      "Bash(curl -s \"https://api.github.com/repos/jvrmaia/chatlab/actions/runs?per_page=10\")",
+      "Bash(curl -s \"https://api.github.com/repos/jvrmaia/chatlab/actions/runs?per_page=15\")",
+      "Bash(curl -s \"https://api.github.com/repos/jvrmaia/chatlab/actions/runs?event=push&per_page=5\")",
+      "Bash(curl -s https://api.github.com/repos/jvrmaia/chatlab/actions/runs/__TRACKED_VAR__/jobs)",
+      "Bash(curl -s \"https://api.github.com/repos/jvrmaia/chatlab/actions/runs/25198427739/logs\" -L -o /tmp/secret-scan-logs.zip)",
+      "Bash(curl -sI \"https://api.github.com/repos/jvrmaia/chatlab/actions/runs/25198427739/logs\")",
+      "Bash(curl -sL https://github.com/gitleaks/gitleaks/releases/download/v8.21.2/gitleaks_8.21.2_darwin_arm64.tar.gz -o gitleaks.tgz)",
+      "Bash(tar xzf *)",
+      "Bash(./gitleaks --version)",
+      "Bash(/tmp/gitleaks detect *)",
+      "Bash(curl -s \"https://api.github.com/repos/google/osv-scanner-action/tags?per_page=5\")"
     ]
   }
 }
