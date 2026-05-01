@@ -70,7 +70,18 @@
       "Bash(awk '/```mermaid/,/```$/' docs/ARCHITECTURE.md docs/ROADMAP.md docs/specs/adr/0008-mermaid-for-diagrams.md)",
       "Bash(xargs -I {} sed -i '' -e 's|/user-guide/01-install|/user-guide/install|g' -e 's|/user-guide/02-workspaces-and-agents|/user-guide/workspaces-and-agents|g' -e 's|/user-guide/03-chats-and-messages|/user-guide/chats-and-messages|g' -e 's|/user-guide/04-multiple-chats|/user-guide/multiple-chats|g' -e 's|/user-guide/05-feedback-and-export|/user-guide/feedback-and-export|g' -e 's|/user-guide/06-going-further|/user-guide/going-further|g' {})",
       "Bash(npx redocly@2.30.3 lint docs/specs/api/openapi.yaml)",
-      "Bash(npx @redocly/cli@2.30.3 lint docs/specs/api/openapi.yaml)"
+      "Bash(npx @redocly/cli@2.30.3 lint docs/specs/api/openapi.yaml)",
+      "Bash(command -v docker)",
+      "Bash(docker --version)",
+      "Bash(curl -s https://registry.npmjs.org/@jvrmaia/chatlab/1.0.0)",
+      "Bash(curl -sI https://registry.npmjs.org/@jvrmaia/chatlab)",
+      "Bash(curl -s https://registry.npmjs.org/@jvrmaia/chatlab)",
+      "Bash(gh pr *)",
+      "Bash(curl -s https://api.github.com/repos/jvrmaia/chatlab/pulls?state=open)",
+      "Bash(curl -s \"https://api.github.com/repos/jvrmaia/chatlab/pulls?state=open&per_page=30\" -o /tmp/prs.json)",
+      "Bash(env)",
+      "Bash(sed -i '' 's|github/codeql-action/init@v3|github/codeql-action/init@v4|; s|github/codeql-action/autobuild@v3|github/codeql-action/autobuild@v4|; s|github/codeql-action/analyze@v3|github/codeql-action/analyze@v4|' /Users/jvrmaia/Workspace/jvrmaia/zapzap-emulator/.github/workflows/codeql.yml)",
+      "Bash(sed -i '' 's|github/codeql-action/upload-sarif@v3|github/codeql-action/upload-sarif@v4|' /Users/jvrmaia/Workspace/jvrmaia/zapzap-emulator/.github/workflows/dependency-scan.yml)"
     ]
   }
 }
