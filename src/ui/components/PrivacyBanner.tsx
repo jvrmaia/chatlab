@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, type JSX } from "react";
 import { useTranslation } from "react-i18next";
 import type { UiAgent } from "../api.js";
 import { Icon } from "./Icon.js";

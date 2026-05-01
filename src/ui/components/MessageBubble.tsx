@@ -1,3 +1,4 @@
+import type { JSX } from "react";
 import { useTranslation } from "react-i18next";
 import { mediaDownloadUrl, type UiFeedback, type UiMessage } from "../api.js";
 import { useLocaleFormat } from "../i18n/format.js";

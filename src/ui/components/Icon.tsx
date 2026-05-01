@@ -1,4 +1,4 @@
-import type { CSSProperties } from "react";
+import type { CSSProperties, JSX } from "react";
 
 const PATHS = {
   plus: "M12 5v14|M5 12h14",

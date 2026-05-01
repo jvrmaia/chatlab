@@ -1,3 +1,4 @@
+import type { JSX } from "react";
 import { useTranslation } from "react-i18next";
 
 type SupportedLocale = "en-US" | "pt-BR";
