@@ -65,7 +65,7 @@
   },
   "dependencies": {
     "@duckdb/node-api": "1.5.2-r.1",
-    "better-sqlite3": "^11.3.0",
+    "better-sqlite3": "^12.9.0",
     "express": "^4.21.0",
     "i18next": "^26.0.8",
     "i18next-browser-languagedetector": "^8.2.1",
