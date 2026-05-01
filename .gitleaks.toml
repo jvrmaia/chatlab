@@ -1,0 +1,33 @@
+# Gitleaks config for chatlab.
+#
+# Extends the default ruleset; adds a focused allowlist for test fixtures
+# that look like API keys but are deliberately fake (`sk-test-*`, `sk-A-*`,
+# `sk-orig-*`, `sk-bad-*`, `sk-fake-*`, `sk-rotated`). These appear in
+# `test/**/*.test.ts` and `docs/_capture/seed.ts` to exercise the agent
+# CRUD + masking + at-rest encryption paths.
+
+[extend]
+useDefault = true
+
+[allowlist]
+description = "chatlab test fixtures + docs examples"
+paths = [
+  '''test/.*\.test\.ts$''',
+  '''docs/_capture/seed\.ts$''',
+  # Documentation examples use placeholder bearer tokens (`dev-token`,
+  # `hunter2`) and fake provider keys throughout. The token is only a
+  # placeholder for permissive-auth mode — real auth in chatlab is via
+  # `CHATLAB_REQUIRE_TOKEN`, never literal in docs.
+  '''docs/.*\.md$''',
+  '''docs/.*\.yml$''',
+  '''README\.md$''',
+  '''CHANGELOG\.md$''',
+]
+regexes = [
+  # Fake openai-style keys used as fixtures: sk-<word> with optional alnum tail.
+  '''sk-(test|A|orig|bad|fake|rotated)(-[A-Za-z0-9]+)?''',
+  # Anthropic-shaped fake keys used in test/agents/anthropic.test.ts.
+  '''sk-ant-[A-Za-z0-9]+''',
+  # Placeholder bearer tokens in docs examples.
+  '''Bearer (dev-token|hunter2|\$TOKEN|<token>|\$\{TOKEN\})''',
+]

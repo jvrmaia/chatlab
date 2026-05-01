@@ -51,10 +51,12 @@ jobs:
         with:
           persist-credentials: false
 
-      # Use the reusable workflow shipped by Google. It runs the scanner,
-      # converts results to SARIF, and uploads to the Security tab.
+      # Composite action shipped by Google. Runs the scanner, converts
+      # results to SARIF; we upload to the Security tab in the next step.
+      # The repo dropped `v1` tags during the v2 split (the v1 ref no longer
+      # resolves), so we pin to the current major.
       - name: Run OSV-Scanner
-        uses: google/osv-scanner-action/osv-scanner-action@v1
+        uses: google/osv-scanner-action/osv-scanner-action@v2.3.5
         with:
           scan-args: |-
             --recursive
