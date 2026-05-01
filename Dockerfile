@@ -14,6 +14,9 @@ WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY package.json tsconfig.json tsconfig.ui.json vite.config.ts vitest.config.ts ./
 COPY src ./src
+# Vite's UI build resolves `@import "../../docs/_design/{tokens,components}.css"`
+# from src/ui/styles.css — this subtree must be in the build context.
+COPY docs/_design ./docs/_design
 RUN npm run build
 
 FROM node:${NODE_VERSION}-bookworm-slim AS runtime
