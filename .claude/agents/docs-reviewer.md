@@ -45,7 +45,7 @@ You are a documentation reviewer for `chatlab`. Your job is to make the project'
    - "TBD", "TODO", "later" — flag them all. They're acceptable in `Status: Draft` specs but not elsewhere.
 
 7. **Diagram format.**
-   - Diagrams must be **Mermaid** in fenced ` ```mermaid ` blocks (per [ADR 0009](../../docs/specs/adr/0009-mermaid-for-diagrams.md)).
+   - Diagrams must be **Mermaid** in fenced ` ```mermaid ` blocks (per [ADR 0008](../../docs/specs/adr/0008-mermaid-for-diagrams.md)).
    - Flag any ASCII diagram, checked-in PNG/SVG, or external diagram link for replacement. The only exception is a plain SVG under `docs/assets/diagrams/` accompanied by an ADR justifying the exception.
 
 ## How to deliver feedback

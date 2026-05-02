@@ -34,7 +34,7 @@ What state must exist before any scenario in this file runs.
 ### XX-01 — Title (HAPPY PATH)
 
 - **Type:** Unit | Integration | Screenshot
-- **Persona:** Bruno | Camila | Diego (per [`personas.md`](../../../personas.md))
+- **Persona:** Bruno | Camila | Diego (per [`personas.md`](../../personas.md))
 - **Covers:** capability behavior bullet(s); openapi operations
 - **Setup:** any per-scenario state beyond Preconditions
 - **Steps:**
