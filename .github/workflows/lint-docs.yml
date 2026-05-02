@@ -49,7 +49,7 @@ jobs:
           args: >
             --no-progress
             --exclude-loopback
-            --exclude '^https?://(localhost|127\.0\.0\.1|host\.docker\.internal|jvrmaia\.github\.io)'
+            --exclude '^https?://(localhost|127\.0\.0\.1|host\.docker\.internal|jvrmaia\.github\.io|github\.com/jvrmaia/chatlab/blob)'
             --accept 200,403,429
             './**/*.md'
           fail: true
