@@ -4,7 +4,7 @@ export const ALLOWED_MIME_BY_TYPE: Record<MediaType, RegExp> = {
   image: /^image\//,
   audio: /^audio\//,
   video: /^video\//,
-  document: /^application\/|^text\//,
+  document: /^application\/(?:pdf|msword|rtf|zip|x-zip(?:-compressed)?|(?:x-)?gzip|x-tar|json|xml|vnd\.[A-Za-z0-9!#$&\-^_.+]+|octet-stream)$|^text\/(?:plain|csv|markdown|x-markdown|tab-separated-values)$/,
   sticker: /^image\/webp$|^image\//,
 };
 

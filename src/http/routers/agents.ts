@@ -110,15 +110,7 @@ export function agentsRouter(core: Core, opts: { agentFetcher?: typeof fetch } =
         res.json({ content: out.content });
       } catch (e) {
         if (e instanceof LlmError) {
-          throw new ApiError(
-            502,
-            1000005,
-            e.message,
-            e.subcode,
-            e.providerBody !== undefined && e.providerBody !== null
-              ? { provider_body: e.providerBody as Record<string, unknown> }
-              : undefined,
-          );
+          throw new ApiError(502, 1000005, e.message, e.subcode);
         }
         throw e;
       }
@@ -153,7 +145,7 @@ function parseCreate(body: AgentBody): {
     provider: body.provider as AgentProvider,
     model: body.model,
     ...(typeof body.api_key === "string" ? { api_key: body.api_key } : {}),
-    ...(typeof body.base_url === "string" ? { base_url: body.base_url } : {}),
+    ...(typeof body.base_url === "string" ? { base_url: validateBaseUrl(body.base_url) } : {}),
     ...(typeof body.system_prompt === "string" ? { system_prompt: body.system_prompt } : {}),
     context_window:
       typeof body.context_window === "number" && body.context_window > 0
@@ -173,10 +165,42 @@ function parsePatch(body: AgentBody): AgentPatch {
   }
   if (typeof body.model === "string") patch.model = body.model;
   if (typeof body.api_key === "string" && body.api_key.length > 0) patch.api_key = body.api_key;
-  if (typeof body.base_url === "string") patch.base_url = body.base_url;
+  if (typeof body.base_url === "string") patch.base_url = validateBaseUrl(body.base_url);
   if (typeof body.system_prompt === "string") patch.system_prompt = body.system_prompt;
   if (typeof body.context_window === "number" && body.context_window > 0) {
     patch.context_window = Math.min(200, Math.floor(body.context_window));
   }
   return patch;
+}
+
+// Block SSRF targets: only http/https allowed; cloud metadata services and
+// loopback are rejected regardless of deployment context.
+const BLOCKED_HOSTS = new Set([
+  "169.254.169.254",       // AWS / GCP / Azure IMDS (IMDSv1)
+  "100.100.100.200",       // Alibaba Cloud IMDS
+  "metadata.google.internal",
+  "metadata.goog",
+]);
+
+function validateBaseUrl(raw: string): string {
+  let url: URL;
+  try {
+    url = new URL(raw);
+  } catch {
+    throw new ApiError(400, 100, "`base_url` must be a valid URL");
+  }
+  if (url.protocol !== "http:" && url.protocol !== "https:") {
+    throw new ApiError(400, 100, "`base_url` must use http or https scheme");
+  }
+  const host = url.hostname.toLowerCase();
+  if (
+    BLOCKED_HOSTS.has(host) ||
+    host === "localhost" ||
+    /^127\./.test(host) ||
+    host === "::1" ||
+    host === "[::1]"
+  ) {
+    throw new ApiError(400, 100, "`base_url` host is not permitted");
+  }
+  return raw;
 }

@@ -1,5 +1,5 @@
 import express, { Router, type Application } from "express";
-import { existsSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import type { Core } from "../core/core.js";
 import { authMiddleware } from "./auth.js";
@@ -21,6 +21,10 @@ interface ServerConfig {
 export function createApp(cfg: ServerConfig): Application {
   const app = express();
   app.disable("x-powered-by");
+  app.use((_req, res, next) => {
+    res.setHeader("X-Content-Type-Options", "nosniff");
+    next();
+  });
   app.use(express.json({ limit: "1mb" }));
   app.use(requestIdMiddleware);
 
@@ -35,10 +39,12 @@ export function createApp(cfg: ServerConfig): Application {
   // Static UI is served BEFORE the authenticated API surface so /ui never
   // requires a token.
   if (cfg.uiDistDir && existsSync(cfg.uiDistDir)) {
+    const indexHtml = readFileSync(join(cfg.uiDistDir, "index.html"), "utf8");
     app.use("/ui", express.static(cfg.uiDistDir, { fallthrough: true }));
     app.get("/ui", (_req, res) => res.redirect(301, "/ui/"));
     app.get("/ui/*path", (_req, res) => {
-      res.sendFile(join(cfg.uiDistDir!, "index.html"));
+      res.setHeader("Content-Type", "text/html; charset=utf-8");
+      res.send(indexHtml);
     });
   } else {
     app.get(["/ui", "/ui/*path"], (_req, res) => {

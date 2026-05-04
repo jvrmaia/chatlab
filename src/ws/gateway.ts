@@ -1,3 +1,4 @@
+import { timingSafeEqual } from "node:crypto";
 import type { Server as HttpServer } from "node:http";
 import { WebSocketServer, type WebSocket } from "ws";
 import type { Core, CoreEvent } from "../core/core.js";
@@ -7,8 +8,24 @@ export class WsGateway {
   private clients = new Set<WebSocket>();
   private unsubscribe: (() => void) | null = null;
 
-  constructor(server: HttpServer, private readonly core: Core) {
-    this.wss = new WebSocketServer({ server, path: "/ws" });
+  constructor(server: HttpServer, private readonly core: Core, requireToken?: string) {
+    this.wss = new WebSocketServer({
+      server,
+      path: "/ws",
+      verifyClient: requireToken
+        ? ({ req }, done) => {
+            const header = (req.headers["authorization"] as string | undefined) ?? "";
+            const token = header.startsWith("Bearer ") ? header.slice(7).trim() : "";
+            const expected = Buffer.from(requireToken);
+            const provided = Buffer.from(token);
+            const maxLen = Math.max(expected.length, provided.length);
+            const a = Buffer.concat([expected, Buffer.alloc(maxLen - expected.length)]);
+            const b = Buffer.concat([provided, Buffer.alloc(maxLen - provided.length)]);
+            const ok = provided.length === expected.length && timingSafeEqual(a, b);
+            done(ok, 401, "Unauthorized");
+          }
+        : undefined,
+    });
     this.wss.on("connection", (ws) => {
       this.clients.add(ws);
       ws.on("close", () => this.clients.delete(ws));

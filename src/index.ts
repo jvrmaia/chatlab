@@ -77,7 +77,7 @@ export async function startChatlab(
   });
 
   const httpServer: HttpServer = createServer(app);
-  const ws = new WsGateway(httpServer, core);
+  const ws = new WsGateway(httpServer, core, cfg.requireToken);
 
   await new Promise<void>((resolve) => {
     httpServer.listen(cfg.port, cfg.host, () => resolve());
