@@ -7,10 +7,6 @@ export default defineConfig({
     environment: "node",
     testTimeout: 15_000,
     hookTimeout: 15_000,
-    pool: "forks",
-    poolOptions: {
-      forks: { singleFork: false },
-    },
     coverage: {
       provider: "v8",
       reporter: ["text", "html", "lcov"],

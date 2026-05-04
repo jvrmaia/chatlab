@@ -1,18 +1,8 @@
 import type { Config } from "tailwindcss";
-import { fileURLToPath } from "node:url";
-import { dirname, join } from "node:path";
 
-const here = dirname(fileURLToPath(import.meta.url));
 const v = (name: string): string => `var(--${name})`;
 
 export default {
-  content: [
-    join(here, "index.html"),
-    join(here, "App.tsx"),
-    join(here, "main.tsx"),
-    join(here, "api.ts"),
-    join(here, "components/**/*.{ts,tsx}"),
-  ],
   darkMode: ["selector", ':root[data-theme="dark"]'],
   theme: {
     extend: {

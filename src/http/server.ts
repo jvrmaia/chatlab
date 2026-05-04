@@ -37,11 +37,11 @@ export function createApp(cfg: ServerConfig): Application {
   if (cfg.uiDistDir && existsSync(cfg.uiDistDir)) {
     app.use("/ui", express.static(cfg.uiDistDir, { fallthrough: true }));
     app.get("/ui", (_req, res) => res.redirect(301, "/ui/"));
-    app.get("/ui/*", (_req, res) => {
+    app.get("/ui/*path", (_req, res) => {
       res.sendFile(join(cfg.uiDistDir!, "index.html"));
     });
   } else {
-    app.get(/^\/ui(\/.*)?$/, (_req, res) => {
+    app.get(["/ui", "/ui/*path"], (_req, res) => {
       res
         .status(503)
         .type("text/plain")

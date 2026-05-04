@@ -81,7 +81,10 @@
       "Bash(curl -s \"https://api.github.com/repos/jvrmaia/chatlab/pulls?state=open&per_page=30\" -o /tmp/prs.json)",
       "Bash(env)",
       "Bash(sed -i '' 's|github/codeql-action/init@v3|github/codeql-action/init@v4|; s|github/codeql-action/autobuild@v3|github/codeql-action/autobuild@v4|; s|github/codeql-action/analyze@v3|github/codeql-action/analyze@v4|' /Users/jvrmaia/Workspace/jvrmaia/zapzap-emulator/.github/workflows/codeql.yml)",
-      "Bash(sed -i '' 's|github/codeql-action/upload-sarif@v3|github/codeql-action/upload-sarif@v4|' /Users/jvrmaia/Workspace/jvrmaia/zapzap-emulator/.github/workflows/dependency-scan.yml)"
+      "Bash(sed -i '' 's|github/codeql-action/upload-sarif@v3|github/codeql-action/upload-sarif@v4|' /Users/jvrmaia/Workspace/jvrmaia/zapzap-emulator/.github/workflows/dependency-scan.yml)",
+      "Bash(brew install *)",
+      "Bash(export PATH=\"/opt/homebrew/bin:$PATH\")",
+      "Bash(npm show *)"
     ]
   }
 }
