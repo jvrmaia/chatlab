@@ -78,7 +78,9 @@ export function mediaRouter(core: Core): Router {
       res.setHeader("Content-Type", meta.mime_type);
       res.setHeader("Content-Length", meta.size.toString());
       const disposition = meta.filename
-        ? `attachment; filename="${meta.filename.replace(/"/g, '\\"')}"`
+        ? `attachment; filename="${meta.filename
+            .replace(/\\/g, "\\\\")
+            .replace(/"/g, '\\"')}"`
         : "attachment";
       res.setHeader("Content-Disposition", disposition);
       res.send(content);
