@@ -18,6 +18,7 @@ interface AgentBody {
   base_url?: unknown;
   system_prompt?: unknown;
   context_window?: unknown;
+  temperature?: unknown;
 }
 
 export function agentsRouter(core: Core, opts: { agentFetcher?: typeof fetch } = {}): Router {
@@ -104,7 +105,7 @@ export function agentsRouter(core: Core, opts: { agentFetcher?: typeof fetch } =
           model: effectiveModel(agent),
           baseUrl: effectiveBaseUrl(agent),
           ...(agent.api_key ? { apiKey: agent.api_key } : {}),
-          temperature: 0.7,
+          temperature: agent.temperature ?? 0.7,
           ...(opts.agentFetcher ? { fetcher: opts.agentFetcher } : {}),
         });
         res.json({ content: out.content });
@@ -151,6 +152,9 @@ function parseCreate(body: AgentBody): {
       typeof body.context_window === "number" && body.context_window > 0
         ? Math.min(200, Math.floor(body.context_window))
         : 20,
+    ...(typeof body.temperature === "number"
+      ? { temperature: Math.min(2, Math.max(0, body.temperature)) }
+      : {}),
   };
 }
 
@@ -170,11 +174,14 @@ function parsePatch(body: AgentBody): AgentPatch {
   if (typeof body.context_window === "number" && body.context_window > 0) {
     patch.context_window = Math.min(200, Math.floor(body.context_window));
   }
+  if (typeof body.temperature === "number") {
+    patch.temperature = Math.min(2, Math.max(0, body.temperature));
+  }
   return patch;
 }
 
-// Block SSRF targets: only http/https allowed; cloud metadata services and
-// loopback are rejected regardless of deployment context.
+// Block SSRF targets: only http/https allowed; loopback, cloud IMDS, and
+// RFC-1918 private ranges are rejected regardless of deployment context.
 const BLOCKED_HOSTS = new Set([
   "169.254.169.254",       // AWS / GCP / Azure IMDS (IMDSv1)
   "100.100.100.200",       // Alibaba Cloud IMDS
@@ -196,9 +203,17 @@ function validateBaseUrl(raw: string): string {
   if (
     BLOCKED_HOSTS.has(host) ||
     host === "localhost" ||
+    host === "0.0.0.0" ||
     /^127\./.test(host) ||
     host === "::1" ||
-    host === "[::1]"
+    host === "[::1]" ||
+    // RFC-1918 private ranges
+    /^10\./.test(host) ||
+    /^172\.(1[6-9]|2\d|3[01])\./.test(host) ||
+    /^192\.168\./.test(host) ||
+    // IPv6 ULA (fc00::/7) and link-local (fe80::/10)
+    /^f[cd]/.test(host) ||
+    /^fe[89ab]/.test(host)
   ) {
     throw new ApiError(400, 100, "`base_url` host is not permitted");
   }

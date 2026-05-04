@@ -1,4 +1,5 @@
 import { existsSync, mkdirSync, readFileSync, renameSync, writeFileSync, unlinkSync } from "node:fs";
+import { randomBytes } from "node:crypto";
 import { dirname, join, resolve } from "node:path";
 import { homedir } from "node:os";
 import { newId } from "../lib/id.js";
@@ -201,7 +202,7 @@ export class WorkspaceRegistry {
 
   private writeAtomic(data: RegistryFile): void {
     mkdirSync(dirname(this.file), { recursive: true });
-    const tmp = `${this.file}.tmp-${process.pid}-${Date.now()}`;
+    const tmp = `${this.file}.tmp-${randomBytes(8).toString("hex")}`;
     writeFileSync(tmp, JSON.stringify(data, null, 2), "utf8");
     renameSync(tmp, this.file);
   }

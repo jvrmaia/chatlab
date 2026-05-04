@@ -39,6 +39,7 @@ export interface StorageAdapter {
       attachments?: Attachment[];
       status?: MessageStatus;
       error?: string;
+      agent_version?: string;
     }): Promise<Message>;
     get(id: MessageId): Promise<Message | null>;
     listByChat(chat_id: ChatId): Promise<Message[]>;

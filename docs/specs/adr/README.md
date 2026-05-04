@@ -31,6 +31,7 @@ Don't write an ADR for choices that are obvious, easily reversible, or would be 
 | 0011 | [Hosted instance (Deferred)](./0011-hosted-instance-deferred.md) | Deferred |
 | 0012 | [Security and dependency scanning](./0012-security-and-dependency-scanning.md) | Accepted |
 | 0013 | [Adopt the chatlab design system](./0013-adopt-claude-design-system.md) | Accepted |
+| 0014 | [SSRF and MIME-spoof mitigation](./0014-ssrf-and-mime-mitigation.md) | Accepted |
 
 ## How to write a new one
 

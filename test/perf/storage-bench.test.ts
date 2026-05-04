@@ -1,4 +1,4 @@
-import { describe, it } from "vitest";
+import { describe, expect, it } from "vitest";
 import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -97,5 +97,20 @@ describe.skipIf(!enabled)("storage bench (insert + read 10k messages)", () => {
       rmSync(dir, { recursive: true, force: true });
     }
     console.log("\n" + formatTable(results) + "\n");
+
+    // Latency bounds: generous enough to pass on any reasonable machine,
+    // tight enough to catch catastrophic regressions (e.g., accidentally
+    // running inside a for-await loop that re-opens the DB per message).
+    const LIMITS: Record<string, { insertUs: number; readUs: number }> = {
+      memory: { insertUs: 1_000, readUs: 100 },
+      sqlite: { insertUs: 50_000, readUs: 5_000 },
+      duckdb: { insertUs: 100_000, readUs: 10_000 },
+    };
+    for (const r of results) {
+      const limit = LIMITS[r.adapter];
+      if (!limit) continue;
+      expect(r.perInsertUs, `${r.adapter} insert µs/row`).toBeLessThan(limit.insertUs);
+      expect(r.perReadUs, `${r.adapter} read µs/row`).toBeLessThan(limit.readUs);
+    }
   });
 });

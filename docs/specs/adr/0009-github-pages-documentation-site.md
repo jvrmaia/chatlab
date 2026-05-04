@@ -55,7 +55,7 @@ The Docusaurus sidebar mirrors the existing `docs/` structure (declared explicit
 
 | Sidebar section | Source |
 | --- | --- |
-| **Getting started** | [`docs/project-overview.md`](../../project-overview.md) (links to the root README on GitHub), [`docs/quickstart.md`](../../quickstart.md), [`docs/recipes.md`](../../recipes.md), `docs/distribution/{npm,docker,manual}.md` |
+| **Getting started** | [`docs/project-overview.md`](/project-overview) (links to the root README on GitHub), [`docs/quickstart.md`](/quickstart), [`docs/recipes.md`](/recipes), `docs/distribution/{npm,docker,manual}.md` |
 | **User guide** | `docs/user-guide/*.md` |
 | **Architecture** | `docs/ARCHITECTURE.md`, `docs/GLOSSARY.md` |
 | **Capabilities** | every file under `docs/specs/capabilities/` (skipping `_template.md`) |

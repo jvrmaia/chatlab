@@ -9,11 +9,7 @@ const config: Config = {
   baseUrl: "/chatlab/",
   organizationName: "jvrmaia",
   projectName: "chatlab",
-  // pt-BR is a partial translation (only public-facing docs); cross-doc `.md`
-  // links inside the un-translated English docs cannot resolve cleanly inside
-  // the pt-BR locale build. Demoted to `warn` until v1.2 catches up the spec /
-  // ADR / cookbook docs. EN-only broken links still surface in the build log.
-  onBrokenLinks: "warn",
+  onBrokenLinks: "throw",
   i18n: {
     defaultLocale: "en-US",
     locales: ["en-US", "pt-BR"],

@@ -6,6 +6,37 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+### Security
+
+- **WebSocket auth bypass fixed** — `WsGateway` now uses `verifyClient` with `timingSafeEqual` to enforce `CHATLAB_REQUIRE_TOKEN` on WebSocket upgrade handshakes. Previously, the token check ran only in Express middleware, which is bypassed by the HTTP `Upgrade` path.
+- **Stored XSS via MIME spoofing fixed** — `ALLOWED_MIME_BY_TYPE` now uses an explicit allowlist regex that excludes `text/html`, `text/javascript`, and other executable types; media downloads use `Content-Disposition: attachment`; `X-Content-Type-Options: nosniff` is set globally.
+- **SSRF exfiltration via `agent base_url` fixed** — `validateBaseUrl` now blocks loopback, cloud IMDS addresses (`169.254.169.254`, `100.100.100.200`, `metadata.google.internal`, `metadata.goog`), RFC-1918 private ranges (`10.x`, `172.16-31.x`, `192.168.x`), and IPv6 ULA / link-local (`fc00::/7`, `fe80::/10`). The `/probe` endpoint no longer echoes upstream error bodies.
+
+### Dependencies (Dependabot sprint — 2026-05-03)
+
+Major-version bumps merged from 9 Dependabot branches:
+
+- **Express 4 → 5** (`express ^5.2.1`, `@types/express ^5.0.6`) — updated named wildcards (`/ui/*path`), no regex routes.
+- **multer 1 → 2** (`multer ^2.1.1`, `@types/multer ^2.1.0`).
+- **better-sqlite3 11 → 12** (`better-sqlite3 ^12.9.0`).
+- **Tailwind 3 → 4** (`tailwindcss ^4.2.4`, `@tailwindcss/postcss ^4.2.4`) — migrated to `@import "tailwindcss"` + `@source` + `@config` in CSS.
+- **Vitest 2 → 4** (`vitest ^4.1.5`, `@vitest/coverage-v8 ^4.1.5`) — removed deprecated `pool`/`poolOptions`; Vitest now uses oxc for JSX transforms.
+- **Vite 5 → 6** (`vite ^6.4.2`, `@vitejs/plugin-react ^5.2.0`) — addresses GHSA-67mh-4wv8-2f99.
+- **TypeScript 5 → 6** (`typescript ^6.0.0`).
+- **GitHub Actions**: `actions/checkout@v4 → v6`, `actions/deploy-pages@v4 → v5`, `docker/login-action@v3 → v4`, `docker/setup-qemu-action@v3 → v4`.
+- **OSV scanner fixes**: Docusaurus bumped to `^3.10.1`; `serialize-javascript` and `uuid` forced via `docs-site/package.json` `overrides` (GHSA-5c6j-r48x-rmvq, GHSA-w5hq-g745-h8pq).
+
+### Added
+
+- **`temperature` field on Agent** — agents now persist a per-agent `temperature` (0–2, default 0.7 at call time). Pass `temperature` in `POST /v1/agents` or `PATCH /v1/agents/:id`.
+- **`agent_version` snapshot on Message** — assistant messages now carry `agent_version: "<provider>/<model>"` set at creation time, so feedback export always reflects the model that produced the reply rather than the current agent configuration.
+- **Inflight drain on shutdown** — `stop()` now polls `core.inflightCount() === 0` for up to 65 s before closing the HTTP server, preventing half-written messages when a long LLM call is in flight at SIGTERM.
+- **SHA-pinned Docker actions in `release.yml`** — `docker/setup-qemu-action`, `docker/setup-buildx-action`, `docker/login-action`, and `docker/build-push-action` now reference immutable commit SHAs.
+
+### Reviews
+
+- **TRB post-security-sprint review (2026-05-03)** — full 14-persona snapshot of v1.1.0 after Dependabot major-bump sprint and three HIGH-severity security fixes. Maturity 7.9/10. Full register (21 items): [`docs/reviews/2026-05-03-post-security-sprint.md`](docs/reviews/2026-05-03-post-security-sprint.md).
+
 ## [1.1.0] — 2026-05-01
 
 Bilingual release. The Web UI and the public-facing docs subset are now bilingual en-US / pt-BR; English remains canonical for everything else (specs, ADRs, CHANGELOG, SECURITY, reviews, HTTP/CLI/OpenAPI strings).

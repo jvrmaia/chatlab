@@ -31,7 +31,7 @@ Se quer a versão de 5 minutos sem comentários, leia o [`quickstart.md`](/quick
 
 ## Onde mora a fonte da verdade
 
-- [`docs/specs/api/openapi.yaml`](/specs/api/) — cada endpoint, shape, código de erro.
+- [`docs/specs/api/openapi.yaml`](/api/) — cada endpoint, shape, código de erro.
 - [`docs/specs/capabilities/`](https://github.com/jvrmaia/chatlab/tree/main/docs/specs/capabilities) — seis specs numeradas descrevendo o que o chatlab faz.
 - [`docs/specs/adr/`](https://github.com/jvrmaia/chatlab/tree/main/docs/specs/adr) — decisões arquiteturais duradouras.
 

@@ -97,16 +97,12 @@ function Attachment({
   }
   if (attachment.mime_type.startsWith("audio/")) {
     return (
-      <audio controls src={mediaDownloadUrl(attachment.media_id)} className="max-w-full">
-        <track kind="captions" />
-      </audio>
+      <audio controls src={mediaDownloadUrl(attachment.media_id)} className="max-w-full" />
     );
   }
   if (attachment.mime_type.startsWith("video/")) {
     return (
-      <video controls src={mediaDownloadUrl(attachment.media_id)} className="rounded-md max-h-64">
-        <track kind="captions" />
-      </video>
+      <video controls src={mediaDownloadUrl(attachment.media_id)} className="rounded-md max-h-64" />
     );
   }
   return (

@@ -18,9 +18,9 @@ Picking only one channel locks out the others. Picking all three from day one ri
 
 We support **three distribution channels** as first-class:
 
-1. **NPM** — primary for Node-shop developers. CLI plus programmatic API. Documented in [`docs/distribution/npm.md`](../../distribution/npm.md).
-2. **Docker Hub** — image at `jvrmaia/chatlab`, multi-arch (`amd64` + `arm64`). Documented in [`docs/distribution/docker.md`](../../distribution/docker.md).
-3. **Source clone** — fully supported, with a development workflow documented in [`docs/distribution/manual.md`](../../distribution/manual.md).
+1. **NPM** — primary for Node-shop developers. CLI plus programmatic API. Documented in [`docs/distribution/npm.md`](/distribution/npm).
+2. **Docker Hub** — image at `jvrmaia/chatlab`, multi-arch (`amd64` + `arm64`). Documented in [`docs/distribution/docker.md`](/distribution/docker).
+3. **Source clone** — fully supported, with a development workflow documented in [`docs/distribution/manual.md`](/distribution/manual).
 
 All three deliver **the same artifact** — a Node program built from the same source. The Docker image is a thin wrapper around the NPM package; the source-clone path runs the same code via `npm start`.
 
@@ -37,7 +37,7 @@ Configuration is **shared across channels** — environment variables work the s
 - **Positive:** Docker doubles as the answer for "how do I demo this in an environment I don't control" (CI, customer's laptop, etc.).
 - **Positive:** the source-clone path is what contributors use anyway, so we get it for free.
 - **Negative:** publishing pipeline has to maintain two artifacts (NPM tarball + Docker image). We accept this — it's automatable.
-- **Negative:** any breaking change in env-var names ripples across all three channels' docs. We agree to centralize the env var reference in [`docs/distribution/npm.md`](../../distribution/npm.md) and link from the others.
+- **Negative:** any breaking change in env-var names ripples across all three channels' docs. We agree to centralize the env var reference in [`docs/distribution/npm.md`](/distribution/npm) and link from the others.
 
 ## Alternatives considered
 

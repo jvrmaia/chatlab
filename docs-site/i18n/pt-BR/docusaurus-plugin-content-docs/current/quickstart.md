@@ -6,7 +6,7 @@ Esta página foi traduzida inicialmente com auxílio de IA. Sugestões de melhor
 
 Cinco minutos entre clonar o repositório e "configurei um agente, abri uma conversa, mandei uma mensagem, avaliei a resposta".
 
-> Quer o passo a passo longo, com screenshots? Leia o [Guia do usuário](/user-guide/README). Esta página é a versão de 5 minutos.
+> Quer o passo a passo longo, com screenshots? Leia o [Guia do usuário](/user-guide/). Esta página é a versão de 5 minutos.
 
 ## 0. Pré-requisitos
 
@@ -135,6 +135,6 @@ Cada linha carrega `schema_version: 1`, o `theme` da conversa, a mensagem avalia
 ## E daqui pra frente
 
 - A referência completa de cada endpoint: [`recipes.md`](/recipes).
-- O passo a passo narrativo com screenshots: [`user-guide/README.md`](/user-guide/README).
-- O contrato: [`specs/api/openapi.yaml`](/specs/api/).
+- O passo a passo narrativo com screenshots: [`user-guide/README.md`](/user-guide/).
+- O contrato: [`specs/api/openapi.yaml`](/api/).
 - O porquê: [`specs/capabilities/`](https://github.com/jvrmaia/chatlab/tree/main/docs/specs/capabilities) e [`specs/adr/`](https://github.com/jvrmaia/chatlab/tree/main/docs/specs/adr).

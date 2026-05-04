@@ -40,6 +40,10 @@ Two snapshots framed the GA gate:
 - **rc-1 review** ([`docs/reviews/2026-04-30-v1.0.0-rc.1.md`](./reviews/2026-04-30-v1.0.0-rc.1.md)) — maturity 7.0/10; 14 recommendations issued.
 - **GA review** ([`docs/reviews/2026-04-30-v1.0.0-ga.md`](./reviews/2026-04-30-v1.0.0-ga.md)) — follow-up snapshot; maturity 7.6/10.
 
+### TRB review — post-security-sprint (v1.1.0)
+
+- **Post-security-sprint review** ([`docs/reviews/2026-05-03-post-security-sprint.md`](./reviews/2026-05-03-post-security-sprint.md)) — full 14-persona snapshot of v1.1.0 after the Dependabot sprint and three HIGH-vulnerability fixes (WS auth bypass, MIME-spoof XSS, SSRF exfiltration). Maturity 7.9/10. Primary findings: SSRF RFC-1918 gap not covered by the blocklist; security-fix regression tests absent; CHANGELOG/SECURITY.md hygiene gaps. 21 action-register items; three flagged for v1.1.x patch.
+
 Action register state at GA tag:
 
 - Five GA blockers (items 1–5) — all **Closed**.
@@ -53,7 +57,6 @@ A UAT panel of six downstream-role evaluators ([`uat-panel.md`](./reviews/2026-0
 
 **Goal:** make the things that matter for serious agent work first-class. Probable scope:
 
-- **Eval harness** — capability [`0007-eval-harness`](./specs/capabilities/0007-eval-harness.md): golden-set YAML, `chatlab eval --agent <id>` subcommand, Markdown diff report. Tracked from TRB review 2026-04-30, item 11.
 - **Multimodal forwarding** — image attachments are encoded into the provider's message-array shape (resolves Open Question 1 of [`0005-media`](./specs/capabilities/0005-media.md)).
 - **Streaming responses (SSE)** — `text/event-stream` support in `POST /v1/chats/{id}/messages` so the UI fills the assistant bubble incrementally.
 - **Tool / function calling** — pass tool schemas through to providers that support it.
@@ -62,10 +65,13 @@ A UAT panel of six downstream-role evaluators ([`uat-panel.md`](./reviews/2026-0
 
 Note: the **public docs site** ([ADR 0009](./specs/adr/0009-github-pages-documentation-site.md)) shipped alongside v1.0 rather than waiting for this milestone.
 
-## v1.2+ — Platform adapters
+The **eval harness** (capability [`0007-eval-harness`](./specs/capabilities/0007-eval-harness.md)) was listed as probable v1.1 scope but did not ship in v1.1.0. It is now targeted for **v1.2**.
 
-**Goal:** chatlab agents speak natively to real chat platforms. Probable order:
+## v1.2+ — Platform adapters and eval
 
+**Goal:** chatlab agents speak natively to real chat platforms, and the eval harness ships. Probable order:
+
+- **Eval harness** — capability [`0007-eval-harness`](./specs/capabilities/0007-eval-harness.md): golden-set YAML, `chatlab eval --agent <id>` subcommand, Markdown diff report. Slipped from v1.1.0; tracked from TRB review 2026-05-03 action register item 15.
 - **Telegram bot adapter** — `POST /v1/adapters/telegram/...` translates Telegram updates into chatlab `Message` and back.
 - **Slack Events adapter**.
 - **Discord adapter**.

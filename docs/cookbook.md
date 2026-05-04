@@ -2,7 +2,7 @@
 
 Task-oriented snippets — short answers to "how do I X with chatlab?". Each entry is self-contained: copy, adjust the variables, run.
 
-For exhaustive endpoint reference see [`recipes.md`](./recipes.md). For walkthroughs see the [User Guide](./user-guide/README.md).
+For exhaustive endpoint reference see [`recipes.md`](/recipes). For walkthroughs see the [User Guide](/user-guide/).
 
 > **Setup.** Every snippet assumes:
 >
@@ -147,7 +147,7 @@ curl -X POST $CL/v1/agents/$AGENT_ID/probe -H "Authorization: Bearer $TOKEN" \
 # -> { "content": "Olá! ..." }
 ```
 
-If the probe times out or 5xx's, the agent is misconfigured (key, base URL, model name). See [troubleshooting](./troubleshooting.md#agent-probe-times-out-or-5xxs).
+If the probe times out or 5xx's, the agent is misconfigured (key, base URL, model name). See [troubleshooting](/troubleshooting#agent-probe-times-out-or-5xxs).
 
 ---
 

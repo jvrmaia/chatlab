@@ -49,6 +49,7 @@ jobs:
           args: >
             --no-progress
             --exclude-loopback
+            --base 'https://jvrmaia.github.io/chatlab'
             --exclude '^https?://(localhost|127\.0\.0\.1|host\.docker\.internal|jvrmaia\.github\.io|github\.com/jvrmaia/chatlab/(blob|releases))'
             --exclude-path 'docs-site/i18n'
             --accept 200,403,429

@@ -20,7 +20,7 @@ export function LocaleToggle(): JSX.Element {
       <button
         type="button"
         className="tab"
-        aria-selected={current === "en-US"}
+        aria-pressed={current === "en-US"}
         onClick={() => pick("en-US")}
       >
         EN
@@ -28,7 +28,7 @@ export function LocaleToggle(): JSX.Element {
       <button
         type="button"
         className="tab"
-        aria-selected={current === "pt-BR"}
+        aria-pressed={current === "pt-BR"}
         onClick={() => pick("pt-BR")}
       >
         PT

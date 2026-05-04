@@ -97,4 +97,4 @@ Capturing pairwise preference (👍 / 👎) on agent replies, alongside chat-lev
 
 - **Vitest test ID(s):** `test/http/feedback-router.test.ts` (rating CRUD, annotation PUT semantics, JSONL export shape, 404 on cleared rating); `test/core/retention.test.ts` (sweep behaviour).
 - **OpenAPI operation(s):** `setFeedback`, `getFeedback`, `clearFeedback`, `listChatFeedback`, `getAnnotation`, `setAnnotation`, `exportFeedback` in [`openapi.yaml`](../api/openapi.yaml).
-- **User Guide section:** [`docs/user-guide/05-feedback-and-export.md`](../../user-guide/05-feedback-and-export.md) and [`docs/exporting-feedback.md`](../../exporting-feedback.md).
+- **User Guide section:** [`docs/user-guide/05-feedback-and-export.md`](/user-guide/feedback-and-export) and [`docs/exporting-feedback.md`](/exporting-feedback).

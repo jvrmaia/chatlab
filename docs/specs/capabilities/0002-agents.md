@@ -108,4 +108,4 @@ Same Bearer guard as every other endpoint.
 
 - **Vitest test ID(s):** `test/agents/openai-compat.test.ts`, `test/agents/anthropic.test.ts` (provider adapters); `test/http/agents-router.test.ts` (CRUD + probe + 409); `test/storage/encryption.test.ts` (api_key at-rest encryption).
 - **OpenAPI operation(s):** `listAgents`, `createAgent`, `getAgent`, `patchAgent`, `deleteAgent`, `probeAgent` in [`openapi.yaml`](../api/openapi.yaml).
-- **User Guide section:** [`docs/user-guide/02-workspaces-and-agents.md`](../../user-guide/02-workspaces-and-agents.md) plus [`docs/providers.md`](../../providers.md).
+- **User Guide section:** [`docs/user-guide/02-workspaces-and-agents.md`](/user-guide/workspaces-and-agents) plus [`docs/providers.md`](/providers).

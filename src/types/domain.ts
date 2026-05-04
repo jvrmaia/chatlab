@@ -46,5 +46,6 @@ export interface Message {
   attachments?: Attachment[];
   status: MessageStatus;
   error?: string;
+  agent_version?: string;
   created_at: string;
 }

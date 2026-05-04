@@ -120,6 +120,7 @@ export class MemoryAdapter implements StorageAdapter {
       attachments?: Attachment[];
       status?: MessageStatus;
       error?: string;
+      agent_version?: string;
     }): Promise<Message> => {
       const msg: Message = {
         id: newId(),
@@ -131,6 +132,7 @@ export class MemoryAdapter implements StorageAdapter {
           : {}),
         status: args.status ?? "ok",
         ...(args.error !== undefined ? { error: args.error } : {}),
+        ...(args.agent_version !== undefined ? { agent_version: args.agent_version } : {}),
         created_at: nowIso(),
       };
       this.messagesMap.set(msg.id, msg);
@@ -167,6 +169,7 @@ export class MemoryAdapter implements StorageAdapter {
         ...(args.base_url !== undefined ? { base_url: args.base_url } : {}),
         ...(args.system_prompt !== undefined ? { system_prompt: args.system_prompt } : {}),
         context_window: args.context_window,
+        ...(args.temperature !== undefined ? { temperature: args.temperature } : {}),
         created_at: ts,
         updated_at: ts,
       };
@@ -197,6 +200,7 @@ export class MemoryAdapter implements StorageAdapter {
         ...(patch.base_url !== undefined ? { base_url: patch.base_url } : {}),
         ...(patch.system_prompt !== undefined ? { system_prompt: patch.system_prompt } : {}),
         ...(patch.context_window !== undefined ? { context_window: patch.context_window } : {}),
+        ...(patch.temperature !== undefined ? { temperature: patch.temperature } : {}),
         updated_at: nowIso(),
       };
       this.agentsMap.set(id, updated);
