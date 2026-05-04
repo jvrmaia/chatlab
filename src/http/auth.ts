@@ -1,3 +1,4 @@
+import { timingSafeEqual } from "node:crypto";
 import type { RequestHandler } from "express";
 import { ApiError } from "./error-handler.js";
 
@@ -16,8 +17,15 @@ export function authMiddleware(cfg: AuthConfig): RequestHandler {
         "Error validating access token: no Bearer token provided",
       );
     }
-    if (cfg.requireToken && token !== cfg.requireToken) {
-      throw new ApiError(401, 190, "Error validating access token: token mismatch");
+    if (cfg.requireToken) {
+      const expected = Buffer.from(cfg.requireToken);
+      const provided = Buffer.from(token);
+      const maxLen = Math.max(expected.length, provided.length);
+      const a = Buffer.concat([expected, Buffer.alloc(maxLen - expected.length)]);
+      const b = Buffer.concat([provided, Buffer.alloc(maxLen - provided.length)]);
+      if (provided.length !== expected.length || !timingSafeEqual(a, b)) {
+        throw new ApiError(401, 190, "Error validating access token: token mismatch");
+      }
     }
     next();
   };
