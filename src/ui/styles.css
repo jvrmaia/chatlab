@@ -1,8 +1,8 @@
+@import "tailwindcss";
 @import "../../docs/_design/tokens.css";
 @import "../../docs/_design/components.css";
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@source "./**/*.{ts,tsx,html}";
+@config "./tailwind.config.ts";
 
 html,
 body,
