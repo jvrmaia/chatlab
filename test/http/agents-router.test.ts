@@ -136,6 +136,26 @@ describe("HTTP — /v1/agents (CRUD + probe)", () => {
     expect((await h.api("POST", "/v1/agents/no-such/probe", { prompt: "x" })).status).toBe(404);
   });
 
+  it("AGT-H-09 — POST with blocked base_url hosts returns 400", async () => {
+    const blocked = [
+      "http://10.0.0.1/v1",
+      "http://172.16.0.1/v1",
+      "http://192.168.1.1/v1",
+      "http://169.254.169.254/v1",
+      "http://127.0.0.1/v1",
+      "http://localhost/v1",
+    ];
+    for (const base_url of blocked) {
+      const r = await h.api("POST", "/v1/agents", {
+        name: "X",
+        provider: "custom",
+        model: "m",
+        base_url,
+      });
+      expect(r.status, `expected 400 for base_url=${base_url}`).toBe(400);
+    }
+  });
+
   it("AGT-H-08 — provider error in /probe surfaces as 502 with subcode", async () => {
     await h.stop();
     const errFetcher = vi.fn(async () =>

@@ -260,11 +260,12 @@ export function App() {
           ))}
         </select>
         <div className="flex-1" />
-        <div className="tabs">
+        <div className="tabs" role="tablist">
           {(["chats", "admin"] as const).map((tab) => (
             <button
               key={tab}
               type="button"
+              role="tab"
               className="tab"
               aria-selected={topTab === tab}
               onClick={() => setTopTab(tab)}

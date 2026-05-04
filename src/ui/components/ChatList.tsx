@@ -120,7 +120,7 @@ export function ChatList({ chats, agents, selectedId, onSelect, onCreated }: Pro
 
       <div className="scroll-area flex-1" role="list" aria-label={t("chatList.ariaList")}>
         {chats.length === 0 && !creating ? (
-          <div className="p-3 text-xs text-ink-3">
+          <div role="listitem" className="p-3 text-xs text-ink-3">
             {t("chatList.emptyHintBefore")}<strong>+</strong>{t("chatList.emptyHintAfter")}
           </div>
         ) : (

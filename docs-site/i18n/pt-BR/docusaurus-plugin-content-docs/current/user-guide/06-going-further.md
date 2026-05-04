@@ -69,7 +69,7 @@ Estas são adiadas — veja [`docs/ROADMAP.md`](https://github.com/jvrmaia/chatl
 A referência pra tudo que você possa precisar:
 
 - [`recipes.md`](/recipes) — curl pra cada endpoint.
-- [`specs/api/openapi.yaml`](/specs/api/) — contrato HTTP formal.
+- [`specs/api/openapi.yaml`](/api/) — contrato HTTP formal.
 - [`specs/capabilities/`](https://github.com/jvrmaia/chatlab/tree/main/docs/specs/capabilities) — o que o chatlab faz, por quê.
 - [`specs/adr/`](/specs/adr/) — decisões arquiteturais duradouras.
 - [`ARCHITECTURE.md`](/ARCHITECTURE) — como as peças se encaixam.

@@ -117,6 +117,15 @@ export async function startChatlab(
       stopRetention();
       agentRunner.stop();
       ws.close();
+
+      // Drain in-flight LLM calls before closing the HTTP server so any
+      // in-progress storage.messages.append() lands on an open adapter.
+      const DRAIN_TIMEOUT_MS = 65_000;
+      const deadline = Date.now() + DRAIN_TIMEOUT_MS;
+      while (core.inflightCount() > 0 && Date.now() < deadline) {
+        await new Promise((r) => setTimeout(r, 100));
+      }
+
       await new Promise<void>((resolve, reject) =>
         httpServer.close((err) => (err ? reject(err) : resolve())),
       );

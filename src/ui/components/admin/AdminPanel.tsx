@@ -17,11 +17,12 @@ export function AdminPanel({ refreshKey, bump }: Props) {
   return (
     <main className="flex flex-1 flex-col bg-canvas">
       <nav className="flex items-center border-b border-line-soft bg-surface px-4 py-2">
-        <div className="tabs">
+        <div className="tabs" role="tablist">
           {(["workspaces", "agents"] as SubTab[]).map((sub) => (
             <button
               key={sub}
               type="button"
+              role="tab"
               className="tab"
               aria-selected={tab === sub}
               onClick={() => setTab(sub)}

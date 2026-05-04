@@ -37,6 +37,7 @@ CREATE TABLE IF NOT EXISTS messages (
   attachments_json VARCHAR,
   status VARCHAR NOT NULL,
   error VARCHAR,
+  agent_version VARCHAR,
   created_at VARCHAR NOT NULL
 );
 
@@ -50,6 +51,7 @@ CREATE TABLE IF NOT EXISTS agents (
   base_url VARCHAR,
   system_prompt VARCHAR,
   context_window INTEGER NOT NULL DEFAULT 20,
+  temperature DOUBLE,
   created_at VARCHAR NOT NULL,
   updated_at VARCHAR NOT NULL
 );
@@ -217,6 +219,7 @@ export class DuckDbAdapter implements StorageAdapter {
       attachments?: Attachment[];
       status?: MessageStatus;
       error?: string;
+      agent_version?: string;
     }): Promise<Message> => {
       const ts = nowIso();
       const id = newId();
@@ -224,9 +227,9 @@ export class DuckDbAdapter implements StorageAdapter {
         args.attachments && args.attachments.length > 0 ? JSON.stringify(args.attachments) : null;
       const status: MessageStatus = args.status ?? "ok";
       await this.exec(
-        `INSERT INTO messages (id, chat_id, role, content, attachments_json, status, error, created_at)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-        [id, args.chat_id, args.role, args.content, attachments_json, status, args.error ?? null, ts],
+        `INSERT INTO messages (id, chat_id, role, content, attachments_json, status, error, agent_version, created_at)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [id, args.chat_id, args.role, args.content, attachments_json, status, args.error ?? null, args.agent_version ?? null, ts],
       );
       await this.exec(`UPDATE chats SET updated_at = ? WHERE id = ?`, [ts, args.chat_id]);
       const msg: Message = {
@@ -239,6 +242,7 @@ export class DuckDbAdapter implements StorageAdapter {
           : {}),
         status,
         ...(args.error !== undefined ? { error: args.error } : {}),
+        ...(args.agent_version !== undefined ? { agent_version: args.agent_version } : {}),
         created_at: ts,
       };
       return msg;
@@ -282,12 +286,13 @@ export class DuckDbAdapter implements StorageAdapter {
         ...(args.base_url !== undefined ? { base_url: args.base_url } : {}),
         ...(args.system_prompt !== undefined ? { system_prompt: args.system_prompt } : {}),
         context_window: args.context_window,
+        ...(args.temperature !== undefined ? { temperature: args.temperature } : {}),
         created_at: ts,
         updated_at: ts,
       };
       await this.exec(
-        `INSERT INTO agents (id, workspace_id, name, provider, model, api_key, base_url, system_prompt, context_window, created_at, updated_at)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        `INSERT INTO agents (id, workspace_id, name, provider, model, api_key, base_url, system_prompt, context_window, temperature, created_at, updated_at)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         [
           a.id,
           a.workspace_id,
@@ -298,6 +303,7 @@ export class DuckDbAdapter implements StorageAdapter {
           a.base_url ?? null,
           a.system_prompt ?? null,
           a.context_window,
+          a.temperature ?? null,
           a.created_at,
           a.updated_at,
         ],
@@ -329,10 +335,11 @@ export class DuckDbAdapter implements StorageAdapter {
         ...(patch.base_url !== undefined ? { base_url: patch.base_url } : {}),
         ...(patch.system_prompt !== undefined ? { system_prompt: patch.system_prompt } : {}),
         ...(patch.context_window !== undefined ? { context_window: patch.context_window } : {}),
+        ...(patch.temperature !== undefined ? { temperature: patch.temperature } : {}),
         updated_at: nowIso(),
       };
       await this.exec(
-        `UPDATE agents SET name = ?, provider = ?, model = ?, api_key = ?, base_url = ?, system_prompt = ?, context_window = ?, updated_at = ? WHERE id = ?`,
+        `UPDATE agents SET name = ?, provider = ?, model = ?, api_key = ?, base_url = ?, system_prompt = ?, context_window = ?, temperature = ?, updated_at = ? WHERE id = ?`,
         [
           updated.name,
           updated.provider,
@@ -341,6 +348,7 @@ export class DuckDbAdapter implements StorageAdapter {
           updated.base_url ?? null,
           updated.system_prompt ?? null,
           updated.context_window,
+          updated.temperature ?? null,
           updated.updated_at,
           id,
         ],
@@ -573,6 +581,7 @@ interface MessageRowDuck {
   attachments_json: string | null;
   status: MessageStatus;
   error: string | null;
+  agent_version: string | null;
   created_at: string;
 }
 
@@ -586,6 +595,7 @@ interface AgentRowDuck {
   base_url: string | null;
   system_prompt: string | null;
   context_window: number;
+  temperature: number | null;
   created_at: string;
   updated_at: string;
 }
@@ -613,6 +623,7 @@ function messageFromRow(row: MessageRowDuck): Message {
     out.attachments = JSON.parse(row.attachments_json) as Attachment[];
   }
   if (row.error) out.error = row.error;
+  if (row.agent_version !== null) out.agent_version = row.agent_version;
   return out;
 }
 
@@ -630,6 +641,7 @@ function agentFromRow(row: AgentRowDuck): Agent {
   if (row.api_key !== null) out.api_key = row.api_key;
   if (row.base_url !== null) out.base_url = row.base_url;
   if (row.system_prompt !== null) out.system_prompt = row.system_prompt;
+  if (row.temperature !== null) out.temperature = Number(row.temperature);
   return out;
 }
 

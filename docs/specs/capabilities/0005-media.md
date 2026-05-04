@@ -99,4 +99,4 @@ The server validates that every `media_id` exists in the active workspace's medi
 
 - **Vitest test ID(s):** `test/http/media-router.test.ts` (upload + GET + download + DELETE + 415 / 413 / 400 paths); storage battery in `test/storage/_battery.ts` (memory + sqlite — DuckDB intentionally skipped).
 - **OpenAPI operation(s):** `uploadMedia`, `getMedia`, `downloadMedia`, `deleteMedia` in [`openapi.yaml`](../api/openapi.yaml).
-- **User Guide section:** [`docs/user-guide/03-chats-and-messages.md`](../../user-guide/03-chats-and-messages.md) (attachment flow).
+- **User Guide section:** [`docs/user-guide/03-chats-and-messages.md`](/user-guide/chats-and-messages) (attachment flow).

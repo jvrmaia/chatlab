@@ -69,6 +69,16 @@ function harness(running: RunningChatlab): Promise<WsHarness> {
 
 const TOKEN = "dev-token";
 
+function connectWs(url: string, token?: string): Promise<{ code: number; reason: string }> {
+  return new Promise((resolve) => {
+    const headers = token ? { Authorization: `Bearer ${token}` } : {};
+    const ws = new WebSocket(url, { headers });
+    ws.on("open", () => resolve({ code: 0, reason: "open" }));
+    ws.on("close", (code, reason) => resolve({ code, reason: reason.toString() }));
+    ws.on("error", () => {});
+  });
+}
+
 describe("WS gateway", () => {
   let home: string;
   let running: RunningChatlab;
@@ -170,5 +180,32 @@ describe("WS gateway", () => {
     expect(assistantEv.type).toBe("chat.assistant-replied");
 
     h.close();
+  });
+
+  it("WS-05 — unauthenticated upgrade is rejected with 401 when requireToken is set", async () => {
+    await running.stop();
+    const secureHome = join(tmpdir(), `chatlab-ws-sec-${Date.now()}`);
+    mkdirSync(secureHome, { recursive: true });
+    // Reassign running so afterEach stops this instance instead of the already-stopped one.
+    running = await startChatlab({
+      env: { ...process.env, CHATLAB_LOG_LEVEL: "silent", CHATLAB_REQUIRE_TOKEN: "secret123" },
+      home: secureHome,
+      host: "127.0.0.1",
+      port: 0,
+    });
+
+    const wsUrlSecure = wsUrl(running.url);
+
+    // No token → rejected
+    const noToken = await connectWs(wsUrlSecure);
+    expect(noToken.code).toBe(1006);  // abnormal closure (401 from server)
+
+    // Wrong token → rejected
+    const wrongToken = await connectWs(wsUrlSecure, "wrong");
+    expect(wrongToken.code).toBe(1006);
+
+    // Correct token → accepted
+    const goodResult = await connectWs(wsUrlSecure, "secret123");
+    expect(goodResult.code).toBe(0);  // "open"
   });
 });

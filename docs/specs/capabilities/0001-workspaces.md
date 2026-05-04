@@ -101,4 +101,4 @@ All under `/v1/workspaces/...`. See [`../api/openapi.yaml`](../api/openapi.yaml)
 
 - **Vitest test ID(s):** `test/workspaces/registry.test.ts` (registry CRUD + atomic write); `test/http/workspaces-router.test.ts` (HTTP surface + activate + ?confirm guard).
 - **OpenAPI operation(s):** `listWorkspaces`, `createWorkspace`, `getActiveWorkspace`, `activateWorkspace`, `patchWorkspace`, `deleteWorkspace` in [`openapi.yaml`](../api/openapi.yaml).
-- **User Guide section:** [`docs/user-guide/02-workspaces-and-agents.md`](../../user-guide/02-workspaces-and-agents.md).
+- **User Guide section:** [`docs/user-guide/02-workspaces-and-agents.md`](/user-guide/workspaces-and-agents).

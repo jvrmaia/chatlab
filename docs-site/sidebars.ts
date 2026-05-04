@@ -77,6 +77,7 @@ const sidebars: SidebarsConfig = {
         "specs/adr/hosted-instance-deferred",
         "specs/adr/security-and-dependency-scanning",
         "specs/adr/adopt-claude-design-system",
+        "specs/adr/ssrf-and-mime-mitigation",
       ],
     },
     {

@@ -34,6 +34,7 @@ export interface Agent {
   base_url?: string;
   system_prompt?: string;
   context_window: number;
+  temperature?: number;
   created_at: string;
   updated_at: string;
 }

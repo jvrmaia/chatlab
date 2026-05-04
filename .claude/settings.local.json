@@ -84,7 +84,12 @@
       "Bash(sed -i '' 's|github/codeql-action/upload-sarif@v3|github/codeql-action/upload-sarif@v4|' /Users/jvrmaia/Workspace/jvrmaia/zapzap-emulator/.github/workflows/dependency-scan.yml)",
       "Bash(brew install *)",
       "Bash(export PATH=\"/opt/homebrew/bin:$PATH\")",
-      "Bash(npm show *)"
+      "Bash(npm show *)",
+      "Bash(echo \"EXIT: $?\")",
+      "Bash(gh api *)",
+      "WebFetch(domain:api.github.com)",
+      "Bash(echo \"Exit: $?\")",
+      "Bash(CHATLAB_TEST_E2E=1 npx playwright test --config=test/e2e/playwright.config.ts test/e2e/axe.spec.ts)"
     ]
   }
 }

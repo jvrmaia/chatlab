@@ -65,7 +65,7 @@ export class AgentRunner {
         model: effectiveModel(agent),
         baseUrl: effectiveBaseUrl(agent),
         ...(agent.api_key ? { apiKey: agent.api_key } : {}),
-        temperature: 0.7,
+        temperature: agent.temperature ?? 0.7,
         signal: controller.signal,
         ...(this.fetcher ? { fetcher: this.fetcher } : {}),
       });
@@ -75,6 +75,7 @@ export class AgentRunner {
         role: "assistant",
         content: text.length > 0 ? text : "(empty response)",
         status: "ok",
+        agent_version: `${agent.provider}/${effectiveModel(agent)}`,
       });
       this.core.emitEvent({ type: "chat.assistant-replied", message: persisted });
     } catch (err) {

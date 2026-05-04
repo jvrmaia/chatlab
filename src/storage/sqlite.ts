@@ -40,6 +40,7 @@ CREATE TABLE IF NOT EXISTS messages (
   attachments TEXT,
   status TEXT NOT NULL CHECK(status IN ('ok','failed')),
   error TEXT,
+  agent_version TEXT,
   created_at TEXT NOT NULL
 );
 CREATE INDEX IF NOT EXISTS idx_messages_chat_created ON messages(chat_id, created_at);
@@ -54,6 +55,7 @@ CREATE TABLE IF NOT EXISTS agents (
   base_url TEXT,
   system_prompt TEXT,
   context_window INTEGER NOT NULL DEFAULT 20,
+  temperature REAL,
   created_at TEXT NOT NULL,
   updated_at TEXT NOT NULL
 );
@@ -104,6 +106,7 @@ interface MessageRow {
   attachments: string | null;
   status: MessageStatus;
   error: string | null;
+  agent_version: string | null;
   created_at: string;
 }
 
@@ -117,6 +120,7 @@ interface AgentRow {
   base_url: string | null;
   system_prompt: string | null;
   context_window: number;
+  temperature: number | null;
   created_at: string;
   updated_at: string;
 }
@@ -186,6 +190,19 @@ export class SqliteAdapter implements StorageAdapter {
 
   async init(): Promise<void> {
     this.db.exec(SCHEMA);
+    // Migrations for columns added after initial schema creation.
+    const agentCols = (
+      this.db.prepare("PRAGMA table_info(agents)").all() as { name: string }[]
+    ).map((r) => r.name);
+    if (!agentCols.includes("temperature")) {
+      this.db.exec("ALTER TABLE agents ADD COLUMN temperature REAL");
+    }
+    const msgCols = (
+      this.db.prepare("PRAGMA table_info(messages)").all() as { name: string }[]
+    ).map((r) => r.name);
+    if (!msgCols.includes("agent_version")) {
+      this.db.exec("ALTER TABLE messages ADD COLUMN agent_version TEXT");
+    }
   }
 
   async close(): Promise<void> {
@@ -269,6 +286,7 @@ export class SqliteAdapter implements StorageAdapter {
       attachments?: Attachment[];
       status?: MessageStatus;
       error?: string;
+      agent_version?: string;
     }): Promise<Message> => {
       const ts = nowIso();
       const msg: Message = {
@@ -281,6 +299,7 @@ export class SqliteAdapter implements StorageAdapter {
           : {}),
         status: args.status ?? "ok",
         ...(args.error !== undefined ? { error: args.error } : {}),
+        ...(args.agent_version !== undefined ? { agent_version: args.agent_version } : {}),
         created_at: ts,
       };
       const attachmentsJson =
@@ -288,8 +307,8 @@ export class SqliteAdapter implements StorageAdapter {
       const tx = this.db.transaction(() => {
         this.db
           .prepare(
-            `INSERT INTO messages (id, chat_id, role, content, attachments, status, error, created_at)
-             VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+            `INSERT INTO messages (id, chat_id, role, content, attachments, status, error, agent_version, created_at)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
           )
           .run(
             msg.id,
@@ -299,6 +318,7 @@ export class SqliteAdapter implements StorageAdapter {
             attachmentsJson,
             msg.status,
             msg.error ?? null,
+            msg.agent_version ?? null,
             msg.created_at,
           );
         this.db.prepare(`UPDATE chats SET updated_at = ? WHERE id = ?`).run(ts, msg.chat_id);
@@ -341,13 +361,14 @@ export class SqliteAdapter implements StorageAdapter {
         ...(args.base_url !== undefined ? { base_url: args.base_url } : {}),
         ...(args.system_prompt !== undefined ? { system_prompt: args.system_prompt } : {}),
         context_window: args.context_window,
+        ...(args.temperature !== undefined ? { temperature: args.temperature } : {}),
         created_at: ts,
         updated_at: ts,
       };
       this.db
         .prepare(
-          `INSERT INTO agents (id, workspace_id, name, provider, model, api_key, base_url, system_prompt, context_window, created_at, updated_at)
-           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+          `INSERT INTO agents (id, workspace_id, name, provider, model, api_key, base_url, system_prompt, context_window, temperature, created_at, updated_at)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         )
         .run(
           a.id,
@@ -359,6 +380,7 @@ export class SqliteAdapter implements StorageAdapter {
           a.base_url ?? null,
           a.system_prompt ?? null,
           a.context_window,
+          a.temperature ?? null,
           a.created_at,
           a.updated_at,
         );
@@ -391,12 +413,13 @@ export class SqliteAdapter implements StorageAdapter {
         ...(patch.base_url !== undefined ? { base_url: patch.base_url } : {}),
         ...(patch.system_prompt !== undefined ? { system_prompt: patch.system_prompt } : {}),
         ...(patch.context_window !== undefined ? { context_window: patch.context_window } : {}),
+        ...(patch.temperature !== undefined ? { temperature: patch.temperature } : {}),
         updated_at: nowIso(),
       };
       this.db
         .prepare(
           `UPDATE agents
-             SET name = ?, provider = ?, model = ?, api_key = ?, base_url = ?, system_prompt = ?, context_window = ?, updated_at = ?
+             SET name = ?, provider = ?, model = ?, api_key = ?, base_url = ?, system_prompt = ?, context_window = ?, temperature = ?, updated_at = ?
              WHERE id = ?`,
         )
         .run(
@@ -407,6 +430,7 @@ export class SqliteAdapter implements StorageAdapter {
           updated.base_url ?? null,
           updated.system_prompt ?? null,
           updated.context_window,
+          updated.temperature ?? null,
           updated.updated_at,
           id,
         );
@@ -627,6 +651,7 @@ function rowToMessage(row: MessageRow): Message {
   };
   if (attachments && attachments.length > 0) out.attachments = attachments;
   if (row.error) out.error = row.error;
+  if (row.agent_version !== null) out.agent_version = row.agent_version;
   return out;
 }
 
@@ -644,6 +669,7 @@ function rowToAgent(row: AgentRow): Agent {
   if (row.api_key !== null) out.api_key = row.api_key;
   if (row.base_url !== null) out.base_url = row.base_url;
   if (row.system_prompt !== null) out.system_prompt = row.system_prompt;
+  if (row.temperature !== null) out.temperature = row.temperature;
   return out;
 }
 

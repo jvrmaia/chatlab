@@ -133,4 +133,4 @@ The just-appended user message is included in the last-N window. Only `role: "us
 
 - **Vitest test ID(s):** `test/http/chats-router.test.ts` (CRUD + message append + assistant reply integration); `test/agents/runner.test.ts` (RUN-01 happy path, RUN-02 provider error); `test/agents/runner-swap.test.ts` (RUN-SWAP-01 — workspace swap during in-flight reply).
 - **OpenAPI operation(s):** `listChats`, `createChat`, `getChat`, `deleteChat`, `listChatMessages`, `appendUserMessage` in [`openapi.yaml`](../api/openapi.yaml).
-- **User Guide section:** [`docs/user-guide/03-chats-and-messages.md`](../../user-guide/03-chats-and-messages.md) and [`docs/user-guide/04-multiple-chats.md`](../../user-guide/04-multiple-chats.md).
+- **User Guide section:** [`docs/user-guide/03-chats-and-messages.md`](/user-guide/chats-and-messages) and [`docs/user-guide/04-multiple-chats.md`](/user-guide/multiple-chats).

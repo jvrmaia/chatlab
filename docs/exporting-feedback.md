@@ -232,7 +232,7 @@ Future versions add fields (token counts, cost estimates, multi-rater rows). Whe
 
 ## See also
 
-- [`recipes.md`](./recipes.md) — copy-paste curl for every endpoint.
+- [`recipes.md`](/recipes) — copy-paste curl for every endpoint.
 - [`cookbook.md`](./cookbook.md) — task-oriented mini-recipes.
 - [Capability 0004](./specs/capabilities/0004-feedback-and-export.md) — the feature spec.
 - [ADR 0007](./specs/adr/0007-feedback-corpus-model.md) — the schema's durable rationale.

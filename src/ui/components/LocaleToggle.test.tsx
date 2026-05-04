@@ -23,7 +23,7 @@ describe("LocaleToggle", () => {
   test("EN is selected by default", () => {
     render(<LocaleToggle />);
     const en = screen.getByRole("button", { name: "EN" });
-    expect(en.getAttribute("aria-selected")).toBe("true");
+    expect(en.getAttribute("aria-pressed")).toBe("true");
   });
 
   test("clicking PT flips selection and persists to localStorage", async () => {
@@ -33,6 +33,6 @@ describe("LocaleToggle", () => {
     await new Promise((r) => setTimeout(r, 0));
     expect(localStorage.getItem("i18nextLng")).toBe("pt-BR");
     const pt = screen.getByRole("button", { name: "PT" });
-    expect(pt.getAttribute("aria-selected")).toBe("true");
+    expect(pt.getAttribute("aria-pressed")).toBe("true");
   });
 });

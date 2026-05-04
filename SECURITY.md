@@ -2,7 +2,11 @@
 
 ## Supported versions
 
-`chatlab` is at v1.0.0-rc.1, the project's first release candidate. Only the latest pre-release is supported with security fixes; this section will be replaced with a version matrix once stable releases ship.
+| Version | Supported |
+| --- | --- |
+| ≥ 1.1.0 | Yes — active security fixes |
+| 1.0.x | End-of-life — upgrade to 1.1.0 |
+| < 1.0.0 | Not supported |
 
 ## Reporting a vulnerability
 
