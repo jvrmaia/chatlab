@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+### Reviews
+
+- **TRB post-security-sprint review (2026-05-03)** — full 14-persona snapshot of v1.1.0 after Dependabot major-bump sprint (Express 5, Vite 8, Vitest 4, TypeScript 6, better-sqlite3 12, multer 2) and three HIGH-severity security fixes (WebSocket auth bypass, stored XSS via MIME spoofing, SSRF exfiltration via `agent base_url`). Maturity 7.9/10. Primary new finding: SSRF blocklist does not cover RFC-1918 private ranges. Full register (21 items): [`docs/reviews/2026-05-03-post-security-sprint.md`](docs/reviews/2026-05-03-post-security-sprint.md).
+
 ## [1.1.0] — 2026-05-01
 
 Bilingual release. The Web UI and the public-facing docs subset are now bilingual en-US / pt-BR; English remains canonical for everything else (specs, ADRs, CHANGELOG, SECURITY, reviews, HTTP/CLI/OpenAPI strings).

@@ -93,6 +93,7 @@ const sidebars: SidebarsConfig = {
           label: "Reviews",
           items: [
             "reviews/README",
+            "reviews/2026-05-03-post-security-sprint",
             "reviews/2026-04-30-v1.0.0-ga",
             "reviews/2026-04-30-axe-contrast-check",
             "reviews/2026-04-30-uat-panel",
