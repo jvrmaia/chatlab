@@ -1,4 +1,4 @@
-import { mkdirSync, rmSync, writeFileSync } from "node:fs";
+import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
@@ -17,8 +17,7 @@ const TOKEN = "eval-test-token";
 describe("eval loader", () => {
   let dir: string;
   beforeEach(() => {
-    dir = join(tmpdir(), `chatlab-eval-${Date.now()}`);
-    mkdirSync(dir, { recursive: true });
+    dir = mkdtempSync(join(tmpdir(), "chatlab-eval-"));
   });
   afterEach(() => {
     try { rmSync(dir, { recursive: true, force: true }); } catch { /* ignore */ }
@@ -105,8 +104,7 @@ describe("eval runner (integration)", () => {
   let running: RunningChatlab;
 
   beforeEach(async () => {
-    home = join(tmpdir(), `chatlab-eval-int-${Date.now()}`);
-    mkdirSync(home, { recursive: true });
+    home = mkdtempSync(join(tmpdir(), "chatlab-eval-int-"));
     const fetcher = vi.fn(
       async () =>
         new Response(

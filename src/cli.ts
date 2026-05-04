@@ -80,9 +80,6 @@ async function runEvalCommand(argv: string[]): Promise<void> {
     const idx = argv.indexOf(name);
     return idx >= 0 ? argv[idx + 1] : undefined;
   }
-  function hasFlag(name: string): boolean {
-    return argv.includes(name);
-  }
 
   const agentId = flag("--agent");
   if (!agentId) {
