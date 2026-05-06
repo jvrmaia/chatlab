@@ -4,9 +4,7 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
-
-## [1.2.2] — 2026-05-06
+## [1.2.3] — 2026-05-06
 
 ### Fixed
 
@@ -211,8 +209,8 @@ The first public release candidate of `chatlab`.
 - Env vars: `CHATLAB_HOME`, `CHATLAB_PORT`, `CHATLAB_HOST`, `CHATLAB_REQUIRE_TOKEN`, `CHATLAB_LOG_LEVEL`, `CHATLAB_FEEDBACK_RETENTION_DAYS`, `CHATLAB_WORKSPACE_ID`.
 - GitHub repo: `jvrmaia/chatlab`.
 
-[Unreleased]: https://github.com/jvrmaia/chatlab/compare/v1.2.2...HEAD
-[1.2.2]: https://github.com/jvrmaia/chatlab/releases/tag/v1.2.2
+[Unreleased]: https://github.com/jvrmaia/chatlab/compare/v1.2.3...HEAD
+[1.2.3]: https://github.com/jvrmaia/chatlab/releases/tag/v1.2.3
 [1.2.1]: https://github.com/jvrmaia/chatlab/releases/tag/v1.2.1
 [1.2.0]: https://github.com/jvrmaia/chatlab/releases/tag/v1.2.0
 [1.1.0]: https://github.com/jvrmaia/chatlab/releases/tag/v1.1.0
