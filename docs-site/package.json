@@ -3,8 +3,8 @@
   "private": true,
   "scripts": {
     "docusaurus": "docusaurus",
-    "start": "docusaurus start",
-    "build": "docusaurus build",
+    "start": "node -e \"require('fs').copyFileSync('../docs/specs/api/openapi.yaml','static/openapi.yaml')\" && docusaurus start",
+    "build": "node -e \"require('fs').copyFileSync('../docs/specs/api/openapi.yaml','static/openapi.yaml')\" && docusaurus build",
     "serve": "docusaurus serve",
     "clear": "docusaurus clear"
   },

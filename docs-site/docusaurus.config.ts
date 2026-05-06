@@ -55,6 +55,13 @@ const config: Config = {
             route: "/api/",
           },
         ],
+        theme: {
+          options: {
+            hideDownloadButton: false,
+            downloadFileName: "chatlab-openapi.yaml",
+            nativeScrollbars: true,
+          },
+        },
       },
     ],
   ],
