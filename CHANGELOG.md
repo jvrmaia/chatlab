@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [1.2.0] — 2026-05-05
+
 ### Security
 
 - **WebSocket auth bypass fixed** — `WsGateway` now uses `verifyClient` with `timingSafeEqual` to enforce `CHATLAB_REQUIRE_TOKEN` on WebSocket upgrade handshakes. Previously, the token check ran only in Express middleware, which is bypassed by the HTTP `Upgrade` path.
@@ -32,6 +34,16 @@ Major-version bumps merged from 9 Dependabot branches:
 - **`agent_version` snapshot on Message** — assistant messages now carry `agent_version: "<provider>/<model>"` set at creation time, so feedback export always reflects the model that produced the reply rather than the current agent configuration.
 - **Inflight drain on shutdown** — `stop()` now polls `core.inflightCount() === 0` for up to 65 s before closing the HTTP server, preventing half-written messages when a long LLM call is in flight at SIGTERM.
 - **SHA-pinned Docker actions in `release.yml`** — `docker/setup-qemu-action`, `docker/setup-buildx-action`, `docker/login-action`, and `docker/build-push-action` now reference immutable commit SHAs.
+
+### Fixed
+
+- **UI bearer token in strict auth mode** — `src/http/server.ts` now injects `window.__CHATLAB_TOKEN__` into the served `index.html` at startup; `src/ui/api.ts` reads it instead of the previous hardcoded `"ui-dev-token"`. The UI now works correctly when `CHATLAB_REQUIRE_TOKEN` is set (Docker / strict mode) without any manual user action.
+
+### Docs
+
+- **Docker quickstart** — `docs/quickstart.md` (and pt-BR mirror) now has a full Docker path (step 1-D): token generation, `docker run`, `docker compose`, SQLite bind-mount, DuckDB workspace bootstrap, `CHATLAB_MASTER_KEY` persistence note.
+- **User guide review** — fixed P1 (Docker row missing `CHATLAB_REQUIRE_TOKEN`), stale version tags ("v1.0" → "v1.1"), hardcoded `dev-token` in export examples, stale "not yet published" status for Docker Hub and docs site.
+- **Prerequisites tables** — quickstart prerequisites split into npm-path and Docker-path tables; `jq` added for Docker path.
 
 ### Reviews
 
@@ -181,7 +193,8 @@ The first public release candidate of `chatlab`.
 - Env vars: `CHATLAB_HOME`, `CHATLAB_PORT`, `CHATLAB_HOST`, `CHATLAB_REQUIRE_TOKEN`, `CHATLAB_LOG_LEVEL`, `CHATLAB_FEEDBACK_RETENTION_DAYS`, `CHATLAB_WORKSPACE_ID`.
 - GitHub repo: `jvrmaia/chatlab`.
 
-[Unreleased]: https://github.com/jvrmaia/chatlab/compare/v1.1.0...HEAD
+[Unreleased]: https://github.com/jvrmaia/chatlab/compare/v1.2.0...HEAD
+[1.2.0]: https://github.com/jvrmaia/chatlab/releases/tag/v1.2.0
 [1.1.0]: https://github.com/jvrmaia/chatlab/releases/tag/v1.1.0
 [1.0.0]: https://github.com/jvrmaia/chatlab/releases/tag/v1.0.0
 [1.0.0-rc.1]: https://github.com/jvrmaia/chatlab/releases/tag/v1.0.0-rc.1
