@@ -204,8 +204,35 @@ describe("WS gateway", () => {
     const wrongToken = await connectWs(wsUrlSecure, "wrong");
     expect(wrongToken.code).toBe(1006);
 
-    // Correct token → accepted
+    // Correct token via Authorization header → accepted
     const goodResult = await connectWs(wsUrlSecure, "secret123");
     expect(goodResult.code).toBe(0);  // "open"
+  });
+
+  it("WS-06 — browser clients can authenticate via ?token= query parameter", async () => {
+    await running.stop();
+    const secureHome = join(tmpdir(), `chatlab-ws-qp-${Date.now()}`);
+    mkdirSync(secureHome, { recursive: true });
+    running = await startChatlab({
+      env: { ...process.env, CHATLAB_LOG_LEVEL: "silent", CHATLAB_REQUIRE_TOKEN: "browser-tok" },
+      home: secureHome,
+      host: "127.0.0.1",
+      port: 0,
+    });
+
+    const base = wsUrl(running.url);
+
+    // No token → rejected
+    const noTok = await connectWs(base);
+    expect(noTok.code).toBe(1006);
+
+    // Token in query param → accepted (browser path)
+    const result = await new Promise<{ code: number }>((resolve) => {
+      const ws = new WebSocket(`${base}?token=browser-tok`);
+      ws.on("open", () => resolve({ code: 0 }));
+      ws.on("close", (code) => resolve({ code }));
+      ws.on("error", () => {});
+    });
+    expect(result.code).toBe(0);
   });
 });

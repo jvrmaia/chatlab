@@ -278,5 +278,5 @@ export function mediaDownloadUrl(mediaId: string): string {
 
 export function openWs(): WebSocket {
   const proto = location.protocol === "https:" ? "wss:" : "ws:";
-  return new WebSocket(`${proto}//${location.host}/ws`);
+  return new WebSocket(`${proto}//${location.host}/ws?token=${encodeURIComponent(TOKEN)}`);
 }

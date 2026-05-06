@@ -11,6 +11,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 ### Fixed
 
 - **UI redirect loop on `/ui/`** — Express non-strict routing caused `app.get("/ui", ...)` to also match `GET /ui/`, so the redirect from `/ui` → `/ui/` looped forever. The redirect is removed; `/ui`, `/ui/`, and `/ui/index.html` are now handled by a single route that serves the injected HTML directly. Regression tests SRV-04/05/06 added.
+- **WebSocket auth in strict mode** — `WsGateway.verifyClient` only checked the `Authorization` header, but browsers cannot set custom headers on WebSocket connections. The gateway now also accepts the token via `?token=` query parameter; `openWs()` in `api.ts` appends the token automatically. Regression test WS-06 added.
+- **Stale chat ID on container restart** — if the chat stored in `localStorage` no longer exists (e.g., fresh container), the UI now clears the selection immediately instead of logging a 404 to the console.
 
 ## [1.2.1] — 2026-05-05
 

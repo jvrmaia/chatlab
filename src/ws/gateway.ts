@@ -14,8 +14,13 @@ export class WsGateway {
       path: "/ws",
       verifyClient: requireToken
         ? ({ req }, done) => {
+            // Browsers can't set Authorization headers on WebSocket connections,
+            // so accept the token from either the header (ws/curl) or the
+            // ?token= query parameter (browser UI).
             const header = (req.headers["authorization"] as string | undefined) ?? "";
-            const token = header.startsWith("Bearer ") ? header.slice(7).trim() : "";
+            const fromHeader = header.startsWith("Bearer ") ? header.slice(7).trim() : "";
+            const qs = new URL(req.url ?? "/", "http://x").searchParams;
+            const token = fromHeader || (qs.get("token") ?? "");
             const expected = Buffer.from(requireToken);
             const provided = Buffer.from(token);
             const maxLen = Math.max(expected.length, provided.length);

@@ -102,7 +102,13 @@ export function App() {
     }
     void listMessages(selectedChatId)
       .then(setMessages)
-      .catch((e) => console.error(e));
+      .catch((e: unknown) => {
+        if (e instanceof Error && e.message.includes("-> 404")) {
+          setSelectedChatId(null);
+        } else {
+          console.error(e);
+        }
+      });
     void listChatFeedback(selectedChatId)
       .then((items) => {
         const m = new Map<string, UiFeedback>();
