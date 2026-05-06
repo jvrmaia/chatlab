@@ -122,7 +122,7 @@ A UI envia o token de `localStorage["chatlab.token"]`. Se você limpou o storage
 
 ---
 
-## Probe do agente dá timeout ou 5xx
+## Probe do agente dá timeout ou 5xx {#agent-probe-times-out-or-5xxs}
 
 ### Provedor cloud (OpenAI / Anthropic / DeepSeek / Gemini / Maritaca)
 
@@ -226,7 +226,7 @@ Se você realmente tem um sandbox onde isso não importa, passe uma key fixa des
 
 ### Balão do assistente nunca aparece
 
-Abra o drawer **Eventos** (ícone de terminal, canto superior direito). Se o último evento é `agent.failed`, o agente deu timeout ou 5xx — veja [probe do agente](#probe-do-agente-dá-timeout-ou-5xx) acima.
+Abra o drawer **Eventos** (ícone de terminal, canto superior direito). Se o último evento é `agent.failed`, o agente deu timeout ou 5xx — veja [probe do agente](#agent-probe-times-out-or-5xxs) acima.
 
 Se o último evento é `chat.user-message-appended` e nada vem depois, ou o runner está ocupado com outra conversa (raro; o runtime tem limite de inflight), ou a chamada HTTP do agente está pendurada. Cheque o console do chatlab.
 

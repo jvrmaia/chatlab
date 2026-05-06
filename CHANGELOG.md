@@ -6,6 +6,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [1.2.1] — 2026-05-05
+
+### Fixed
+
+- **UI bearer token — route ordering** — `express.static` was intercepting `GET /ui/` and serving the raw `index.html` from disk, bypassing the server-side `window.__CHATLAB_TOKEN__` injection added in v1.2.0. Routes for `/ui/` and `/ui/index.html` are now registered before `express.static` (with `index: false`), so the injected token is served for all UI entry points.
+
+### Docs
+
+- **pt-BR troubleshooting anchor** — `## Probe do agente dá timeout ou 5xx` now carries the explicit Docusaurus id `{#agent-probe-times-out-or-5xxs}`, resolving a broken-anchor warning in the pt-BR cookbook (which falls back to the EN version and links to that anchor).
+
 ## [1.2.0] — 2026-05-05
 
 ### Security
@@ -193,7 +203,8 @@ The first public release candidate of `chatlab`.
 - Env vars: `CHATLAB_HOME`, `CHATLAB_PORT`, `CHATLAB_HOST`, `CHATLAB_REQUIRE_TOKEN`, `CHATLAB_LOG_LEVEL`, `CHATLAB_FEEDBACK_RETENTION_DAYS`, `CHATLAB_WORKSPACE_ID`.
 - GitHub repo: `jvrmaia/chatlab`.
 
-[Unreleased]: https://github.com/jvrmaia/chatlab/compare/v1.2.0...HEAD
+[Unreleased]: https://github.com/jvrmaia/chatlab/compare/v1.2.1...HEAD
+[1.2.1]: https://github.com/jvrmaia/chatlab/releases/tag/v1.2.1
 [1.2.0]: https://github.com/jvrmaia/chatlab/releases/tag/v1.2.0
 [1.1.0]: https://github.com/jvrmaia/chatlab/releases/tag/v1.1.0
 [1.0.0]: https://github.com/jvrmaia/chatlab/releases/tag/v1.0.0
