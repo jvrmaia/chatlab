@@ -91,7 +91,11 @@
       "Bash(echo \"Exit: $?\")",
       "Bash(CHATLAB_TEST_E2E=1 npx playwright test --config=test/e2e/playwright.config.ts test/e2e/axe.spec.ts)",
       "Bash(xargs cat)",
-      "Bash(npx -y -p @redocly/cli@2.30.3 redocly lint docs/specs/api/openapi.yaml)"
+      "Bash(npx -y -p @redocly/cli@2.30.3 redocly lint docs/specs/api/openapi.yaml)",
+      "Read(//Users/jvrmaia/.chatlab/**)",
+      "Read(//Users/jvrmaia/.chatlab/data/**)",
+      "Bash(timeout 5 npm start)",
+      "Bash(xattr -l ~/.chatlab/data/30f21ffc-3db1-4a77-88a4-1c4644b76ce1.duckdb)"
     ]
   }
 }
