@@ -6,6 +6,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [1.2.2] — 2026-05-06
+
+### Fixed
+
+- **UI redirect loop on `/ui/`** — Express non-strict routing caused `app.get("/ui", ...)` to also match `GET /ui/`, so the redirect from `/ui` → `/ui/` looped forever. The redirect is removed; `/ui`, `/ui/`, and `/ui/index.html` are now handled by a single route that serves the injected HTML directly. Regression tests SRV-04/05/06 added.
+
 ## [1.2.1] — 2026-05-05
 
 ### Fixed
@@ -203,7 +209,8 @@ The first public release candidate of `chatlab`.
 - Env vars: `CHATLAB_HOME`, `CHATLAB_PORT`, `CHATLAB_HOST`, `CHATLAB_REQUIRE_TOKEN`, `CHATLAB_LOG_LEVEL`, `CHATLAB_FEEDBACK_RETENTION_DAYS`, `CHATLAB_WORKSPACE_ID`.
 - GitHub repo: `jvrmaia/chatlab`.
 
-[Unreleased]: https://github.com/jvrmaia/chatlab/compare/v1.2.1...HEAD
+[Unreleased]: https://github.com/jvrmaia/chatlab/compare/v1.2.2...HEAD
+[1.2.2]: https://github.com/jvrmaia/chatlab/releases/tag/v1.2.2
 [1.2.1]: https://github.com/jvrmaia/chatlab/releases/tag/v1.2.1
 [1.2.0]: https://github.com/jvrmaia/chatlab/releases/tag/v1.2.0
 [1.1.0]: https://github.com/jvrmaia/chatlab/releases/tag/v1.1.0

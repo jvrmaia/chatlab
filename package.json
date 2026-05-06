@@ -1,6 +1,6 @@
 {
   "name": "@jvrmaia/chatlab",
-  "version": "1.2.1",
+  "version": "1.2.2",
   "description": "Local development platform for chat agents — workspaces, multi-provider LLMs, feedback corpus.",
   "license": "MIT",
   "author": "João Víctor Rocon Maia",

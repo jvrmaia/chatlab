@@ -42,8 +42,10 @@ export function createApp(cfg: ServerConfig): Application {
     const rawHtml = readFileSync(join(cfg.uiDistDir, "index.html"), "utf8");
     const injected = `<script>window.__CHATLAB_TOKEN__=${JSON.stringify(cfg.requireToken ?? "ui-dev-token")};</script>`;
     const indexHtml = rawHtml.replace("</head>", `${injected}</head>`);
-    app.get("/ui", (_req, res) => res.redirect(301, "/ui/"));
-    app.get(["/ui/", "/ui/index.html"], (_req, res) => {
+    // Serve injected HTML for all UI entry points. No redirect: Express
+    // non-strict routing means a "/ui" route also matches "/ui/", so a
+    // redirect from /ui → /ui/ would loop forever.
+    app.get(["/ui", "/ui/", "/ui/index.html"], (_req, res) => {
       res.setHeader("Content-Type", "text/html; charset=utf-8");
       res.send(indexHtml);
     });
