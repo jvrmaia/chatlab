@@ -18,7 +18,7 @@ If you flip back to the first chat, its history is intact. The agent has no idea
 ## When this matters most
 
 - **Comparing prompt strategies.** Open two chats with the same agent, one with system prompt A and one with system prompt B. Send the same question. Compare side-by-side.
-- **Long demos.** A "demo to the team" chat with a single thread of meaningful Q&A doesn't have to be cluttered with throwaway messages from when you were warming up.
+- **Long demos.** A "demo to the team" chat with a focused sequence of Q&A doesn't have to be cluttered with throwaway messages from warm-up runs.
 - **Bug reproduction.** If a particular sequence of messages breaks the agent, isolate it in its own chat with theme `"reproduce: the bug from #PR-42"`.
 
 ## What about multi-agent / round-table?

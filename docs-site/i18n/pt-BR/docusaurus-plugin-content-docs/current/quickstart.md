@@ -10,6 +10,8 @@ Cinco minutos entre clonar o repositório e "configurei um agente, abri uma conv
 
 ## 0. Pré-requisitos
 
+**Caminho npm (passos 1 → 7)**
+
 | Ferramenta | Versão | Verificação |
 | --- | --- | --- |
 | Node.js | **22 LTS** | `node --version` |
@@ -17,6 +19,18 @@ Cinco minutos entre clonar o repositório e "configurei um agente, abri uma conv
 | git | qualquer versão recente | `git --version` |
 | curl | qualquer versão recente | `curl --version` |
 | (opcional) Ollama | rodando em `localhost:11434` | `curl localhost:11434` |
+
+**Caminho Docker (passo 1-D → 7)** — use no lugar do caminho npm acima
+
+| Ferramenta | Versão | Verificação |
+| --- | --- | --- |
+| Docker | **24+** | `docker --version` |
+| git | qualquer versão recente | `git --version` |
+| curl | qualquer versão recente | `curl --version` |
+| jq | qualquer versão recente | `jq --version` |
+| (opcional) Ollama | rodando em `localhost:11434` | `curl localhost:11434` |
+
+> `jq` é usado no bootstrap do workspace DuckDB. Instale via `brew install jq` (macOS), `apt install jq` (Debian/Ubuntu) ou [jq downloads](https://jqlang.org/download/).
 
 ## 1. Clonar + build
 
@@ -41,6 +55,147 @@ chatlab listening on http://127.0.0.1:4480
 
 A primeira execução cria automaticamente `~/.chatlab/workspaces.json` + `~/.chatlab/data/<uuid>.db` para o workspace `default`.
 
+## 1-D. Caminho Docker (alternativa ao passo 1)
+
+Pule esta seção se estiver usando o caminho npm acima.
+
+O container faz bind em `0.0.0.0` por padrão, o que aciona o bind-safety — o processo
+sai com exit code 78 antes de abrir qualquer porta se `CHATLAB_REQUIRE_TOKEN` não estiver
+definido. Gere um token primeiro e guarde o valor — ele é o bearer em todas as chamadas de API:
+
+```bash
+export CHATLAB_REQUIRE_TOKEN=$(openssl rand -hex 32)
+echo "$CHATLAB_REQUIRE_TOKEN"   # salve isso
+```
+
+Pull e execução pelo Docker Hub:
+
+```bash
+docker run --rm -p 4480:4480 \
+  -e CHATLAB_REQUIRE_TOKEN="$CHATLAB_REQUIRE_TOKEN" \
+  jvrmaia/chatlab:latest
+```
+
+Ou build do código-fonte:
+
+```bash
+git clone https://github.com/jvrmaia/chatlab.git
+cd chatlab
+docker build -t chatlab:dev .
+docker run --rm -p 4480:4480 \
+  -e CHATLAB_REQUIRE_TOKEN="$CHATLAB_REQUIRE_TOKEN" \
+  chatlab:dev
+```
+
+Banner:
+
+```
+chatlab listening on http://0.0.0.0:4480
+  workspace: default (sqlite)
+  data dir : /data
+  auth     : enforced (CHATLAB_REQUIRE_TOKEN set)
+  retention: 90 days
+  ui       : http://0.0.0.0:4480/ui
+```
+
+Abra `http://localhost:4480/ui`. Ao continuar para o passo 2, use estes exports no lugar dos padrões mostrados lá:
+
+```bash
+export CL=http://localhost:4480
+export TOKEN="$CHATLAB_REQUIRE_TOKEN"
+```
+
+> **Nota sobre persistência.** O exemplo com `--rm` usa armazenamento efêmero — o banco de workspaces e a chave de criptografia de API ficam dentro do container e são perdidos ao parar. Para uma configuração persistente, use docker compose (abaixo) ou monte um volume com `docker run`.
+
+### docker compose (persistente, recomendado)
+
+Crie um `compose.yml` em qualquer diretório:
+
+```yaml
+services:
+  chatlab:
+    image: jvrmaia/chatlab:latest    # ou: build: . para usar um build local
+    ports:
+      - "4480:4480"
+    environment:
+      CHATLAB_REQUIRE_TOKEN: "${CHATLAB_REQUIRE_TOKEN}"
+    volumes:
+      - chatlab-data:/data
+    restart: unless-stopped
+
+volumes:
+  chatlab-data:
+```
+
+Depois suba:
+
+```bash
+export CHATLAB_REQUIRE_TOKEN=$(openssl rand -hex 32)
+echo "$CHATLAB_REQUIRE_TOKEN"   # salve isso
+docker compose up -d
+```
+
+O volume nomeado `chatlab-data` persiste o banco de workspaces e a chave de criptografia de API entre restarts. Ao continuar para o passo 2:
+
+```bash
+export CL=http://localhost:4480
+export TOKEN="$CHATLAB_REQUIRE_TOKEN"
+```
+
+#### Acessando o arquivo SQLite pelo host (bind mount)
+
+O exemplo de compose acima usa um volume nomeado Docker (`chatlab-data`), que mantém os
+dados dentro do storage do Docker. Se quiser acesso direto ao arquivo `.db` pelo host —
+para inspeção, backup ou uso com outra ferramenta SQLite — substitua o volume nomeado por
+um bind mount:
+
+```yaml
+services:
+  chatlab:
+    build: .
+    ports:
+      - "4480:4480"
+    environment:
+      CHATLAB_REQUIRE_TOKEN: "${CHATLAB_REQUIRE_TOKEN}"
+    volumes:
+      - ./chatlab-data:/data      # diretório do host em vez de volume nomeado
+    restart: unless-stopped
+```
+
+Após `docker compose up -d`, o registry e os arquivos `.db` ficam visíveis no host:
+
+```
+chatlab-data/
+├── workspaces.json               # registry — ID do workspace ativo
+└── data/
+    └── <workspace-uuid>.db       # banco SQLite, consultável diretamente
+```
+
+Abra `chatlab-data/data/<uuid>.db` com qualquer cliente SQLite. O UUID do workspace está
+em `workspaces.json` no campo `storage_path`.
+
+#### Usando DuckDB como storage
+
+O workspace padrão usa SQLite. Para trocar para DuckDB — mais adequado para consultas analíticas sobre corpora de feedback grandes — crie e ative um workspace DuckDB uma vez após o primeiro boot:
+
+```bash
+# Cria o workspace DuckDB
+WORKSPACE_ID=$(curl -s -X POST http://localhost:4480/v1/workspaces \
+  -H "Authorization: Bearer $CHATLAB_REQUIRE_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"nickname": "analytics", "storage_type": "duckdb"}' | jq -r '.id')
+
+# Ativa (gravado no volume — sobrevive a restarts automaticamente)
+curl -s -X POST http://localhost:4480/v1/workspaces/$WORKSPACE_ID/activate \
+  -H "Authorization: Bearer $CHATLAB_REQUIRE_TOKEN"
+```
+
+O arquivo de registro no volume grava `analytics (duckdb)` como workspace ativo; todos os boots subsequentes com `docker compose up` usam esse workspace sem flags extras.
+
+> SQLite é o padrão certo para a maioria dos cenários. Prefira DuckDB quando quiser consultar o arquivo `.duckdb` diretamente (CLI do DuckDB, Python, notebook) ou quando o corpus de feedback crescer o suficiente para que agregações colunares façam diferença.
+
+Para uma configuração de produção com TLS e reverse proxy, veja [Distribuição: Docker](/distribution/docker).
+
 ## 2. Configurar um agente
 
 Abra <http://127.0.0.1:4480/ui> → **Admin** → **Agentes** → **+ Novo agente**. Escolha um provedor (ex.: `ollama` para uso offline, ou `openai`/`anthropic` etc. com chave de API). O campo `model` vem com o modelo recomendado do provedor. Salve.
@@ -48,8 +203,12 @@ Abra <http://127.0.0.1:4480/ui> → **Admin** → **Agentes** → **+ Novo agent
 Ou via curl:
 
 ```bash
+# caminho npm — qualquer valor não-vazio funciona (auth permissiva)
 export CL=http://127.0.0.1:4480
 export TOKEN=dev-token
+# caminho Docker — use os valores definidos no passo 1-D:
+#   export CL=http://localhost:4480
+#   export TOKEN="$CHATLAB_REQUIRE_TOKEN"
 
 curl -X POST $CL/v1/agents \
   -H "Authorization: Bearer $TOKEN" \

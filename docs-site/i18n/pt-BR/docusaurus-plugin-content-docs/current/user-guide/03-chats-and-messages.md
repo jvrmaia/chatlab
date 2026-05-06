@@ -42,7 +42,7 @@ Mensagens que falham persistem com `status: "failed"` e a mensagem de erro no ca
 
 O ícone 📎 no composer (ou drag-and-drop) permite anexar um arquivo. O arquivo faz upload via `POST /v1/media`, recebe um UUID, e viaja junto na próxima mensagem de usuário como entrada em `attachments[]`.
 
-Atenção: na v1.0 o runner **não** encaminha anexos pro provedor LLM — encaminhamento multimodal está adiado pra v1.1. O anexo fica armazenado ao lado da mensagem mas o provedor só vê o conteúdo texto. Você ainda consegue testar fluxos UX de "usuário fez upload de um screenshot"; só vai precisar colar uma transcrição manual por enquanto.
+Atenção: o runner **não** encaminha anexos pro provedor LLM — encaminhamento multimodal está adiado (veja o [Roadmap](https://github.com/jvrmaia/chatlab/blob/main/docs/ROADMAP.md)). O anexo fica armazenado ao lado da mensagem mas o provedor só vê o conteúdo texto. Você ainda consegue testar fluxos UX de "usuário fez upload de um screenshot"; cole uma transcrição manual por enquanto.
 
 ## E daqui pra frente
 

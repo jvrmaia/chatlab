@@ -1,28 +1,54 @@
 # Distribution: Docker
 
-> **Status:** Image not yet published to Docker Hub. The Dockerfile is in the repo and works today via `docker build`.
-
 The Docker distribution targets:
 
 - **Polyglot teams** whose agent isn't written in Node.js.
 - **CI pipelines** that prefer running services as containers.
 - **Reproducible demos** where "run this one command" is the bar.
 
-## Quick start (today, build locally)
+## Quick start
+
+The container's default `CHATLAB_HOST` is `0.0.0.0`, which triggers the bind-safety
+check — the process exits with code 78 before opening any port unless
+`CHATLAB_REQUIRE_TOKEN` is set. Generate one first and keep the value:
 
 ```bash
+export CHATLAB_REQUIRE_TOKEN=$(openssl rand -hex 32)
+echo "$CHATLAB_REQUIRE_TOKEN"   # save this — it's your bearer token
+```
+
+Pull and run:
+
+```bash
+docker run --rm -p 4480:4480 \
+  -e CHATLAB_REQUIRE_TOKEN="$CHATLAB_REQUIRE_TOKEN" \
+  jvrmaia/chatlab:latest
+```
+
+Banner:
+
+```
+chatlab listening on http://0.0.0.0:4480
+  workspace: default (sqlite)
+  data dir : /data
+  auth     : enforced (CHATLAB_REQUIRE_TOKEN set)
+  retention: 90 days
+  ui       : http://0.0.0.0:4480/ui
+```
+
+Then open `http://localhost:4480/ui`. Use `$CHATLAB_REQUIRE_TOKEN` as the bearer in the
+UI's Admin panel and in any API call.
+
+## Quick start (build from source)
+
+```bash
+export CHATLAB_REQUIRE_TOKEN=$(openssl rand -hex 32)
 git clone https://github.com/jvrmaia/chatlab.git
 cd chatlab
 docker build -t chatlab:dev .
-docker run --rm -p 4480:4480 chatlab:dev
-```
-
-Then open `http://localhost:4480/ui`.
-
-## Quick start (after Docker Hub publish)
-
-```bash
-docker run --rm -p 4480:4480 jvrmaia/chatlab:latest
+docker run --rm -p 4480:4480 \
+  -e CHATLAB_REQUIRE_TOKEN="$CHATLAB_REQUIRE_TOKEN" \
+  chatlab:dev
 ```
 
 ## Image
@@ -61,6 +87,7 @@ Notes:
 
 - The container's default workspace home is `/data`. Mount a host directory there to persist workspaces (and per-workspace SQLite/DuckDB files) across container restarts.
 - The container defaults to `CHATLAB_HOST=0.0.0.0`, `CHATLAB_PORT=4480`. Because the host is non-loopback, the bind-safety check requires `CHATLAB_REQUIRE_TOKEN` to be set — set it explicitly.
+- **Master key and API key persistence.** On first boot the process auto-generates an AES-256-GCM master key and writes it to `$CHATLAB_HOME/master.key` (i.e. `/data/master.key`). With a volume mounted at `/data` the key persists across container restarts — no extra step needed. Without a volume (ephemeral container), pass `CHATLAB_MASTER_KEY=$(openssl rand -base64 32)` as an env var; otherwise each new container generates a fresh key and previously saved agent API keys become unreadable.
 
 Secure example:
 

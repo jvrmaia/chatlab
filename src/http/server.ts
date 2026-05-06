@@ -39,7 +39,9 @@ export function createApp(cfg: ServerConfig): Application {
   // Static UI is served BEFORE the authenticated API surface so /ui never
   // requires a token.
   if (cfg.uiDistDir && existsSync(cfg.uiDistDir)) {
-    const indexHtml = readFileSync(join(cfg.uiDistDir, "index.html"), "utf8");
+    const rawHtml = readFileSync(join(cfg.uiDistDir, "index.html"), "utf8");
+    const injected = `<script>window.__CHATLAB_TOKEN__=${JSON.stringify(cfg.requireToken ?? "ui-dev-token")};</script>`;
+    const indexHtml = rawHtml.replace("</head>", `${injected}</head>`);
     app.use("/ui", express.static(cfg.uiDistDir, { fallthrough: true }));
     app.get("/ui", (_req, res) => res.redirect(301, "/ui/"));
     app.get("/ui/*path", (_req, res) => {

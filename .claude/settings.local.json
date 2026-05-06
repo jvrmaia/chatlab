@@ -89,7 +89,8 @@
       "Bash(gh api *)",
       "WebFetch(domain:api.github.com)",
       "Bash(echo \"Exit: $?\")",
-      "Bash(CHATLAB_TEST_E2E=1 npx playwright test --config=test/e2e/playwright.config.ts test/e2e/axe.spec.ts)"
+      "Bash(CHATLAB_TEST_E2E=1 npx playwright test --config=test/e2e/playwright.config.ts test/e2e/axe.spec.ts)",
+      "Bash(xargs cat)"
     ]
   }
 }

@@ -6,7 +6,7 @@ If you want the 5-minute version with no commentary, read [`../quickstart.md`](.
 
 ## Journey
 
-1. [Install chatlab](./01-install.md) — from-source today; npm + Docker once published.
+1. [Install chatlab](./01-install.md) — from source, npm, or Docker.
 2. [Configure your first workspace + agent](./02-workspaces-and-agents.md) — workspace picker, provider selection, API keys.
 3. [Open a chat with a theme](./03-chats-and-messages.md) — pick an agent, set a theme, type messages.
 4. [Multiple chats, multiple themes](./04-multiple-chats.md) — context segregation in action.

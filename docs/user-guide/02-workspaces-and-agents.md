@@ -36,7 +36,7 @@ An **agent** is a configured connection — to a hosted LLM **or** to the agent 
 
 Go to **Admin → Agents → + New agent**. Fill in name + provider + (model — auto-filled with the provider default) + API key + optional system prompt + optional context window (default 20).
 
-The form's API key field is `<input type="password">`. Once saved, the key is **encrypted at rest** (AES-256-GCM, master key in `$CHATLAB_HOME/master.key` mode 0600 — see [`SECURITY.md`](https://github.com/jvrmaia/chatlab/blob/main/SECURITY.md#at-rest-encryption)), masked (`***last4`) in every HTTP response, and never appears in the JSONL feedback export.
+The form's API key field is `<input type="password">`. Once saved, the key is **encrypted at rest** (AES-256-GCM, master key at `$CHATLAB_HOME/master.key` (mode 0600) — see [`SECURITY.md`](https://github.com/jvrmaia/chatlab/blob/main/SECURITY.md#at-rest-encryption)), masked (`***last4`) in every HTTP response, and never appears in the JSONL feedback export.
 
 ## Probing the agent
 

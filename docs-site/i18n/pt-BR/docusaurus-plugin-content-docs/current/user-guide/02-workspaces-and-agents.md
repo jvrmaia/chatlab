@@ -40,7 +40,7 @@ Um **agente** é uma conexão configurada — pra um LLM hospedado **ou** pro ag
 
 Vá em **Admin → Agentes → + Novo agente**. Preencha nome + provedor + (modelo — auto-preenchido com o default do provedor) + chave de API + system prompt opcional + janela de contexto opcional (default 20).
 
-O campo de API key do form é `<input type="password">`. Depois de salvar, a chave é **criptografada em repouso** (AES-256-GCM, master key em `$CHATLAB_HOME/master.key` mode 0600 — veja [`SECURITY.md`](https://github.com/jvrmaia/chatlab/blob/main/SECURITY.md#at-rest-encryption)), mascarada (`***last4`) em toda resposta HTTP, e nunca aparece no export JSONL de feedback.
+O campo de API key do form é `<input type="password">`. Depois de salvar, a chave é **criptografada em repouso** (AES-256-GCM, master key em `$CHATLAB_HOME/master.key` (mode 0600) — veja [`SECURITY.md`](https://github.com/jvrmaia/chatlab/blob/main/SECURITY.md#at-rest-encryption)), mascarada (`***last4`) em toda resposta HTTP, e nunca aparece no export JSONL de feedback.
 
 ## Sondando o agente
 

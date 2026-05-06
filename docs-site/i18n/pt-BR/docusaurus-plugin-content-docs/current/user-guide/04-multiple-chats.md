@@ -22,7 +22,7 @@ Se você volta pra primeira conversa, o histórico está intacto. O agente não 
 ## Quando isso importa mais
 
 - **Comparando estratégias de prompt.** Abra duas conversas com o mesmo agente, uma com system prompt A e outra com system prompt B. Envie a mesma pergunta. Compare lado-a-lado.
-- **Demos longas.** Uma conversa "demo pra equipe" com um único fio de Q&A significativo não precisa estar entulhada com mensagens descartáveis da hora que você estava aquecendo.
+- **Demos longas.** Uma conversa "demo pra equipe" com uma sequência focada de Q&A não precisa estar entulhada com mensagens descartáveis de runs de aquecimento.
 - **Reprodução de bug.** Se uma sequência específica de mensagens quebra o agente, isole isso na própria conversa com tema `"reproduzir: o bug do #PR-42"`.
 
 ## E quanto a multi-agente / mesa-redonda?

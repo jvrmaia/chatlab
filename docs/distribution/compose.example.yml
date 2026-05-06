@@ -26,6 +26,9 @@ services:
       CHATLAB_REQUIRE_TOKEN: "${CHATLAB_REQUIRE_TOKEN:?CHATLAB_REQUIRE_TOKEN must be set — use \"openssl rand -hex 32\" to generate one}"
       CHATLAB_FEEDBACK_RETENTION_DAYS: "30"
       CHATLAB_LOG_LEVEL: "info"
+      # Uncomment to pin the AES-256-GCM master key across hosts or when running
+      # without a persistent volume. Generate: openssl rand -base64 32
+      # CHATLAB_MASTER_KEY: "${CHATLAB_MASTER_KEY}"
     volumes:
       - chatlab-data:/data
     expose:

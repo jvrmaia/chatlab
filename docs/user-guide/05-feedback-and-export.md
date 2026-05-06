@@ -29,8 +29,10 @@ Use it for context the rating can't carry: `"user kept rephrasing — agent igno
 
 ## Export
 
+> Set `TOKEN=dev-token` (npm path — permissive auth) or `TOKEN="$CHATLAB_REQUIRE_TOKEN"` (Docker path) before running these examples.
+
 ```bash
-curl -H "Authorization: Bearer dev-token" \
+curl -H "Authorization: Bearer $TOKEN" \
   http://127.0.0.1:4480/v1/feedback/export > corpus.jsonl
 ```
 
@@ -39,7 +41,7 @@ Every line is one rated assistant message + the prompt that triggered it + the c
 Filter by time, rating, or chat:
 
 ```bash
-curl -H "Authorization: Bearer dev-token" \
+curl -H "Authorization: Bearer $TOKEN" \
   "http://127.0.0.1:4480/v1/feedback/export?rating=down&since=2026-04-01T00:00:00Z" > down.jsonl
 ```
 

@@ -42,9 +42,9 @@ registry.setActive(ws.id);
 
 The registry is just a JSON file with atomic-write semantics. Useful when seeding fixtures for E2E tests.
 
-## What chatlab v1.0 doesn't do
+## What chatlab v1.1 doesn't do yet
 
-These are deferred — see [`docs/ROADMAP.md`](../ROADMAP.md):
+These are deferred — see [Roadmap](../ROADMAP.md):
 
 - **Streaming responses (SSE)** — the runner buffers the full provider response.
 - **Multimodal forwarding** — attachments are stored but not sent to the LLM.
@@ -52,7 +52,6 @@ These are deferred — see [`docs/ROADMAP.md`](../ROADMAP.md):
 - **Multi-user / multi-agent chats** (round-table testing).
 - **Token / cost tracking.**
 - **Platform adapters** (Telegram, Slack, Discord, WhatsApp Cloud API). Coming in v1.2+.
-- **Browsable docs site** — [https://jvrmaia.github.io/chatlab/](https://jvrmaia.github.io/chatlab/) ([ADR 0009](../specs/adr/0009-github-pages-documentation-site.md)); run locally with `npm run docs:dev` from the repo root.
 
 ## What chatlab is not
 

@@ -38,7 +38,7 @@ Failed messages persist with `status: "failed"` and the error message in the `er
 
 The 📎 icon on the composer (or drag-and-drop) lets you attach a file. The file uploads to `POST /v1/media`, gets a UUID, and rides along on the next user message as an `attachments[]` entry.
 
-Note: in v1.0 the runner does **not** forward attachments to the LLM provider — multimodal forwarding is deferred to v1.1. The attachment is stored alongside the message but the provider only sees the text content. You can still test "user uploaded a screenshot" UX flows; you'll just need to paste a transcription manually for now.
+Note: the runner does **not** forward attachments to the LLM provider — multimodal forwarding is deferred (see [Roadmap](../ROADMAP.md)). The attachment is stored alongside the message but the provider sees only the text content. You can still test "user uploaded a screenshot" UX flows; paste a transcription manually for now.
 
 ## What's next
 

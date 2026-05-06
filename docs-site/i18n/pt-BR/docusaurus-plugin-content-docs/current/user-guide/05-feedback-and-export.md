@@ -33,8 +33,10 @@ Use isso pro contexto que a avaliação não consegue carregar: `"usuário ficou
 
 ## Export
 
+> Defina `TOKEN=dev-token` (caminho npm — auth permissiva) ou `TOKEN="$CHATLAB_REQUIRE_TOKEN"` (caminho Docker) antes de rodar esses exemplos.
+
 ```bash
-curl -H "Authorization: Bearer dev-token" \
+curl -H "Authorization: Bearer $TOKEN" \
   http://127.0.0.1:4480/v1/feedback/export > corpus.jsonl
 ```
 
@@ -43,7 +45,7 @@ Cada linha é uma mensagem do assistente avaliada + o prompt que disparou ela + 
 Filtre por tempo, rating, ou chat:
 
 ```bash
-curl -H "Authorization: Bearer dev-token" \
+curl -H "Authorization: Bearer $TOKEN" \
   "http://127.0.0.1:4480/v1/feedback/export?rating=down&since=2026-04-01T00:00:00Z" > down.jsonl
 ```
 

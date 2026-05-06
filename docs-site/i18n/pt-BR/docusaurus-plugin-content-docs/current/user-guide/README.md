@@ -10,7 +10,7 @@ Se quer a versão de 5 minutos sem comentários, leia o [`quickstart.md`](/quick
 
 ## Jornada
 
-1. [Instalar o chatlab](/user-guide/install) — do código-fonte hoje; npm + Docker quando publicado.
+1. [Instalar o chatlab](/user-guide/install) — do código-fonte, npm ou Docker.
 2. [Configurar seu primeiro workspace + agente](/user-guide/workspaces-and-agents) — seletor de workspace, escolha de provedor, chaves de API.
 3. [Abrir uma conversa com um tema](/user-guide/chats-and-messages) — escolha um agente, defina um tema, digite mensagens.
 4. [Múltiplas conversas, múltiplos temas](/user-guide/multiple-chats) — segregação de contexto em ação.

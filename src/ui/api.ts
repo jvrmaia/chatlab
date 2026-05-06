@@ -1,10 +1,11 @@
 /**
- * UI HTTP client. Single Bearer token (`ui-dev-token`); the server runs in
- * permissive mode by default. All endpoints operate on the *active* workspace
- * unless they're explicitly workspace-management endpoints.
+ * UI HTTP client. Bearer token is injected by the server into window.__CHATLAB_TOKEN__
+ * at serve time (strict mode) or falls back to "ui-dev-token" (permissive / Vite dev).
+ * All endpoints operate on the *active* workspace unless they're explicitly
+ * workspace-management endpoints.
  */
 
-const TOKEN = "ui-dev-token";
+const TOKEN = (window as { __CHATLAB_TOKEN__?: string }).__CHATLAB_TOKEN__ ?? "ui-dev-token";
 
 export type StorageType = "memory" | "sqlite" | "duckdb";
 
