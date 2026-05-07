@@ -6,6 +6,21 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [0.2.0] — 2026-05-06
+
+### Added
+
+- **SSE streaming** — `POST /v1/chats/{id}/messages` now supports `Accept: text/event-stream`. When the browser sends that header the server streams the assistant reply incrementally as `user_message → delta* → done` SSE events, filling the chat bubble in real-time. Non-streaming clients (JSON path + AgentRunner) are unchanged.
+- **WS auth via `?token=` query param** — The WebSocket gateway (`/ws`) now accepts the bearer token from the `?token=<value>` query parameter as a fallback to the `Authorization: Bearer` header. Browsers cannot set custom headers on WebSocket handshakes; the UI already builds the URL with `?token=${TOKEN}`. New test WS-06 validates the browser path end-to-end.
+
+### Fixed
+
+- **Test isolation** — `CHATLAB_REQUIRE_TOKEN` is now explicitly pinned in every test harness start call, preventing ambient env vars from leaking into test servers and causing token-mismatch failures.
+
+### Tests
+
+- 114 Vitest tests across 21 files (up from 113). New: CH-H-06 (SSE streaming round-trip), WS-06 (browser token via `?token=`), WS-05 wrong-token assertion.
+
 ## [0.1.0] — 2026-05-06
 
 Initial public release of chatlab — a local development platform for chat agents.
@@ -43,5 +58,6 @@ Initial public release of chatlab — a local development platform for chat agen
 - 113 Vitest tests across 21 files. Coverage gate: 80% lines / statements / functions, 65% branches.
 - E2E Playwright skeleton under `test/e2e/` (opt-in via `CHATLAB_TEST_E2E=1`).
 
-[Unreleased]: https://github.com/jvrmaia/chatlab/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/jvrmaia/chatlab/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/jvrmaia/chatlab/releases/tag/v0.2.0
 [0.1.0]: https://github.com/jvrmaia/chatlab/releases/tag/v0.1.0

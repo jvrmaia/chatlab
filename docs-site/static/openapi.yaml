@@ -750,7 +750,23 @@ paths:
     post:
       tags: [Messages]
       operationId: appendChatMessage
-      summary: Append user message; assistant reply produced asynchronously
+      summary: Append user message; reply streamed (SSE) or produced asynchronously (JSON)
+      description: |
+        Content-negotiated by the `Accept` header:
+
+        - **`application/json`** (default): saves the user message and returns `201`. The
+          assistant reply is produced asynchronously by the AgentRunner and broadcast over
+          the WebSocket (`chat.assistant-replied` event).
+        - **`text/event-stream`**: saves the user message, then streams the assistant reply
+          as Server-Sent Events. Each line is `data: <json>\n\n`.
+
+          Event shapes:
+          ```
+          {"type":"user_message","message":{...Message}}
+          {"type":"delta","content":"token chunk"}
+          {"type":"done","message":{...Message}}
+          {"type":"error","error":"ZZ_... reason"}
+          ```
       requestBody:
         required: true
         content:
@@ -758,10 +774,17 @@ paths:
             schema: { $ref: "#/components/schemas/MessageCreate" }
       responses:
         "201":
-          description: persisted user message
+          description: persisted user message (JSON path only)
           content:
             application/json:
               schema: { $ref: "#/components/schemas/Message" }
+        "200":
+          description: SSE stream (when `Accept:text/event-stream`)
+          content:
+            text/event-stream:
+              schema:
+                type: string
+                description: Newline-delimited SSE events (user_message → delta* → done | error)
         "400": { $ref: "#/components/responses/BadRequest" }
         "401": { $ref: "#/components/responses/Unauthorized" }
         "404":
