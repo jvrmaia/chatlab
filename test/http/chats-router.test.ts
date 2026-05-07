@@ -107,4 +107,78 @@ describe("HTTP — /v1/chats", () => {
     });
     expect(r.status).toBe(404);
   });
+
+  it("CH-H-06 — SSE streaming: yields user_message → delta(s) → done, persists assistant reply", async () => {
+    // Stub returns OpenAI-compatible SSE stream
+    const sseBody =
+      `data: {"choices":[{"delta":{"content":"Hello"}}]}\n\n` +
+      `data: {"choices":[{"delta":{"content":" world"}}]}\n\n` +
+      `data: [DONE]\n\n`;
+    const streamingFetcher = vi.fn(async () =>
+      new Response(sseBody, {
+        status: 200,
+        headers: { "Content-Type": "text/event-stream" },
+      }),
+    ) as unknown as typeof fetch;
+
+    // Boot a separate harness with the streaming stub
+    const sh = await bootHarness({ agentFetcher: streamingFetcher });
+    try {
+      const agentId = (await (
+        await sh.api("POST", "/v1/agents", {
+          name: "S",
+          provider: "openai",
+          model: "gpt-4o",
+          api_key: "sk-test",
+        })
+      ).json()) as { id: string };
+      const chat = (await (
+        await sh.api("POST", "/v1/chats", { agent_id: agentId.id, theme: "stream-test" })
+      ).json()) as { id: string };
+
+      const res = await fetch(`${sh.running.url}/v1/chats/${chat.id}/messages`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer dev-token`,
+          Accept: "text/event-stream",
+        },
+        body: JSON.stringify({ content: "hi" }),
+      });
+      expect(res.status).toBe(200);
+      expect(res.headers.get("content-type")).toMatch(/text\/event-stream/);
+
+      const text = await res.text();
+      const events = text
+        .split("\n\n")
+        .filter(Boolean)
+        .map((block) => {
+          const dataLine = block.split("\n").find((l) => l.startsWith("data: "));
+          return dataLine ? JSON.parse(dataLine.slice(6)) : null;
+        })
+        .filter(Boolean) as Array<{ type: string; content?: string; message?: { content: string } }>;
+
+      const types = events.map((e) => e.type);
+      expect(types[0]).toBe("user_message");
+      expect(types.filter((t) => t === "delta").length).toBeGreaterThan(0);
+      expect(types.at(-1)).toBe("done");
+
+      const assembled = events
+        .filter((e) => e.type === "delta")
+        .map((e) => e.content ?? "")
+        .join("");
+      expect(assembled).toBe("Hello world");
+
+      const doneMsg = events.find((e) => e.type === "done")?.message;
+      expect(doneMsg?.content).toBe("Hello world");
+
+      // Verify the assistant message is persisted
+      const msgs = (await (await sh.api("GET", `/v1/chats/${chat.id}/messages`)).json()) as {
+        data: Array<{ role: string; content: string }>;
+      };
+      expect(msgs.data.some((m) => m.role === "assistant" && m.content === "Hello world")).toBe(true);
+    } finally {
+      await sh.stop();
+    }
+  });
 });

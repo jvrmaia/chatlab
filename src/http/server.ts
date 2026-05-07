@@ -68,7 +68,7 @@ export function createApp(cfg: ServerConfig): Application {
   const api = Router();
   api.use(authMiddleware(cfg.requireToken ? { requireToken: cfg.requireToken } : {}));
   api.use(workspacesRouter(cfg.core));
-  api.use(chatsRouter(cfg.core));
+  api.use(chatsRouter(cfg.core, cfg.agentFetcher ? { fetcher: cfg.agentFetcher } : {}));
   api.use(agentsRouter(cfg.core, cfg.agentFetcher ? { agentFetcher: cfg.agentFetcher } : {}));
   api.use(feedbackRouter(cfg.core));
   api.use(mediaRouter(cfg.core));

@@ -1,12 +1,14 @@
 import { Router } from "express";
 import type { Core } from "../../core/core.js";
+import { effectiveBaseUrl, effectiveModel, providerFor } from "../../agents/factory.js";
+import { LlmError } from "../../agents/provider.js";
 import { ApiError } from "../error-handler.js";
 import type { Attachment } from "../../types/domain.js";
 
 const MAX_THEME = 280;
 const MAX_CONTENT = 16 * 1024;
 
-export function chatsRouter(core: Core): Router {
+export function chatsRouter(core: Core, opts: { fetcher?: typeof fetch } = {}): Router {
   const router = Router();
 
   router.get("/v1/chats", async (_req, res, next) => {
@@ -115,6 +117,86 @@ export function chatsRouter(core: Core): Router {
         }
       }
 
+      const wantsStream = (req.headers["accept"] ?? "").includes("text/event-stream");
+
+      if (wantsStream) {
+        // SSE path — handle LLM call inline; AgentRunner is bypassed (no event emitted).
+        const userMsg = await core.storage.messages.append({
+          chat_id: req.params.id!,
+          role: "user",
+          content: body.content,
+          ...(attachments.length > 0 ? { attachments } : {}),
+          status: "ok",
+        });
+
+        res.setHeader("Content-Type", "text/event-stream");
+        res.setHeader("Cache-Control", "no-cache");
+        res.setHeader("Connection", "keep-alive");
+        res.flushHeaders();
+
+        const sseWrite = (payload: unknown): void => {
+          res.write(`data: ${JSON.stringify(payload)}\n\n`);
+        };
+
+        sseWrite({ type: "user_message", message: userMsg });
+
+        const agent = await core.storage.agents.get(chat.agent_id);
+        if (!agent) {
+          sseWrite({ type: "error", error: "ZZ_AGENT_NOT_FOUND: agent no longer exists" });
+          res.end();
+          return;
+        }
+
+        core.beginInflight();
+        const controller = new AbortController();
+        req.on("close", () => controller.abort());
+        let fullContent = "";
+        try {
+          const messages = await buildMessages(core, agent, chat.theme, req.params.id!);
+          const provider = providerFor(agent.provider);
+          for await (const chunk of provider.chatStream({
+            messages,
+            model: effectiveModel(agent),
+            baseUrl: effectiveBaseUrl(agent),
+            ...(agent.api_key ? { apiKey: agent.api_key } : {}),
+            temperature: agent.temperature ?? 0.7,
+            signal: controller.signal,
+            ...(opts.fetcher ? { fetcher: opts.fetcher } : {}),
+          })) {
+            fullContent += chunk;
+            sseWrite({ type: "delta", content: chunk });
+          }
+          const assistantMsg = await core.storage.messages.append({
+            chat_id: req.params.id!,
+            role: "assistant",
+            content: fullContent.trim() || "(empty response)",
+            status: "ok",
+            agent_version: `${agent.provider}/${effectiveModel(agent)}`,
+          });
+          core.emitEvent({ type: "chat.assistant-replied", message: assistantMsg });
+          sseWrite({ type: "done", message: assistantMsg });
+        } catch (err) {
+          const subcode = err instanceof LlmError ? err.subcode : "ZZ_AGENT_PROVIDER_ERROR";
+          const reason = err instanceof Error ? `${subcode}: ${err.message}` : `${subcode}: unknown`;
+          try {
+            const failedMsg = await core.storage.messages.append({
+              chat_id: req.params.id!,
+              role: "assistant",
+              content: "",
+              status: "failed",
+              error: reason,
+            });
+            core.emitEvent({ type: "chat.assistant-replied", message: failedMsg });
+          } catch { /* best-effort */ }
+          sseWrite({ type: "error", error: reason });
+        } finally {
+          core.endInflight();
+          res.end();
+        }
+        return;
+      }
+
+      // Non-streaming path (unchanged).
       const persisted = await core.storage.messages.append({
         chat_id: req.params.id!,
         role: "user",
@@ -130,4 +212,28 @@ export function chatsRouter(core: Core): Router {
   });
 
   return router;
+}
+
+async function buildMessages(
+  core: Core,
+  agent: Awaited<ReturnType<Core["storage"]["agents"]["get"]>>,
+  theme: string,
+  chatId: string,
+) {
+  if (!agent) return [];
+  const history = await core.storage.messages.listByChat(chatId);
+  const limit = Math.max(1, agent.context_window || 20);
+  const recent = history.slice(-limit);
+  const messages: { role: "system" | "user" | "assistant"; content: string }[] = [];
+  const themeLine = theme ? `Topic of this conversation: ${theme}` : "";
+  const systemBody =
+    agent.system_prompt && themeLine
+      ? `${agent.system_prompt}\n\n${themeLine}`
+      : agent.system_prompt ?? themeLine;
+  if (systemBody) messages.push({ role: "system", content: systemBody });
+  for (const m of recent) {
+    if (m.status !== "ok") continue;
+    messages.push({ role: m.role, content: m.content });
+  }
+  return messages;
 }

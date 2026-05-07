@@ -94,7 +94,7 @@ describe("WS gateway", () => {
         ),
     ) as unknown as typeof fetch;
     running = await startChatlab({
-      env: { ...process.env, CHATLAB_LOG_LEVEL: "silent" },
+      env: { ...process.env, CHATLAB_LOG_LEVEL: "silent", CHATLAB_REQUIRE_TOKEN: undefined },
       home,
       host: "127.0.0.1",
       port: 0,
@@ -225,6 +225,15 @@ describe("WS gateway", () => {
     // No token → rejected
     const noTok = await connectWs(base);
     expect(noTok.code).toBe(1006);
+
+    // Wrong token in query param → rejected
+    const wrongTok = await new Promise<{ code: number }>((resolve) => {
+      const ws = new WebSocket(`${base}?token=wrong`);
+      ws.on("open", () => resolve({ code: 0 }));
+      ws.on("close", (code) => resolve({ code }));
+      ws.on("error", () => {});
+    });
+    expect(wrongTok.code).toBe(1006);
 
     // Token in query param → accepted (browser path)
     const result = await new Promise<{ code: number }>((resolve) => {

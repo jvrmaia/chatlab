@@ -19,6 +19,7 @@ export interface LlmResponse {
 
 export interface LlmProvider {
   chat(req: LlmRequest): Promise<LlmResponse>;
+  chatStream(req: LlmRequest): AsyncIterable<string>;
 }
 
 export class LlmError extends Error {

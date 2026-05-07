@@ -219,6 +219,57 @@ export async function sendUserMessage(
   });
 }
 
+export type SseEvent =
+  | { type: "user_message"; message: UiMessage }
+  | { type: "delta"; content: string }
+  | { type: "done"; message: UiMessage }
+  | { type: "error"; error: string };
+
+export async function* streamUserMessage(
+  chatId: string,
+  content: string,
+  attachments: UiAttachment[] = [],
+): AsyncGenerator<SseEvent> {
+  const res = await fetch(`/v1/chats/${encodeURIComponent(chatId)}/messages`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${TOKEN}`,
+      Accept: "text/event-stream",
+    },
+    body: JSON.stringify({ content, ...(attachments.length > 0 ? { attachments } : {}) }),
+  });
+  if (!res.ok || !res.body) {
+    let msg = `POST /v1/chats/.../messages -> ${res.status}`;
+    try {
+      const j = (await res.json()) as { error?: { message?: string } };
+      if (j.error?.message) msg += ` : ${j.error.message}`;
+    } catch { /* ignore */ }
+    throw new Error(msg);
+  }
+  const reader = res.body.getReader();
+  const decoder = new TextDecoder();
+  let buf = "";
+  try {
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      buf += decoder.decode(value, { stream: true });
+      const parts = buf.split("\n\n");
+      buf = parts.pop() ?? "";
+      for (const part of parts) {
+        const dataLine = part.split("\n").find((l) => l.startsWith("data: "));
+        if (!dataLine) continue;
+        try {
+          yield JSON.parse(dataLine.slice(6)) as SseEvent;
+        } catch { /* malformed — skip */ }
+      }
+    }
+  } finally {
+    reader.releaseLock();
+  }
+}
+
 // -------------------- feedback + annotations --------------------
 
 export async function setFeedback(

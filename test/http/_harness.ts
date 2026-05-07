@@ -16,7 +16,7 @@ export async function bootHarness(opts: { agentFetcher?: typeof fetch } = {}): P
   const home = join(tmpdir(), `chatlab-harness-${Date.now()}-${Math.random().toString(36).slice(2)}`);
   mkdirSync(home, { recursive: true });
   const running = await startChatlab({
-    env: { ...process.env, CHATLAB_LOG_LEVEL: "silent" },
+    env: { ...process.env, CHATLAB_LOG_LEVEL: "silent", CHATLAB_REQUIRE_TOKEN: TOKEN },
     home,
     host: "127.0.0.1",
     port: 0,

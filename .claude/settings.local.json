@@ -101,7 +101,8 @@
       "Bash(curl -s -o /dev/null -w \"%{http_code} %{redirect_url}\" http://127.0.0.1:4480/ui/)",
       "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:4480/ui/)",
       "WebSearch",
-      "WebFetch(domain:developers.facebook.com)"
+      "WebFetch(domain:developers.facebook.com)",
+      "Bash(npx @redocly/cli lint docs/specs/api/openapi.yaml)"
     ]
   }
 }

@@ -10,6 +10,7 @@ import {
   listWorkspaces,
   openWs,
   sendUserMessage,
+  streamUserMessage,
   setFeedback,
   uploadMedia,
   type UiAgent,
@@ -46,6 +47,7 @@ export function App() {
     }
   });
   const [messages, setMessages] = useState<UiMessage[]>([]);
+  const [pendingAssistantContent, setPendingAssistantContent] = useState<string | null>(null);
   const [feedbackByMessageId, setFeedbackByMessageId] = useState<Map<string, UiFeedback>>(new Map());
   const [events, setEvents] = useState<unknown[]>([]);
   const [wsStatus, setWsStatus] = useState<"connecting" | "open" | "closed">("connecting");
@@ -185,11 +187,24 @@ export function App() {
 
   async function handleSend(text: string): Promise<void> {
     if (!selectedChatId) return;
+    setPendingAssistantContent("");
     try {
-      const userMsg = await sendUserMessage(selectedChatId, text);
-      setMessages((ms) => [...ms, userMsg]);
+      for await (const event of streamUserMessage(selectedChatId, text)) {
+        if (event.type === "user_message") {
+          setMessages((ms) => [...ms, event.message]);
+        } else if (event.type === "delta") {
+          setPendingAssistantContent((c) => (c ?? "") + event.content);
+        } else if (event.type === "done") {
+          setMessages((ms) => [...ms, event.message]);
+          setPendingAssistantContent(null);
+        } else if (event.type === "error") {
+          console.error("SSE error:", event.error);
+          setPendingAssistantContent(null);
+        }
+      }
     } catch (e) {
       console.error(e);
+      setPendingAssistantContent(null);
     }
   }
 
@@ -315,6 +330,7 @@ export function App() {
                 chat={selectedChat}
                 agent={selectedAgent}
                 messages={messages}
+                pendingAssistantContent={pendingAssistantContent}
                 feedbackByMessageId={feedbackByMessageId}
                 onSend={(t) => void handleSend(t)}
                 onSendFile={handleSendFile}

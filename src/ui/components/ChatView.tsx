@@ -3,12 +3,14 @@ import { useTranslation } from "react-i18next";
 import type { UiAgent, UiChat, UiFeedback, UiMessage } from "../api.js";
 import { AnnotationsPanel } from "./AnnotationsPanel.js";
 import { Composer } from "./Composer.js";
+import { MarkdownContent } from "./MarkdownContent.js";
 import { MessageBubble } from "./MessageBubble.js";
 
 interface Props {
   chat: UiChat;
   agent: UiAgent | null;
   messages: UiMessage[];
+  pendingAssistantContent: string | null;
   feedbackByMessageId: Map<string, UiFeedback>;
   onSend: (text: string) => void;
   onSendFile: (file: File) => Promise<void>;
@@ -24,6 +26,7 @@ export function ChatView({
   chat,
   agent,
   messages,
+  pendingAssistantContent,
   feedbackByMessageId,
   onSend,
   onSendFile,
@@ -36,7 +39,7 @@ export function ChatView({
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
-  }, [messages]);
+  }, [messages, pendingAssistantContent]);
 
   return (
     <main className="flex flex-1 flex-col bg-canvas min-w-0">
@@ -71,6 +74,15 @@ export function ChatView({
               onRate={onRate}
             />
           ))
+        )}
+        {pendingAssistantContent !== null && (
+          <div className="flex flex-col px-3 py-1 items-start">
+            <div className="bb bb--agent">
+              {pendingAssistantContent
+                ? <MarkdownContent content={pendingAssistantContent} />
+                : <span className="animate-pulse text-ink-3">…</span>}
+            </div>
+          </div>
         )}
       </div>
       <AnnotationsPanel chatId={chat.id} />
