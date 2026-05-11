@@ -6,7 +6,7 @@
 
 `chatlab` is what you reach for when you're building a chat agent and want a tight inner loop: configure a provider once, open a chat with a chosen agent + theme, type messages, see replies, rate them, write notes, export a JSONL corpus when you're ready to fine-tune.
 
-> Status: **v0.2.1** (released 2026-05-11) — capabilities `0001`–`0006` `Implemented` (workspaces, agents, chats-and-messages, feedback-and-export, media, web-ui); capability `0007-eval-harness` drafted for v0.3.0. 121 tests passing under the gate of 80% lines / 80% statements / 80% functions / 65% branches (`vitest.config.ts`).
+> Status: **v0.2.2** (released 2026-05-11) — capabilities `0001`–`0006` `Implemented` (workspaces, agents, chats-and-messages, feedback-and-export, media, web-ui); capability `0007-eval-harness` drafted for v0.3.0. 121 tests passing under the gate of 80% lines / 80% statements / 80% functions / 65% branches (`vitest.config.ts`).
 
 ![Chatlab Web UI showing the workspace picker, chat list, and chat view.](./docs/_assets/screenshots/01-empty-ui.png)
 

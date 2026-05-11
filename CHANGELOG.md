@@ -6,6 +6,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [0.2.2] — 2026-05-11
+
+### Fixed
+
+- **CI**: lychee link checker now excludes `github.com/…/compare/` URLs — compare links in `CHANGELOG.md` are always broken before the tag is pushed and should not block CI.
+
+### Dependencies
+
+- Dependabot: `i18next` 26.0.10 → 26.1.0, `yaml` 2.8.4 → 2.9.0, `tailwindcss` + `@tailwindcss/postcss` 4.2.4 → 4.3.0, `vite` 8.0.11 → 8.0.12.
+
 ## [0.2.1] — 2026-05-11
 
 ### Changed
@@ -87,7 +97,8 @@ Initial public release of chatlab — a local development platform for chat agen
 - 113 Vitest tests across 21 files. Coverage gate: 80% lines / statements / functions, 65% branches.
 - E2E Playwright skeleton under `test/e2e/` (opt-in via `CHATLAB_TEST_E2E=1`).
 
-[Unreleased]: https://github.com/jvrmaia/chatlab/compare/v0.2.1...HEAD
+[Unreleased]: https://github.com/jvrmaia/chatlab/compare/v0.2.2...HEAD
+[0.2.2]: https://github.com/jvrmaia/chatlab/compare/v0.2.1...v0.2.2
 [0.2.1]: https://github.com/jvrmaia/chatlab/compare/v0.2.0...v0.2.1
 [0.2.0]: https://github.com/jvrmaia/chatlab/releases/tag/v0.2.0
 [0.1.0]: https://github.com/jvrmaia/chatlab/releases/tag/v0.1.0

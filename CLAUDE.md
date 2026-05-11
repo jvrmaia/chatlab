@@ -4,7 +4,7 @@ Guidance for Claude Code (and other AI coding assistants) working in this reposi
 
 ## What this project is
 
-`chatlab` is a source-available local development platform for chat agents. It lets you configure six LLM clients (OpenAI, Anthropic, DeepSeek, Gemini, Maritaca, Ollama) plus a **`custom`** provider that points at the agent **the developer is building** (any OpenAI-compat endpoint), open chats with chosen agents and themes, exchange messages, rate replies, and export a JSONL feedback corpus. Six capabilities `Implemented` in v0.1.0 (`0007-eval-harness` drafted for v0.3.0); the project's current cut is **v0.2.1** (released 2026-05-11) — includes bilingual en-US / pt-BR for the Web UI and the public-facing docs subset.
+`chatlab` is a source-available local development platform for chat agents. It lets you configure six LLM clients (OpenAI, Anthropic, DeepSeek, Gemini, Maritaca, Ollama) plus a **`custom`** provider that points at the agent **the developer is building** (any OpenAI-compat endpoint), open chats with chosen agents and themes, exchange messages, rate replies, and export a JSONL feedback corpus. Six capabilities `Implemented` in v0.1.0 (`0007-eval-harness` drafted for v0.3.0); the project's current cut is **v0.2.2** (released 2026-05-11) — includes bilingual en-US / pt-BR for the Web UI and the public-facing docs subset.
 
 > **Working directory.** The local clone path is `/Users/jvrmaia/Workspace/jvrmaia/zapzap-emulator/` even though the GitHub repo is `chatlab`. Don't try to rename the working directory.
 
