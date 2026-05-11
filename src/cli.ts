@@ -14,8 +14,8 @@ async function main(): Promise<void> {
     let version = "unknown";
     for (const p of candidates) {
       try {
-        const pkg = JSON.parse(readFileSync(p, "utf8")) as { version: string };
-        version = pkg.version;
+        const pkg = JSON.parse(readFileSync(p, "utf8")) as Record<string, unknown>;
+        if (typeof pkg["version"] === "string") version = pkg["version"];
         break;
       } catch {
         // try next candidate
@@ -66,7 +66,7 @@ async function main(): Promise<void> {
   process.on("SIGTERM", () => void shutdown("SIGTERM"));
 }
 
-async function runEvalCommand(argv: string[]): Promise<void> {
+export async function runEvalCommand(argv: string[]): Promise<void> {
   const { mkdirSync, readFileSync, writeFileSync } = await import("node:fs");
   const { join } = await import("node:path");
   const { homedir } = await import("node:os");

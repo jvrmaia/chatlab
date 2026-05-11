@@ -34,7 +34,7 @@ test("01-empty-ui — Chats tab on a fresh boot, no agents yet", async ({ page }
   try {
     cl = await bootSeeded("empty");
     await page.goto(`${cl.url}/ui`);
-    await page.getByRole("button", { name: "Chats" }).waitFor();
+    await page.getByRole("tab", { name: "Chats" }).waitFor();
     await settle(page);
     await page.screenshot({ path: shot("01-empty-ui") });
   } finally {
@@ -47,7 +47,7 @@ test("02-admin-workspaces — workspace list with multiple backends", async ({ p
   try {
     cl = await bootSeeded("with-multiple-workspaces");
     await page.goto(`${cl.url}/ui`);
-    await page.getByRole("button", { name: "Admin" }).click();
+    await page.getByRole("tab", { name: "Admin" }).click();
     // wait for the table row to render (matches <td>experiment-1</td>, not the dropdown option)
     await page.locator("td", { hasText: "experiment-1" }).waitFor();
     await settle(page);
@@ -62,8 +62,8 @@ test("03-admin-agents — agent list with two profiles, masked keys", async ({ p
   try {
     cl = await bootSeeded("with-agent");
     await page.goto(`${cl.url}/ui`);
-    await page.getByRole("button", { name: "Admin" }).click();
-    await page.getByRole("button", { name: "Agents" }).click();
+    await page.getByRole("tab", { name: "Admin" }).click();
+    await page.getByRole("tab", { name: "Agents" }).click();
     await page.getByText("OpenAI gpt-4o").first().waitFor();
     await settle(page);
     await page.screenshot({ path: shot("03-admin-agents") });
@@ -77,8 +77,8 @@ test("04-agent-form — new agent form with provider dropdown", async ({ page })
   try {
     cl = await bootSeeded("empty");
     await page.goto(`${cl.url}/ui`);
-    await page.getByRole("button", { name: "Admin" }).click();
-    await page.getByRole("button", { name: "Agents" }).click();
+    await page.getByRole("tab", { name: "Admin" }).click();
+    await page.getByRole("tab", { name: "Agents" }).click();
     await page.getByRole("button", { name: "New agent" }).click();
     await page.getByPlaceholder("e.g., Support GPT-4o").waitFor();
     await page.getByPlaceholder("e.g., Support GPT-4o").fill("OpenAI gpt-4o");

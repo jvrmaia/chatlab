@@ -102,7 +102,10 @@
       "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:4480/ui/)",
       "WebSearch",
       "WebFetch(domain:developers.facebook.com)",
-      "Bash(npx @redocly/cli lint docs/specs/api/openapi.yaml)"
+      "Bash(npx @redocly/cli lint docs/specs/api/openapi.yaml)",
+      "Skill(update-config)",
+      "Read(//Users/jvrmaia/.claude/plugins/marketplaces/local/**)",
+      "Read(//Users/jvrmaia/.claude/**)"
     ]
   }
 }

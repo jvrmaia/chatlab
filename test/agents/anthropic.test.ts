@@ -97,4 +97,48 @@ describe("agent provider — anthropic", () => {
       }),
     ).rejects.toThrow(/content\[0\]\.text/);
   });
+
+  it("AGT-ANT-03 — chatStream() with valid SSE stub yields text tokens", async () => {
+    const sseBody =
+      `data: {"type":"content_block_delta","delta":{"type":"text_delta","text":"hello"}}\n\n` +
+      `data: {"type":"content_block_delta","delta":{"type":"text_delta","text":" world"}}\n\n` +
+      `data: {"type":"message_stop"}\n\n`;
+    const stream = new ReadableStream({
+      start(controller) {
+        controller.enqueue(new TextEncoder().encode(sseBody));
+        controller.close();
+      },
+    });
+    const fetcher = vi.fn(
+      async () => new Response(stream, { status: 200, headers: { "Content-Type": "text/event-stream" } }),
+    ) as unknown as typeof fetch;
+
+    const chunks: string[] = [];
+    for await (const chunk of provider.chatStream({
+      messages: [{ role: "user", content: "hi" }],
+      model: "claude-sonnet-4-6",
+      apiKey: "sk-ant-test",
+      baseUrl: "https://api.anthropic.com",
+      fetcher,
+    })) {
+      chunks.push(chunk);
+    }
+    expect(chunks.join("")).toBe("hello world");
+  });
+
+  it("AGT-ANT-04 — chatStream() with 4xx response propagates LlmError", async () => {
+    const fetcher = vi.fn(async () =>
+      jsonResponse(401, { error: { type: "authentication_error" } }),
+    ) as unknown as typeof fetch;
+
+    await expect(async () => {
+      for await (const _ of provider.chatStream({
+        messages: [{ role: "user", content: "x" }],
+        model: "claude-sonnet-4-6",
+        apiKey: "sk-ant-test",
+        baseUrl: "https://api.anthropic.com",
+        fetcher,
+      })) { /* drain */ }
+    }).rejects.toMatchObject({ subcode: "ZZ_AGENT_PROVIDER_ERROR", status: 401 });
+  });
 });

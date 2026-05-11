@@ -329,5 +329,9 @@ export function mediaDownloadUrl(mediaId: string): string {
 
 export function openWs(): WebSocket {
   const proto = location.protocol === "https:" ? "wss:" : "ws:";
-  return new WebSocket(`${proto}//${location.host}/ws?token=${encodeURIComponent(TOKEN)}`);
+  // In Vite dev mode connect directly to the backend port so the Vite proxy is
+  // not involved — this avoids spurious ECONNRESET/EPIPE log lines that appear
+  // whenever the browser reconnects after a hot-reload cycle.
+  const host = import.meta.env.DEV ? "localhost:4480" : location.host;
+  return new WebSocket(`${proto}//${host}/ws?token=${encodeURIComponent(TOKEN)}`);
 }

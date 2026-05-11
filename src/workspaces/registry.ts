@@ -18,6 +18,15 @@ interface RegistryFile {
   workspaces: Workspace[];
 }
 
+function isRegistryFile(v: unknown): v is RegistryFile {
+  return (
+    v !== null &&
+    typeof v === "object" &&
+    "workspaces" in v &&
+    Array.isArray((v as Record<string, unknown>)["workspaces"])
+  );
+}
+
 export interface RegistryConfig {
   /** Override `$CHATLAB_HOME`. Useful in tests. */
   home?: string;
@@ -193,8 +202,8 @@ export class WorkspaceRegistry {
       return { active_id: null, workspaces: [] };
     }
     const raw = readFileSync(this.file, "utf8");
-    const parsed = JSON.parse(raw) as RegistryFile;
-    if (!parsed || typeof parsed !== "object" || !Array.isArray(parsed.workspaces)) {
+    const parsed: unknown = JSON.parse(raw);
+    if (!isRegistryFile(parsed)) {
       throw new Error(`workspaces registry at ${this.file} is malformed`);
     }
     return parsed;
