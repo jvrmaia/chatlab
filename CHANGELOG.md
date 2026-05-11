@@ -6,6 +6,35 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [0.2.1] — 2026-05-11
+
+### Changed
+
+- **License**: migrated from MIT to Elastic License 2.0 (EL2). Source-available; free to use, study, modify, and redistribute. Providing chatlab as a hosted or managed service to third parties requires a commercial agreement. See [`LICENSE`](./LICENSE) and [`README.md`](./README.md#license).
+
+### Added
+
+- **`.github/workflows/security-sweep.yml`** — weekly security sweep (Sundays 02:00 UTC) running five parallel jobs: CodeQL `security-extended`, OSV-Scanner, Gitleaks (full git history), `npm audit --audit-level=high`, and license compliance via `license-checker-rseidelsohn`. Complements the per-PR gates; does not replace them.
+- **`npm run dev:all`** — concurrent server + Vite UI dev with labeled/colored output via `concurrently`.
+
+### Fixed
+
+- **DuckDB migration**: `init()` now applies `ALTER TABLE ADD COLUMN` guards for `temperature` and `agent_version` columns, matching `sqlite.ts`. Fixes 500 errors on pre-existing `.duckdb` databases created before those columns were introduced.
+- **Vite dev HMR**: HMR separated to port 5174; `openWs()` in the React app connects directly to `:4480` in dev mode, bypassing the Vite proxy. Eliminates ECONNRESET / EPIPE noise during hot-reload.
+- **Screenshot capture**: corrected Playwright ARIA role selectors — tab elements use `role="tab"`, not `role="button"`.
+- **ESLint**: flat config now loads `typescript-eslint` + `eslint-plugin-react-hooks` correctly; `react-hooks/set-state-in-effect` disabled for established reset-on-prop-change patterns.
+- **`docs-site` security**: patched HIGH vulnerabilities in `@babel/plugin-transform-modules-systemjs`, `fast-uri`, and `fast-xml-builder` (arbitrary code / path traversal / XML injection).
+
+### Dependencies
+
+- `google/osv-scanner-action` bumped to v2.3.8.
+- Docker Hub action version comments corrected (login-action v4.1.0, build-push-action v7.1.0).
+- Dependabot: `@types/node` and 5-package minor-and-patch group updated.
+
+### Tests
+
+- 121 Vitest tests across 22 files (up from 114). New: Anthropic adapter, CLI eval smoke, chats-router expanded coverage.
+
 ## [0.2.0] — 2026-05-06
 
 ### Added
@@ -58,6 +87,7 @@ Initial public release of chatlab — a local development platform for chat agen
 - 113 Vitest tests across 21 files. Coverage gate: 80% lines / statements / functions, 65% branches.
 - E2E Playwright skeleton under `test/e2e/` (opt-in via `CHATLAB_TEST_E2E=1`).
 
-[Unreleased]: https://github.com/jvrmaia/chatlab/compare/v0.2.0...HEAD
+[Unreleased]: https://github.com/jvrmaia/chatlab/compare/v0.2.1...HEAD
+[0.2.1]: https://github.com/jvrmaia/chatlab/compare/v0.2.0...v0.2.1
 [0.2.0]: https://github.com/jvrmaia/chatlab/releases/tag/v0.2.0
 [0.1.0]: https://github.com/jvrmaia/chatlab/releases/tag/v0.1.0
