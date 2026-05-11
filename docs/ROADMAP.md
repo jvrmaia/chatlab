@@ -53,29 +53,35 @@ Action register state at GA tag:
 
 A UAT panel of six downstream-role evaluators ([`uat-panel.md`](./reviews/2026-04-30-uat-panel.md)) backlogged 21 user stories, of which items 1–10 anchor the v0.2.0 scope.
 
-## v0.2.0 — Provider depth + analytics
+## v0.2.1 — Security, tooling, and license · **Released 2026-05-11 as `v0.2.1`**
 
-**Goal:** make the things that matter for serious agent work first-class. Probable scope:
+**Goal:** patch release — no new user-facing capabilities. Addresses security findings from the OSV scanner run, relicenses to EL2, and ships several DX fixes.
 
-- **Multimodal forwarding** — image attachments are encoded into the provider's message-array shape (resolves Open Question 1 of [`0005-media`](./specs/capabilities/0005-media.md)).
-- **Streaming responses (SSE)** — `text/event-stream` support in `POST /v1/chats/{id}/messages` so the UI fills the assistant bubble incrementally.
+- **Elastic License 2.0** — replaces MIT. Source-available; free to use, study, modify, and redistribute. Providing chatlab as a hosted/managed service to third parties requires a commercial agreement.
+- **Weekly security sweep** — new `.github/workflows/security-sweep.yml` (CodeQL `security-extended`, OSV-Scanner, Gitleaks, npm audit, license compliance).
+- **DuckDB migration fix** — `ALTER TABLE ADD COLUMN` guards added to `init()`, matching `sqlite.ts`. Fixes 500 errors on pre-existing databases.
+- **Vite dev HMR fix** — HMR on port 5174; `openWs()` connects directly to `:4480` in dev mode.
+- **`npm run dev:all`** — concurrent server + UI dev via `concurrently`.
+- **`docs-site` security patches** — HIGH vulnerabilities in `@babel/plugin-transform-modules-systemjs`, `fast-uri`, `fast-xml-builder` resolved.
+- **Dependabot** — `@types/node` + 5-package minor-and-patch group updated.
+
+## v0.2.0 — Provider depth + analytics · **Released 2026-05-06 as `v0.2.0`**
+
+Shipped SSE streaming (`POST /v1/chats/{id}/messages` with `Accept: text/event-stream`) and WebSocket auth via `?token=` query parameter. See `CHANGELOG.md` for full notes.
+
+## v0.3.0 — Provider depth + platform adapters + eval
+
+**Goal:** provider depth items deferred from v0.2.0, eval harness, and native platform adapters. Probable scope:
+
+- **Eval harness** — capability [`0007-eval-harness`](./specs/capabilities/0007-eval-harness.md): golden-set YAML, `chatlab eval --agent <id>` subcommand, Markdown diff report. Slipped from v0.2.0; tracked from TRB review 2026-05-03 action register item 15.
+- **Multimodal forwarding** — image attachments encoded into the provider's message-array shape (resolves Open Question 1 of [`0005-media`](./specs/capabilities/0005-media.md)).
 - **Tool / function calling** — pass tool schemas through to providers that support it.
 - **Token / cost approximation** — the `agent_message` export shape gains optional `prompt_tokens` / `completion_tokens` / `cost_estimate_usd` fields. Bumps `schema_version` to 2.
 - **Workspace duplicate** — clone an existing workspace's data into a new one (resolves Open Question 2 of [`0001-workspaces`](./specs/capabilities/0001-workspaces.md)).
-
-Note: the **public docs site** ([ADR 0009](./specs/adr/0009-github-pages-documentation-site.md)) shipped alongside v0.1.0.
-
-The **eval harness** (capability [`0007-eval-harness`](./specs/capabilities/0007-eval-harness.md)) was listed as probable v0.2.0 scope but did not ship in v0.1.0. It is now targeted for **v0.3.0**.
-
-## v0.3.0+ — Platform adapters and eval
-
-**Goal:** chatlab agents speak natively to real chat platforms, and the eval harness ships. Probable order:
-
-- **Eval harness** — capability [`0007-eval-harness`](./specs/capabilities/0007-eval-harness.md): golden-set YAML, `chatlab eval --agent <id>` subcommand, Markdown diff report. Slipped from v0.2.0; tracked from TRB review 2026-05-03 action register item 15.
 - **Telegram bot adapter** — `POST /v1/adapters/telegram/...` translates Telegram updates into chatlab `Message` and back.
 - **Slack Events adapter**.
 - **Discord adapter**.
-- **WhatsApp Cloud API adapter** — yes, this is back, but as an *adapter*, not the central abstraction. Closes the loop with the audience the project's earliest iteration aimed at.
+- **WhatsApp Cloud API adapter** — as an adapter, not the central abstraction.
 
 Each adapter is its own capability spec. The architecture stays platform-agnostic — adapters are leaves, not the trunk.
 

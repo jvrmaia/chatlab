@@ -1,6 +1,6 @@
 # 0007 — Eval harness
 
-- **Status:** Draft (target v0.2.0)
+- **Status:** Draft (target v0.3.0)
 - **Authors:** @jvrmaia
 - **Related ADRs:** _none yet_
 - **Depends on:** [`0002-agents`](./0002-agents.md), [`0003-chats-and-messages`](./0003-chats-and-messages.md)

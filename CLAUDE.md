@@ -4,7 +4,7 @@ Guidance for Claude Code (and other AI coding assistants) working in this reposi
 
 ## What this project is
 
-`chatlab` is an open-source local development platform for chat agents. It lets you configure six LLM clients (OpenAI, Anthropic, DeepSeek, Gemini, Maritaca, Ollama) plus a **`custom`** provider that points at the agent **the developer is building** (any OpenAI-compat endpoint), open chats with chosen agents and themes, exchange messages, rate replies, and export a JSONL feedback corpus. Six capabilities `Implemented` in v0.1.0 (`0007-eval-harness` drafted for v0.2.0); the project's current cut is **v0.1.0** (released 2026-05-06) — includes bilingual en-US / pt-BR for the Web UI and the public-facing docs subset.
+`chatlab` is a source-available local development platform for chat agents. It lets you configure six LLM clients (OpenAI, Anthropic, DeepSeek, Gemini, Maritaca, Ollama) plus a **`custom`** provider that points at the agent **the developer is building** (any OpenAI-compat endpoint), open chats with chosen agents and themes, exchange messages, rate replies, and export a JSONL feedback corpus. Six capabilities `Implemented` in v0.1.0 (`0007-eval-harness` drafted for v0.3.0); the project's current cut is **v0.2.1** (released 2026-05-11) — includes bilingual en-US / pt-BR for the Web UI and the public-facing docs subset.
 
 > **Working directory.** The local clone path is `/Users/jvrmaia/Workspace/jvrmaia/zapzap-emulator/` even though the GitHub repo is `chatlab`. Don't try to rename the working directory.
 
@@ -65,7 +65,7 @@ Add an ADR. ADRs are append-only — to change a past decision, write a new ADR 
 Standard checks before reporting a task done:
 
 - `npm run typecheck` — clean (server + UI).
-- `npm test` — currently 113 tests + 2 skipped (`duckdb` media + opt-in `storage-bench`), coverage 80%/80%/80%/65%.
+- `npm test` — currently 121 tests + 2 skipped (`duckdb` media + opt-in `storage-bench`), coverage 80%/80%/80%/65%.
 - `npm run build` — server + UI emit.
 - `npx redocly lint docs/specs/api/openapi.yaml` — valid.
 - `npm run docs:build` — Docusaurus production build (`docs-site/`).
