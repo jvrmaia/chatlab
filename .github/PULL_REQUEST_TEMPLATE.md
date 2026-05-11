@@ -44,7 +44,7 @@ All must pass before merge. Findings show up in the GitHub Security tab.
 
 - [ ] No secrets, API keys, tokens, or credentials are added in this PR (Gitleaks will block, but please double-check).
 - [ ] No new vulnerable dependency was introduced. If OSV-Scanner flags a finding, link the GHSA / CVE and either pin a fixed version or add a justified entry to `osv-scanner.toml`.
-- [ ] If this PR adds a new external dependency, link the project, briefly justify the choice, and confirm the license is MIT-compatible.
+- [ ] If this PR adds a new external dependency, link the project, briefly justify the choice, and confirm the dependency's license is permissive (MIT, Apache-2.0, ISC, BSD, etc.) — chatlab itself is Elastic-2.0 and must only depend on non-copyleft licenses.
 - [ ] If this PR introduces a new attack surface (new endpoint, new file-system path, new webhook target), I have considered: input validation, authentication, error-message leakage, and resource limits.
 
 ## Verification
