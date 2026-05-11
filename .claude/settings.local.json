@@ -125,7 +125,9 @@
       "Bash(curl -s https://api.github.com/repos/docker/login-action/git/refs/tags/v4.1.0)",
       "Bash(curl -s https://api.github.com/repos/docker/build-push-action/git/refs/tags/v7.1.0)",
       "Bash(npx --yes js-yaml .github/workflows/dependency-scan.yml)",
-      "Bash(npx js-yaml *)"
+      "Bash(npx js-yaml *)",
+      "Bash(xargs basename -a)",
+      "Bash(npx *)"
     ]
   }
 }
