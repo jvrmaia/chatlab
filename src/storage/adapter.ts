@@ -42,7 +42,7 @@ export interface StorageAdapter {
       agent_version?: string;
     }): Promise<Message>;
     get(id: MessageId): Promise<Message | null>;
-    listByChat(chat_id: ChatId): Promise<Message[]>;
+    listByChat(chat_id: ChatId, opts?: { limit?: number }): Promise<Message[]>;
     delete(id: MessageId): Promise<boolean>;
   };
 

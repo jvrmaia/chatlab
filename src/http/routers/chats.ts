@@ -121,6 +121,11 @@ export function chatsRouter(core: Core, opts: { fetcher?: typeof fetch } = {}): 
 
       if (wantsStream) {
         // SSE path — handle LLM call inline; AgentRunner is bypassed (no event emitted).
+        // res.on("close") fires when the client disconnects mid-stream; req.on("close")
+        // fires earlier (when the request body is consumed) and is less reliable here.
+        const controller = new AbortController();
+        res.on("close", () => controller.abort());
+
         const userMsg = await core.storage.messages.append({
           chat_id: req.params.id!,
           role: "user",
@@ -148,8 +153,6 @@ export function chatsRouter(core: Core, opts: { fetcher?: typeof fetch } = {}): 
         }
 
         core.beginInflight();
-        const controller = new AbortController();
-        req.on("close", () => controller.abort());
         let fullContent = "";
         try {
           const messages = await buildMessages(core, agent, chat.theme, req.params.id!);
@@ -221,9 +224,8 @@ async function buildMessages(
   chatId: string,
 ) {
   if (!agent) return [];
-  const history = await core.storage.messages.listByChat(chatId);
   const limit = Math.max(1, agent.context_window || 20);
-  const recent = history.slice(-limit);
+  const recent = await core.storage.messages.listByChat(chatId, { limit });
   const messages: { role: "system" | "user" | "assistant"; content: string }[] = [];
   const themeLine = theme ? `Topic of this conversation: ${theme}` : "";
   const systemBody =

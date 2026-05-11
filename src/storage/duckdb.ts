@@ -125,6 +125,23 @@ export class DuckDbAdapter implements StorageAdapter {
     for (const stmt of SCHEMA.split(";").map((s) => s.trim()).filter(Boolean)) {
       await this.conn.run(stmt);
     }
+    // Migrations for columns added after initial schema creation (mirrors sqlite.ts).
+    const agentCols = (
+      await this.query<{ column_name: string }>(
+        `SELECT column_name FROM information_schema.columns WHERE table_name = 'agents'`,
+      )
+    ).map((r) => r.column_name);
+    if (!agentCols.includes("temperature")) {
+      await this.exec("ALTER TABLE agents ADD COLUMN temperature DOUBLE");
+    }
+    const msgCols = (
+      await this.query<{ column_name: string }>(
+        `SELECT column_name FROM information_schema.columns WHERE table_name = 'messages'`,
+      )
+    ).map((r) => r.column_name);
+    if (!msgCols.includes("agent_version")) {
+      await this.exec("ALTER TABLE messages ADD COLUMN agent_version VARCHAR");
+    }
   }
 
   async close(): Promise<void> {
@@ -254,11 +271,17 @@ export class DuckDbAdapter implements StorageAdapter {
       );
       return rows[0] ? messageFromRow(rows[0]) : null;
     },
-    listByChat: async (chat_id: ChatId): Promise<Message[]> => {
-      const rows = await this.query<MessageRowDuck>(
-        `SELECT * FROM messages WHERE chat_id = ? ORDER BY created_at ASC`,
-        [chat_id],
-      );
+    listByChat: async (chat_id: ChatId, opts?: { limit?: number }): Promise<Message[]> => {
+      const rows =
+        opts?.limit !== undefined
+          ? await this.query<MessageRowDuck>(
+              `SELECT * FROM (SELECT * FROM messages WHERE chat_id = ? ORDER BY created_at DESC LIMIT ?) ORDER BY created_at ASC`,
+              [chat_id, opts.limit],
+            )
+          : await this.query<MessageRowDuck>(
+              `SELECT * FROM messages WHERE chat_id = ? ORDER BY created_at ASC`,
+              [chat_id],
+            );
       return rows.map(messageFromRow);
     },
     delete: async (id: MessageId): Promise<boolean> => {

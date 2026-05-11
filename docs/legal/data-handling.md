@@ -62,7 +62,7 @@ Between [Operator Legal Name] (the "Controller") and [Adopter Legal Name] (the
 "Sub-controller").
 
 1. SCOPE
-   This addendum governs the use of chatlab (open-source, MIT-licensed,
+   This addendum governs the use of chatlab (source-available, Elastic-2.0,
    https://github.com/jvrmaia/chatlab) by the Sub-controller's development
    teams in the context of building chat agents.
 

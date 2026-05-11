@@ -133,4 +133,4 @@ Contributions welcome — see [`CONTRIBUTING.md`](./CONTRIBUTING.md).
 
 ## License
 
-[MIT](./LICENSE)
+[Elastic License 2.0](./LICENSE) — source-available. Free to use, study, modify, and redistribute. Providing chatlab as a hosted or managed service to third parties requires a commercial agreement.

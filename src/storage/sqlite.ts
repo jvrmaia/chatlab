@@ -332,10 +332,18 @@ export class SqliteAdapter implements StorageAdapter {
         | undefined;
       return row ? rowToMessage(row) : null;
     },
-    listByChat: async (chat_id: ChatId): Promise<Message[]> => {
-      const rows = this.db
-        .prepare(`SELECT * FROM messages WHERE chat_id = ? ORDER BY created_at ASC`)
-        .all(chat_id) as MessageRow[];
+    listByChat: async (chat_id: ChatId, opts?: { limit?: number }): Promise<Message[]> => {
+      const rows = (
+        opts?.limit !== undefined
+          ? this.db
+              .prepare(
+                `SELECT * FROM (SELECT * FROM messages WHERE chat_id = ? ORDER BY created_at DESC LIMIT ?) ORDER BY created_at ASC`,
+              )
+              .all(chat_id, opts.limit)
+          : this.db
+              .prepare(`SELECT * FROM messages WHERE chat_id = ? ORDER BY created_at ASC`)
+              .all(chat_id)
+      ) as MessageRow[];
       return rows.map(rowToMessage);
     },
     delete: async (id: MessageId): Promise<boolean> => {

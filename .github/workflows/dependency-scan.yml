@@ -56,7 +56,7 @@ jobs:
       # The repo dropped `v1` tags during the v2 split (the v1 ref no longer
       # resolves), so we pin to the current major.
       - name: Run OSV-Scanner
-        uses: google/osv-scanner-action/osv-scanner-action@v2.3.5
+        uses: google/osv-scanner-action/osv-scanner-action@v2.3.8
         with:
           scan-args: |-
             --recursive

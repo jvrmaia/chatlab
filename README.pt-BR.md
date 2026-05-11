@@ -135,4 +135,4 @@ Contribuições são bem-vindas — veja [`CONTRIBUTING.md`](./CONTRIBUTING.md).
 
 ## Licença
 
-[MIT](./LICENSE)
+[Elastic License 2.0](./LICENSE) — código-fonte disponível. Uso, estudo, modificação e redistribuição são livres. Oferecer o chatlab como serviço hospedado ou gerenciado para terceiros requer um acordo comercial.

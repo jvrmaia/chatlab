@@ -143,10 +143,12 @@ export class MemoryAdapter implements StorageAdapter {
       return msg;
     },
     get: async (id: MessageId): Promise<Message | null> => this.messagesMap.get(id) ?? null,
-    listByChat: async (chat_id: ChatId): Promise<Message[]> =>
-      Array.from(this.messagesMap.values())
+    listByChat: async (chat_id: ChatId, opts?: { limit?: number }): Promise<Message[]> => {
+      const all = Array.from(this.messagesMap.values())
         .filter((m) => m.chat_id === chat_id)
-        .sort((a, b) => a.created_at.localeCompare(b.created_at)),
+        .sort((a, b) => a.created_at.localeCompare(b.created_at));
+      return opts?.limit !== undefined ? all.slice(-opts.limit) : all;
+    },
     delete: async (id: MessageId): Promise<boolean> => {
       if (!this.messagesMap.has(id)) return false;
       this.messagesMap.delete(id);
