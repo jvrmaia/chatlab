@@ -1,5 +1,5 @@
 import { createServer } from "node:http";
-import { mkdirSync, rmSync, writeFileSync } from "node:fs";
+import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
@@ -40,12 +40,10 @@ describe("HTTP — UI serving (token injection + no redirect loop)", () => {
   let uiDir: string;
 
   beforeEach(async () => {
-    uiDir = join(tmpdir(), `chatlab-ui-test-${Date.now()}`);
-    mkdirSync(uiDir, { recursive: true });
+    uiDir = mkdtempSync(join(tmpdir(), "chatlab-ui-test-"));
     writeFileSync(join(uiDir, "index.html"), "<html><head></head><body></body></html>");
 
-    const home = join(tmpdir(), `chatlab-ui-home-${Date.now()}`);
-    mkdirSync(home, { recursive: true });
+    const home = mkdtempSync(join(tmpdir(), "chatlab-ui-home-"));
     const registry = new WorkspaceRegistry({ home });
     core = await Core.start({ registry });
 

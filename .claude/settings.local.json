@@ -127,7 +127,10 @@
       "Bash(npx --yes js-yaml .github/workflows/dependency-scan.yml)",
       "Bash(npx js-yaml *)",
       "Bash(xargs basename -a)",
-      "Bash(npx *)"
+      "Bash(npx *)",
+      "Bash(npm --prefix /Users/jvrmaia/Workspace/jvrmaia/chatlab/docs-site install)",
+      "Bash(npm --prefix /Users/jvrmaia/Workspace/jvrmaia/chatlab/docs-site audit --audit-level=moderate)",
+      "Bash(./node_modules/.bin/redocly lint *)"
     ]
   }
 }

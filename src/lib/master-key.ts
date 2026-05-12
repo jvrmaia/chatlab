@@ -1,4 +1,4 @@
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { randomBytes } from "node:crypto";
 import { MASTER_KEY_BYTES } from "./crypto.js";
@@ -24,7 +24,24 @@ export function loadMasterKey(home: string, env: NodeJS.ProcessEnv = process.env
     return buf;
   }
   const path = join(home, "master.key");
-  if (existsSync(path)) {
+  try {
+    const buf = readFileSync(path);
+    if (buf.length !== MASTER_KEY_BYTES) {
+      throw new Error(
+        `${path} must contain exactly ${MASTER_KEY_BYTES} bytes (got ${buf.length})`,
+      );
+    }
+    return buf;
+  } catch (err) {
+    if ((err as NodeJS.ErrnoException).code !== "ENOENT") throw err;
+  }
+  mkdirSync(dirname(path), { recursive: true });
+  const generated = randomBytes(MASTER_KEY_BYTES);
+  try {
+    writeFileSync(path, generated, { mode: 0o600, flag: "wx" });
+    return generated;
+  } catch (err) {
+    if ((err as NodeJS.ErrnoException).code !== "EEXIST") throw err;
     const buf = readFileSync(path);
     if (buf.length !== MASTER_KEY_BYTES) {
       throw new Error(
@@ -33,8 +50,4 @@ export function loadMasterKey(home: string, env: NodeJS.ProcessEnv = process.env
     }
     return buf;
   }
-  mkdirSync(dirname(path), { recursive: true });
-  const generated = randomBytes(MASTER_KEY_BYTES);
-  writeFileSync(path, generated, { mode: 0o600 });
-  return generated;
 }

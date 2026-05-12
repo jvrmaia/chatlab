@@ -210,9 +210,10 @@ export class WorkspaceRegistry {
   }
 
   private writeAtomic(data: RegistryFile): void {
+    if (!isRegistryFile(data)) throw new Error("attempted to persist malformed registry");
     mkdirSync(dirname(this.file), { recursive: true });
     const tmp = `${this.file}.tmp-${randomBytes(8).toString("hex")}`;
-    writeFileSync(tmp, JSON.stringify(data, null, 2), "utf8");
+    writeFileSync(tmp, JSON.stringify(data, null, 2), { encoding: "utf8", mode: 0o600 });
     renameSync(tmp, this.file);
   }
 }
