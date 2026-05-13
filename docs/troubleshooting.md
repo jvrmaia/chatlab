@@ -214,7 +214,7 @@ The 32-byte requirement is a hard precondition for AES-256-GCM. Don't shrink to 
 
 ### I want to disable at-rest encryption entirely
 
-Don't. The encryption was a security requirement at launch — see [the TRB review](./reviews/2026-04-30-v1.0.0-rc.1.md). The storage adapter accepts plaintext-legacy rows at read time (so old `~/.chatlab` copies upgrade transparently), but every new write encrypts.
+Don't. The encryption was a security requirement at launch (see `SECURITY.md`). The storage adapter accepts plaintext-legacy rows at read time (so old `~/.chatlab` copies upgrade transparently), but every new write encrypts.
 
 If you genuinely have a sandbox where this doesn't matter, pass a fixed throwaway key (`CHATLAB_MASTER_KEY=$(echo -n test | sha256sum | head -c 64 | xxd -r -p | base64)` is a stable test key) and treat the data dir as ephemeral.
 

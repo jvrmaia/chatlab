@@ -4,8 +4,10 @@
 
 | Version | Supported |
 | --- | --- |
-| ≥ 0.1.0 | Yes — active security fixes |
-| < 0.1.0 | Not supported |
+| ≥ 0.2.2 | Yes — active security fixes |
+| < 0.2.2 | Not supported |
+
+chatlab is licensed under the [Elastic License 2.0](./LICENSE). Using chatlab as a hosted or managed service for third parties requires a commercial agreement. Security fixes are applied to the latest release only — there is no backport policy for older versions.
 
 ## Reporting a vulnerability
 

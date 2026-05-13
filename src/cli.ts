@@ -106,7 +106,8 @@ export async function runEvalCommand(argv: string[]): Promise<void> {
   const format = (flag("--format") ?? "markdown") as "markdown" | "json";
   const baselinePath = flag("--baseline");
   const outDir = flag("--out") ?? join(homeDir, "eval", agentId);
-  const requireToken = flag("--require-token") ?? process.env["CHATLAB_REQUIRE_TOKEN"] ?? "eval-token";
+  const { randomBytes } = await import("node:crypto");
+  const requireToken = flag("--require-token") ?? process.env["CHATLAB_REQUIRE_TOKEN"] ?? randomBytes(16).toString("hex");
 
   // Boot chatlab internally on an ephemeral port
   const workspaceId = flag("--workspace");
@@ -118,6 +119,23 @@ export async function runEvalCommand(argv: string[]): Promise<void> {
   };
   if (workspaceId) startOpts.workspaceId = workspaceId;
   const running = await startChatlab(startOpts);
+
+  // Enforce temperature: 0 for deterministic eval runs; restore original value in finally.
+  const agentGetResp = await fetch(`${running.url}/v1/agents/${agentId}`, {
+    headers: { Authorization: `Bearer ${requireToken}` },
+  });
+  if (!agentGetResp.ok) {
+    process.stderr.write(`eval: could not read agent ${agentId}: ${agentGetResp.status}\n`);
+    await running.stop();
+    process.exit(1);
+  }
+  const agentData = (await agentGetResp.json()) as { temperature?: number | null };
+  const originalTemperature = agentData.temperature ?? null;
+  await fetch(`${running.url}/v1/agents/${agentId}`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json", Authorization: `Bearer ${requireToken}` },
+    body: JSON.stringify({ temperature: 0 }),
+  });
 
   let exitCode = 0;
   try {
@@ -170,6 +188,11 @@ export async function runEvalCommand(argv: string[]): Promise<void> {
     const summary = summarize(results, baseline);
     process.stdout.write(`eval: ${summary}\n`);
   } finally {
+    await fetch(`${running.url}/v1/agents/${agentId}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${requireToken}` },
+      body: JSON.stringify({ temperature: originalTemperature }),
+    }).catch(() => { /* best-effort restore */ });
     await running.stop();
   }
 

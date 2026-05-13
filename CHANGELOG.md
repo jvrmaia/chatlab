@@ -6,6 +6,25 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+### Added
+
+- **Eval harness** (`0007`) — `chatlab eval --agent <id>` CLI subcommand. Reads a golden-set YAML (`<home>/eval/golden.yaml`), runs each prompt through the configured agent, writes a Markdown report, and diffs against a `--baseline`. Exits non-zero on any provider failure without writing a partial report. Implemented in `src/eval/` (loader, runner, reporter, types). CLI architecture per [ADR 0015](./docs/specs/adr/0015-cli-subcommand-architecture.md).
+- **SSE extraction** — `src/lib/sse.ts` exports `parseSseLines`; both provider adapters (`openai-compat`, `anthropic`) now share the same SSE parsing logic instead of duplicated `ReadableStreamDefaultReader` loops.
+- **CLI subcommand guard** — `detectUnknownSubcommand` in `src/cli.ts` exits 1 with a clear message for unrecognised first-positional arguments. Per [ADR 0015](./docs/specs/adr/0015-cli-subcommand-architecture.md).
+- **ADR 0015** — CLI subcommand architecture: flag-based parsing, no external parser dependency, explicit allowlist guard.
+- **ADR 0016** — Centralized LLM message builder (`buildLlmMessages` in `src/agents/message-builder.ts`).
+- **ADR 0017** — LLM integration build-vs-SDK analysis. Adopts `@anthropic-ai/sdk` deferred to v0.4.0 pending migration scope.
+
+### Fixed
+
+- **SSRF RFC-1918 gap** — SSRF blocklist now covers the full RFC-1918 and link-local ranges (169.254.x.x, fc00::/7 ULA). Closed the open finding from the post-security-sprint TRB review (per [ADR 0014](./docs/specs/adr/0014-ssrf-and-mime-mitigation.md)).
+- **LocaleToggle ARIA** — `aria-pressed` → `aria-selected`, `role="group"` → `role="tablist"`, `role="tab"` added to language buttons. Aligns with the tab pattern used in `App.tsx` and the `.tab[aria-selected="true"]` CSS selector in the design system.
+- **CI lychee** — `conventionalcommits.org` added to the Markdown link-checker exclusion list; GitHub Actions IPs are blocked by this host, causing false-positive CI failures.
+
+### Reviews
+
+- TRB post-v0.2.2 review (`docs/reviews/2026-05-12-post-v0.2.2.md`) — full 14-persona snapshot. Maturity 8.1/10 (+0.2 from post-security-sprint). Primary finding: `temperature: 0` not enforced in eval runs. 18 action-register items.
+
 ## [0.2.2] — 2026-05-11
 
 ### Fixed

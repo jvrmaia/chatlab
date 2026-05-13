@@ -24,9 +24,9 @@ Read the [README](./README.md) and [`docs/ROADMAP.md`](./docs/ROADMAP.md) before
 | `src/ui/` | React + Tailwind + Vite browser UI (served at `/ui`). |
 | `test/` | Vitest suites. 80% coverage on lines/statements/functions, 65% on branches. |
 | `docs/specs/api/openapi.yaml` | **Source of truth** for the HTTP contract — OpenAPI 3.1. |
-| `docs/specs/capabilities/` | 6 active capability specs (v0.1.0) + 1 draft (`0007-eval-harness`, target v0.2.0). |
-| `docs/specs/adr/` | 14 ADRs (MADR-lite). |
-| `docs/reviews/` | TRB review snapshots (read-only after publication). Latest: [`2026-05-03-post-security-sprint.md`](./docs/reviews/2026-05-03-post-security-sprint.md). |
+| `docs/specs/capabilities/` | 7 capability specs (6 Implemented in v0.1.0, `0007-eval-harness` Implemented in v0.2.x). |
+| `docs/specs/adr/` | 17 ADRs (MADR-lite, 0001–0017). |
+| `docs/reviews/` | Project status and open action items — [`CURRENT.md`](./docs/reviews/CURRENT.md) is the live document. |
 | `docs/_design/` | Design system: `tokens.css`, `components.css`, `icons.js`, `Design System.html`. |
 | `docs/user-guide/` | Narrative walkthrough with screenshots. |
 | `docs/_capture/` | Playwright screenshot capture pipeline (`npm run docs:capture`). |

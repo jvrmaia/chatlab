@@ -92,6 +92,13 @@ Future subcommands add a `src/[name]/` module tree and export `run[Name]Command`
 - **Negative:** the `flag()` helper does not validate that a flag name was followed by a value (not another flag). Invalid invocations surface as `undefined` values rather than explicit parse errors. Mitigated by explicit `if (!agentId) { stderr.write(...); exit(1); }` guards in each subcommand.
 - **Neutral:** positional arguments are not supported. All arguments use `--name value` form. This is a deliberate choice, not a limitation — it makes adding new flags non-breaking.
 
+**Checklist for adding a new subcommand:**
+
+1. Add the subcommand name to the `detectUnknownSubcommand` allowlist in `src/cli.ts` (the `if (first === "…") return null;` block).
+2. Add `if (argv[0] === "<name>") { await run<Name>Command(argv.slice(1)); return; }` in `main()`, before the `detectUnknownSubcommand` call.
+3. Update the `--help` output string in `main()` with the new subcommand and its flags.
+4. Create `test/eval/<name>.test.ts` (or `test/cli/<name>.test.ts`) covering at minimum: the missing-required-flag path (exit 1) and the happy path (exit 0, output written).
+
 ## Alternatives considered
 
 - **commander** — mature, widely used. Rejected: adds ~75 KB to the published package; the help/flag API is more than we need for two subcommands; it would require rewriting the existing `--version` / `--help` handling.

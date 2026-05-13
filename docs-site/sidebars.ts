@@ -78,6 +78,9 @@ const sidebars: SidebarsConfig = {
         "specs/adr/security-and-dependency-scanning",
         "specs/adr/adopt-claude-design-system",
         "specs/adr/ssrf-and-mime-mitigation",
+        "specs/adr/cli-subcommand-architecture",
+        "specs/adr/centralized-llm-message-builder",
+        "specs/adr/llm-integration-build-vs-sdk",
       ],
     },
     {
@@ -92,14 +95,7 @@ const sidebars: SidebarsConfig = {
         {
           type: "category",
           label: "Reviews",
-          items: [
-            "reviews/README",
-            "reviews/2026-05-03-post-security-sprint",
-            "reviews/2026-04-30-v1.0.0-ga",
-            "reviews/2026-04-30-axe-contrast-check",
-            "reviews/2026-04-30-uat-panel",
-            "reviews/2026-04-30-v1.0.0-rc.1",
-          ],
+          items: ["reviews/README", "reviews/CURRENT"],
         },
       ],
     },

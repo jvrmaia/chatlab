@@ -132,7 +132,8 @@
       "Bash(npm --prefix /Users/jvrmaia/Workspace/jvrmaia/chatlab/docs-site audit --audit-level=moderate)",
       "Bash(./node_modules/.bin/redocly lint *)",
       "Bash(chmod +x /tmp/analyze_deps.sh)",
-      "Bash(bash /tmp/analyze_deps.sh)"
+      "Bash(bash /tmp/analyze_deps.sh)",
+      "Bash(echo \"exit: $?\")"
     ]
   }
 }

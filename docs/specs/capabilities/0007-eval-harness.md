@@ -1,6 +1,6 @@
 # 0007 — Eval harness
 
-- **Status:** Draft (target v0.3.0)
+- **Status:** Implemented (v0.2.x; hardened in v0.3.0)
 - **Authors:** @jvrmaia
 - **Related ADRs:** _none yet_
 - **Depends on:** [`0002-agents`](./0002-agents.md), [`0003-chats-and-messages`](./0003-chats-and-messages.md)
@@ -9,11 +9,11 @@
 
 A regression-style eval loop. The developer authors a small **golden set** of prompts in YAML; chatlab runs each prompt through one or more agents, captures the response, and prints a Markdown diff against the previous baseline. The dev sees at a glance which prompts changed when they swapped a model or edited a system prompt.
 
-This is *not* a full evaluation framework (no LLM-as-judge, no rubric scoring, no CI gating in v0.2.0) — it is a "did anything change?" loop that fits into the same workbench the dev already uses for chats.
+This is *not* a full evaluation framework (no LLM-as-judge, no rubric scoring, no CI gating) — it is a "did anything change?" loop that fits into the same workbench the dev already uses for chats.
 
 ## Motivation
 
-[ADR 0010 §5](../adr/0010-test-strategy.md) deliberately defers a full eval harness. The TRB review of 2026-04-30 (item 11 of the action register) flagged the absence as the highest-leverage v0.2.0 ML deliverable: without it, every prompt change is "the dev reads the response by hand and squints". Promptfoo and Inspect AI cover this space well, but bringing them into chatlab requires either (a) a vendored runner or (b) a thin adapter layer that emits / consumes their format. v0.2.0 ships the local runner; future versions can export to those formats.
+[ADR 0010 §5](../adr/0010-test-strategy.md) deliberately defers a full eval harness. The TRB review of 2026-04-30 (item 11 of the action register) flagged the absence as the highest-leverage v0.2.0 ML deliverable: without it, every prompt change is "the dev reads the response by hand and squints". Promptfoo and Inspect AI cover this space well, but bringing them into chatlab requires either (a) a vendored runner or (b) a thin adapter layer that emits / consumes their format. v0.2.x ships the local runner; future versions can export to those formats.
 
 ## User stories
 
@@ -43,8 +43,8 @@ This is *not* a full evaluation framework (no LLM-as-judge, no rubric scoring, n
 
 - LLM-as-judge or rubric scoring. The eval loop reports diffs; *deciding* if the diff is good/bad is the dev's job (or a future capability).
 - CI gating ("merge blocks if any golden-set response changed"). The output is informational; opt-in CI integration is a follow-up capability.
-- Multi-turn evals. v0.2.0 covers single-turn prompts; multi-turn dialogs need a richer fixture format.
-- Cost tracking. Token / cost approximation is part of v0.2.0 capability `0004` evolution, not this one.
+- Multi-turn evals. v0.2.x covers single-turn prompts; multi-turn dialogs need a richer fixture format.
+- Cost tracking. Token / cost approximation is part of v0.4.0 capability `0004` evolution, not this one.
 
 ## Open questions
 
@@ -62,6 +62,20 @@ This is *not* a full evaluation framework (no LLM-as-judge, no rubric scoring, n
 
 ## Acceptance
 
-- **Vitest test ID(s):** _to be defined when the implementation lands in v0.2.0_ (`test/eval/...`).
-- **OpenAPI operation(s):** none — eval is a CLI subcommand, not an HTTP surface in v0.2.0. (A `POST /v1/eval/runs` endpoint may follow if remote eval becomes a use case.)
-- **User Guide section:** _to be added under `docs/user-guide/` once v0.2.0 ships._
+- **Vitest test IDs** (`test/eval/`):
+  - `EVAL-L-01` — parses a valid golden set (`eval.test.ts`)
+  - `EVAL-L-02` — throws on missing `prompts` key
+  - `EVAL-L-03` — throws on prompt entry without `id`
+  - `EVAL-R-01` — `buildMarkdownReport` includes prompt id and response
+  - `EVAL-R-02` — `buildMarkdownReport` shows diff section when baseline provided
+  - `EVAL-R-03` — `buildMarkdownReport` marks unchanged responses
+  - `EVAL-R-04` — `buildJsonReport` is valid JSON with expected fields
+  - `EVAL-R-05` — `parseBaselineMap` extracts responses by prompt id
+  - `EVAL-R-06` — `summarize` counts failures and changes
+  - `EVAL-I-01` — `runEval` returns results for each prompt (integration)
+  - `EVAL-I-02` — `runEval` returns error result for unknown agent (integration)
+  - `EVAL-I-03` — eval run enforces `temperature: 0` and restores original (v0.3.0)
+  - `EVAL-CLI-01` — missing `--agent` exits 1 (`cli-eval.test.ts`)
+  - `EVAL-CLI-02` — valid `--agent` and golden YAML exits 0 and writes report
+- **OpenAPI operation(s):** none — eval is a CLI subcommand, not an HTTP surface. (A `POST /v1/eval/runs` endpoint may follow if remote eval becomes a use case.)
+- **User Guide section:** `docs/user-guide/eval.md` (added in v0.3.0).

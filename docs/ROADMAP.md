@@ -37,25 +37,9 @@ Capabilities (all `Implemented` as of `v0.1.0`):
 
 Distribution: published to npm (`@jvrmaia/chatlab@0.1.0`) and Docker Hub (`jvrmaia/chatlab:0.1.0` / `:latest`) on tag push. **Published documentation site:** [https://jvrmaia.github.io/chatlab/](https://jvrmaia.github.io/chatlab/) (Docusaurus + GitHub Pages — see [ADR 0009](./specs/adr/0009-github-pages-documentation-site.md)).
 
-### TRB reviews — v0.1.0 closeout
+### TRB review history
 
-Two snapshots framed the GA gate:
-
-- **rc-1 review** ([`docs/reviews/2026-04-30-v1.0.0-rc.1.md`](./reviews/2026-04-30-v1.0.0-rc.1.md)) — maturity 7.0/10; 14 recommendations issued.
-- **GA review** ([`docs/reviews/2026-04-30-v1.0.0-ga.md`](./reviews/2026-04-30-v1.0.0-ga.md)) — follow-up snapshot; maturity 7.6/10.
-
-### TRB review — post-security-sprint (v0.1.0)
-
-- **Post-security-sprint review** ([`docs/reviews/2026-05-03-post-security-sprint.md`](./reviews/2026-05-03-post-security-sprint.md)) — full 14-persona snapshot of v0.1.0 after the Dependabot sprint and three HIGH-vulnerability fixes (WS auth bypass, MIME-spoof XSS, SSRF exfiltration). Maturity 7.9/10. Primary findings: SSRF RFC-1918 gap not covered by the blocklist; security-fix regression tests absent; CHANGELOG/SECURITY.md hygiene gaps. 21 action-register items; three flagged for v0.1.x patch.
-
-Action register state at GA tag:
-
-- Five GA blockers (items 1–5) — all **Closed**.
-- v0.1.0 soft items 6, 8, 9, 10 — all **Closed**.
-- Item 7 (axe-DevTools manual pass) — **Partial**: contrast check shipped ([`axe-contrast-check.md`](./reviews/2026-04-30-axe-contrast-check.md)) with 3 CSS-token findings; manual axe sweep against the live UI still owed and scheduled for `v0.1.1`.
-- Items 11–14 — `Spec drafted` / `Skeleton`, all targeting v0.2.0.
-
-A UAT panel of six downstream-role evaluators ([`uat-panel.md`](./reviews/2026-04-30-uat-panel.md)) backlogged 21 user stories, of which items 1–10 anchor the v0.2.0 scope.
+Maturity progression: 7.0 (v1.0.0-rc.1) → 7.6 (v1.0.0-GA) → 7.9 (post-security-sprint) → **8.1/10** (post-v0.2.2, 2026-05-12). The v0.1.0 GA action register (14 items) is fully closed. The post-v0.2.2 action register had 18 items; 8 were resolved in the follow-up sprint; 10 remain open. Current status and open items: [`docs/reviews/CURRENT.md`](./reviews/CURRENT.md).
 
 ## v0.2.1 — Security, tooling, and license · **Released 2026-05-11 as `v0.2.1`**
 
@@ -73,15 +57,17 @@ A UAT panel of six downstream-role evaluators ([`uat-panel.md`](./reviews/2026-0
 
 Shipped SSE streaming (`POST /v1/chats/{id}/messages` with `Accept: text/event-stream`) and WebSocket auth via `?token=` query parameter. See `CHANGELOG.md` for full notes.
 
-## v0.3.0 — Eval harness
+## v0.3.0 — Eval stable
 
-**Goal:** close the development loop for Bruno (solo developer persona). After v0.2.x the core chat/feedback loop is solid; the missing piece is a way to detect regressions when iterating on prompts or swapping providers. This milestone delivers exactly that — nothing else.
+**Goal:** stabilise the eval harness that shipped ahead of schedule in v0.2.x. The `chatlab eval` subcommand is functional; v0.3.0 closes the remaining gaps before the capability is considered production-ready: deterministic runs, a user-facing walkthrough, and formal spec sign-off.
 
 Scope:
 
-- **Eval harness** — capability [`0007-eval-harness`](./specs/capabilities/0007-eval-harness.md): golden-set YAML, `chatlab eval --agent <id>` subcommand, Markdown diff report against a baseline. CLI architecture follows [ADR 0015](./specs/adr/0015-cli-subcommand-architecture.md). Tracked from TRB review 2026-05-03 action register item 15.
+- **`temperature: 0` enforcement** — eval runs MUST patch the agent to `temperature: 0` before running prompts and restore the original value afterwards. Without this, response diffs are non-deterministic across provider restarts or model swaps. New test `EVAL-I-03` is the acceptance gate (TRB item 1 — pre-promotion blocker).
+- **`docs/user-guide/eval.md`** — walkthrough of the golden-set workflow: writing the YAML, running the first eval, interpreting the diff report, committing a baseline (TRB item 3).
+- **`0007-eval-harness` spec sign-off** — Status → Implemented; Acceptance section backfilled with Vitest test IDs (TRB item 2).
 
-Milestone closes when: `chatlab eval --agent <id>` runs a 3-prompt golden set, produces a Markdown report, and diffs against a `--baseline`; provider failure exits non-zero without writing a partial report.
+Milestone closes when: `EVAL-I-03` passes; `docs/user-guide/eval.md` exists; capability spec Status = Implemented.
 
 ## v0.4.0 — Provider depth
 
