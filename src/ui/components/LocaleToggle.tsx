@@ -16,11 +16,12 @@ export function LocaleToggle(): JSX.Element {
   }
 
   return (
-    <div className="tabs" role="group" aria-label={t("locale.toggleAria")}>
+    <div className="tabs" role="tablist" aria-label={t("locale.toggleAria")}>
       <button
         type="button"
         className="tab"
-        aria-pressed={current === "en-US"}
+        role="tab"
+        aria-selected={current === "en-US"}
         onClick={() => pick("en-US")}
       >
         EN
@@ -28,7 +29,8 @@ export function LocaleToggle(): JSX.Element {
       <button
         type="button"
         className="tab"
-        aria-pressed={current === "pt-BR"}
+        role="tab"
+        aria-selected={current === "pt-BR"}
         onClick={() => pick("pt-BR")}
       >
         PT

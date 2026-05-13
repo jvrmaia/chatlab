@@ -16,23 +16,23 @@ describe("LocaleToggle", () => {
 
   test("renders both EN and PT buttons", () => {
     render(<LocaleToggle />);
-    expect(screen.getByRole("button", { name: "EN" })).toBeDefined();
-    expect(screen.getByRole("button", { name: "PT" })).toBeDefined();
+    expect(screen.getByRole("tab", { name: "EN" })).toBeDefined();
+    expect(screen.getByRole("tab", { name: "PT" })).toBeDefined();
   });
 
   test("EN is selected by default", () => {
     render(<LocaleToggle />);
-    const en = screen.getByRole("button", { name: "EN" });
-    expect(en.getAttribute("aria-pressed")).toBe("true");
+    const en = screen.getByRole("tab", { name: "EN" });
+    expect(en.getAttribute("aria-selected")).toBe("true");
   });
 
   test("clicking PT flips selection and persists to localStorage", async () => {
     render(<LocaleToggle />);
-    fireEvent.click(screen.getByRole("button", { name: "PT" }));
+    fireEvent.click(screen.getByRole("tab", { name: "PT" }));
     // i18next.changeLanguage is async — wait a tick for the language detector to persist.
     await new Promise((r) => setTimeout(r, 0));
     expect(localStorage.getItem("i18nextLng")).toBe("pt-BR");
-    const pt = screen.getByRole("button", { name: "PT" });
-    expect(pt.getAttribute("aria-pressed")).toBe("true");
+    const pt = screen.getByRole("tab", { name: "PT" });
+    expect(pt.getAttribute("aria-selected")).toBe("true");
   });
 });
