@@ -17,6 +17,10 @@ graph LR
   C0002 --> C0006
   C0004 --> C0006
   C0005 --> C0006
+  C0003 --> C0007["0007 Eval harness"]
+  C0002 --> C0007
+  C0005 --> C0008["0008 Multimodal · v0.4.0"]
+  C0002 --> C0008
 ```
 
 ## v0.1.0 — First public cut · **Released 2026-05-06 as `v0.1.0`**
@@ -69,21 +73,43 @@ A UAT panel of six downstream-role evaluators ([`uat-panel.md`](./reviews/2026-0
 
 Shipped SSE streaming (`POST /v1/chats/{id}/messages` with `Accept: text/event-stream`) and WebSocket auth via `?token=` query parameter. See `CHANGELOG.md` for full notes.
 
-## v0.3.0 — Provider depth + platform adapters + eval
+## v0.3.0 — Eval harness
 
-**Goal:** provider depth items deferred from v0.2.0, eval harness, and native platform adapters. Probable scope:
+**Goal:** close the development loop for Bruno (solo developer persona). After v0.2.x the core chat/feedback loop is solid; the missing piece is a way to detect regressions when iterating on prompts or swapping providers. This milestone delivers exactly that — nothing else.
 
-- **Eval harness** — capability [`0007-eval-harness`](./specs/capabilities/0007-eval-harness.md): golden-set YAML, `chatlab eval --agent <id>` subcommand, Markdown diff report. Slipped from v0.2.0; tracked from TRB review 2026-05-03 action register item 15.
-- **Multimodal forwarding** — image attachments encoded into the provider's message-array shape (resolves Open Question 1 of [`0005-media`](./specs/capabilities/0005-media.md)).
-- **Tool / function calling** — pass tool schemas through to providers that support it.
+Scope:
+
+- **Eval harness** — capability [`0007-eval-harness`](./specs/capabilities/0007-eval-harness.md): golden-set YAML, `chatlab eval --agent <id>` subcommand, Markdown diff report against a baseline. CLI architecture follows [ADR 0015](./specs/adr/0015-cli-subcommand-architecture.md). Tracked from TRB review 2026-05-03 action register item 15.
+
+Milestone closes when: `chatlab eval --agent <id>` runs a 3-prompt golden set, produces a Markdown report, and diffs against a `--baseline`; provider failure exits non-zero without writing a partial report.
+
+## v0.4.0 — Provider depth
+
+**Goal:** unlock multimodal and tool-use agents, give Diego's corpus token metadata, and close the remaining workspace open question. These items share a prerequisite: [ADR 0017](./specs/adr/0017-llm-integration-build-vs-sdk.md) decisions and the SSE extraction to `src/lib/sse.ts`.
+
+Scope:
+
+- **SSE extraction** (`src/lib/sse.ts`) — prerequisite cleanup; eliminates the duplicated `ReadableStreamDefaultReader` loop in `openai-compat.ts` and `anthropic.ts` (per ADR 0017 §Part 3).
+- **Adopt `@anthropic-ai/sdk`** for the Anthropic provider (per [ADR 0017](./specs/adr/0017-llm-integration-build-vs-sdk.md)).
+- **Multimodal forwarding** — image content parts encoded into the provider's message-array shape (resolves Open Question 1 of [`0005-media`](./specs/capabilities/0005-media.md)).
+- **Tool / function calling** — pass tool schemas through to providers that support it; parse `tool_calls` / `tool_use` from responses.
 - **Token / cost approximation** — the `agent_message` export shape gains optional `prompt_tokens` / `completion_tokens` / `cost_estimate_usd` fields. Bumps `schema_version` to 2.
-- **Workspace duplicate** — clone an existing workspace's data into a new one (resolves Open Question 2 of [`0001-workspaces`](./specs/capabilities/0001-workspaces.md)).
+- **Workspace duplicate** — clone an existing workspace's data into a new one (re-targeted from v0.2.0; see [`0001-workspaces`](./specs/capabilities/0001-workspaces.md)).
+
+Each new provider capability needs its own capability spec or an update to an existing one before implementation.
+
+## v0.5.0 — Platform adapters
+
+**Goal:** let Bruno distribute his agent through the messaging channels where his users already live. This is a deployment-stage capability, not a development-loop capability — it depends on a stable v0.4.0 API surface.
+
+Scope:
+
 - **Telegram bot adapter** — `POST /v1/adapters/telegram/...` translates Telegram updates into chatlab `Message` and back.
 - **Slack Events adapter**.
 - **Discord adapter**.
 - **WhatsApp Cloud API adapter** — as an adapter, not the central abstraction.
 
-Each adapter is its own capability spec. The architecture stays platform-agnostic — adapters are leaves, not the trunk.
+Each adapter is its own capability spec written before implementation. The architecture stays platform-agnostic — adapters are leaves, not the trunk.
 
 ## Out of the near-term roadmap
 

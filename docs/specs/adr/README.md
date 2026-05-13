@@ -32,6 +32,9 @@ Don't write an ADR for choices that are obvious, easily reversible, or would be 
 | 0012 | [Security and dependency scanning](./0012-security-and-dependency-scanning.md) | Accepted |
 | 0013 | [Adopt the chatlab design system](./0013-adopt-claude-design-system.md) | Accepted |
 | 0014 | [SSRF and MIME-spoof mitigation](./0014-ssrf-and-mime-mitigation.md) | Accepted |
+| 0015 | [CLI subcommand architecture](./0015-cli-subcommand-architecture.md) | Accepted |
+| 0016 | [Centralized LLM message builder](./0016-centralized-llm-message-builder.md) | Accepted |
+| 0017 | [LLM integration layer: build vs adopt SDK](./0017-llm-integration-build-vs-sdk.md) | Accepted |
 
 ## How to write a new one
 

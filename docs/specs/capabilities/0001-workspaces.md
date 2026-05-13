@@ -87,7 +87,7 @@ All under `/v1/workspaces/...`. See [`../api/openapi.yaml`](../api/openapi.yaml)
 1. Should `DELETE` also support `?confirm=<workspace-uuid>` as a typed-confirm pattern (you must paste the UUID), à la GitHub repo deletion? **Decision target:** v0.2.0 if anyone reports an accidental delete.
 2. The `~/.chatlab/data/<uuid>.db` path — should it be configurable per workspace at create time, or is "always under `$CHATLAB_HOME/data/`" enough?
 
-(The earlier "workspace duplicate" open question is resolved: scheduled for v0.2.0 per [`ROADMAP.md`](../../ROADMAP.md#v020--provider-depth--analytics).)
+(The earlier "workspace duplicate" open question is re-targeted to v0.4.0 per [`ROADMAP.md`](../../ROADMAP.md#v040--provider-depth). It was deferred from v0.2.0 because the v0.2.x series focused on streaming, security, and tooling.)
 
 ## Verification
 

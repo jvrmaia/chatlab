@@ -1,6 +1,13 @@
 #!/usr/bin/env node
 import { startChatlab } from "./index.js";
 
+export function detectUnknownSubcommand(argv: string[]): string | null {
+  const first = argv[0];
+  if (first === undefined || first.startsWith("--")) return null;
+  if (first === "eval") return null;
+  return first;
+}
+
 async function main(): Promise<void> {
   const argv = process.argv.slice(2);
   if (argv.includes("--version") || argv.includes("-v")) {
@@ -50,6 +57,13 @@ async function main(): Promise<void> {
 
   if (argv[0] === "eval") {
     await runEvalCommand(argv.slice(1));
+    return;
+  }
+
+  const unknown = detectUnknownSubcommand(argv);
+  if (unknown) {
+    process.stderr.write(`Unknown command: '${unknown}'. Run \`chatlab --help\` for usage.\n`);
+    process.exit(1);
     return;
   }
 

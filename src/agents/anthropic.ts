@@ -1,4 +1,5 @@
 import { LlmError, type LlmProvider, type LlmRequest, type LlmResponse } from "./provider.js";
+import { parseSseLines } from "../lib/sse.js";
 
 export class AnthropicProvider implements LlmProvider {
   async chat(req: LlmRequest): Promise<LlmResponse> {
@@ -99,30 +100,14 @@ export class AnthropicProvider implements LlmProvider {
     }
     if (!res.body) throw new LlmError("ZZ_AGENT_PROVIDER_ERROR", "No response body for stream");
 
-    const reader = res.body.getReader();
-    const decoder = new TextDecoder();
-    let buf = "";
-    try {
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-        buf += decoder.decode(value, { stream: true });
-        const lines = buf.split("\n");
-        buf = lines.pop() ?? "";
-        for (const line of lines) {
-          if (!line.startsWith("data: ")) continue;
-          const json = line.slice(6).trim();
-          try {
-            const chunk = JSON.parse(json) as { type?: string; delta?: { type?: string; text?: unknown } };
-            if (chunk?.type === "content_block_delta" && chunk.delta?.type === "text_delta") {
-              const text = chunk.delta.text;
-              if (typeof text === "string" && text) yield text;
-            }
-          } catch { /* malformed chunk — skip */ }
+    for await (const json of parseSseLines(res.body)) {
+      try {
+        const chunk = JSON.parse(json) as { type?: string; delta?: { type?: string; text?: unknown } };
+        if (chunk?.type === "content_block_delta" && chunk.delta?.type === "text_delta") {
+          const text = chunk.delta.text;
+          if (typeof text === "string" && text) yield text;
         }
-      }
-    } finally {
-      reader.releaseLock();
+      } catch { /* malformed chunk — skip */ }
     }
   }
 }

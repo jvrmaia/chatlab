@@ -35,7 +35,11 @@ Tests live under `test/`, organized by area (mirroring `src/`):
 ```
 test/
   agents/         provider adapters + AgentRunner integration
+  core/           process-level lifecycle (e.g. data retention)
+  eval/           eval harness CLI and runner integration
   http/           Express routers, with bootHarness() in test/http/_harness.ts
+  lib/            shared library modules (agent-crypto, logger, …)
+  perf/           opt-in performance benchmarks (excluded from default run)
   storage/        cross-adapter battery + per-adapter wiring
   workspaces/     WorkspaceRegistry persistence + atomic writes
   ws/             WebSocket gateway broadcasts
@@ -46,7 +50,7 @@ Each spec re-uses one of two shared fixtures:
 - `test/http/_harness.ts` — `bootHarness()` boots chatlab in a temp `$CHATLAB_HOME`, returns a configured Express request agent. Used by every HTTP router test.
 - `test/storage/_battery.ts` — `runStorageBattery()` exercises every namespace (workspaces, agents, chats, messages, feedback, annotations, media). Each adapter's spec calls it; DuckDB's variant skips media because BLOB support there is intentionally narrower (see [ADR 0006](./0006-persistence-engines.md)).
 
-There is **no** `test/contract/`, `test/e2e/`, or `test/capabilities/` tier. Capability `Verification:` checklists are exercised by the existing unit + integration tests organized by area; an explicit per-spec mapping was tried in early drafts and produced index churn without finding regressions.
+There is **no** `test/contract/` or `test/capabilities/` tier. Capability `Verification:` checklists are exercised by the existing unit + integration tests organized by area; an explicit per-spec mapping was tried in early drafts and produced index churn without finding regressions. A `test/e2e/` directory exists as a placeholder for a future browser regression suite; it contains no active specs.
 
 ### 3. Coverage gate
 
@@ -93,7 +97,7 @@ These reappear in their own ADRs when there is a concrete need.
 ## Consequences
 
 - **Positive:** the tier list is honest. Two tools, one CI gate, one coverage gate — readable in a glance, easy to keep accurate.
-- **Positive:** Vitest's parallel forks keep the full suite (~90 tests) under 2 s on a laptop, so coverage runs on every PR are cheap.
+- **Positive:** Vitest's parallel forks keep the full suite (~167 tests as of v0.2.2) under 5 s on a laptop, so coverage runs on every PR are cheap.
 - **Positive:** the layout under `test/` mirrors `src/` 1:1 — a new contributor knows exactly where a test for `src/foo/bar.ts` belongs.
 - **Negative:** no automated drift detection on the OpenAPI shape. If a router changes a response schema without updating the YAML, the redocly lint passes (the YAML is still internally valid) and the integration test passes (it asserts what the code returns, not what the spec promises). Mitigation: the OpenAPI is small enough that PR review catches this; if it stops being small, add an openapi-diff job.
 - **Negative:** `src/ui/**` coverage is opaque until the E2E tier lands. The user guide screenshots and the manual smoke checklist are the partial substitutes.

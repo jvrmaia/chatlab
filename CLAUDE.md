@@ -65,7 +65,7 @@ Add an ADR. ADRs are append-only — to change a past decision, write a new ADR 
 Standard checks before reporting a task done:
 
 - `npm run typecheck` — clean (server + UI).
-- `npm test` — currently 121 tests + 2 skipped (`duckdb` media + opt-in `storage-bench`), coverage 80%/80%/80%/65%.
+- `npm test` — currently 167 tests + 2 skipped (`duckdb` media + opt-in `storage-bench`), coverage 80%/80%/80%/65%.
 - `npm run build` — server + UI emit.
 - `npx redocly lint docs/specs/api/openapi.yaml` — valid.
 - `npm run docs:build` — Docusaurus production build (`docs-site/`).
