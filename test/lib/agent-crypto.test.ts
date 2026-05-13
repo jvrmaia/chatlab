@@ -3,6 +3,7 @@ import { randomBytes } from "node:crypto";
 import { encryptAgentKey, decryptAgentKey, decryptAgent } from "../../src/lib/agent-crypto.js";
 import { isEncrypted } from "../../src/lib/crypto.js";
 import type { Agent } from "../../src/types/agent.js";
+import { maskApiKey, publicAgent } from "../../src/types/agent.js";
 
 const KEY = randomBytes(32);
 const PLAIN = "sk-very-secret-1234";
@@ -90,5 +91,31 @@ describe("agent-crypto", () => {
     const agentEnc: Agent = { ...STUB_AGENT, api_key: encKey };
     const result = decryptAgent(agentEnc, undefined);
     expect(result.api_key).toBe(encKey);
+  });
+});
+
+describe("maskApiKey + publicAgent", () => {
+  it("MASK-01 — maskApiKey(undefined) returns undefined (line 49 true branch)", () => {
+    expect(maskApiKey(undefined)).toBeUndefined();
+  });
+
+  it("MASK-02 — maskApiKey('') returns undefined (line 49 true branch, empty string)", () => {
+    expect(maskApiKey("")).toBeUndefined();
+  });
+
+  it("MASK-03 — maskApiKey('ab') returns '***' for short keys (line 50 true branch)", () => {
+    expect(maskApiKey("ab")).toBe("***");
+    expect(maskApiKey("abcd")).toBe("***");
+  });
+
+  it("MASK-04 — maskApiKey('abcde') returns '***e' for longer keys", () => {
+    expect(maskApiKey("abcde")).toBe("***bcde");
+  });
+
+  it("MASK-05 — publicAgent with api_key '' skips masked field (line 59 false branch)", () => {
+    const agent: Agent = { ...STUB_AGENT, api_key: "" };
+    const pub = publicAgent(agent);
+    // maskApiKey("") returns undefined → masked === undefined → out.api_key not set
+    expect(pub.api_key).toBeUndefined();
   });
 });

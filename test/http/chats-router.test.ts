@@ -60,6 +60,64 @@ describe("HTTP — /v1/chats", () => {
     expect((await h.api("GET", `/v1/chats/${chat.id}`)).status).toBe(404);
   });
 
+  it("CH-H-02b — DELETE non-existent chat returns 404 (line 65 true branch)", async () => {
+    expect((await h.api("DELETE", "/v1/chats/no-such-chat")).status).toBe(404);
+  });
+
+  it("CH-H-02c — GET messages for non-existent chat returns 404 (line 76 true branch)", async () => {
+    expect((await h.api("GET", "/v1/chats/no-such-chat/messages")).status).toBe(404);
+  });
+
+  it("CH-H-02d — POST /v1/chats without Content-Type uses req.body ?? {} fallback (line 26 false branch)", async () => {
+    const r = await fetch(`${h.running.url}/v1/chats`, {
+      method: "POST",
+      headers: { Authorization: "Bearer dev-token" },
+    });
+    expect(r.status).toBe(400);
+  });
+
+  it("CH-H-02e — POST messages without Content-Type uses req.body ?? {} fallback (line 86 false branch)", async () => {
+    const agentId = await makeAgent();
+    const chat = (await (
+      await h.api("POST", "/v1/chats", { agent_id: agentId, theme: "t" })
+    ).json()) as { id: string };
+    const r = await fetch(`${h.running.url}/v1/chats/${chat.id}/messages`, {
+      method: "POST",
+      headers: { Authorization: "Bearer dev-token" },
+    });
+    expect(r.status).toBe(400);
+  });
+
+  it("CH-H-02f — attachment with filename covers true branch (line 116)", async () => {
+    const agentId = await makeAgent();
+    const chat = (await (
+      await h.api("POST", "/v1/chats", { agent_id: agentId, theme: "t" })
+    ).json()) as { id: string };
+
+    // Upload actual media with a filename
+    const form = new FormData();
+    const blob = new Blob(
+      [Uint8Array.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a])],
+      { type: "image/png" },
+    );
+    form.append("file", blob, "photo.png");
+    form.append("type", "image");
+    const uploadResp = await fetch(`${h.running.url}/v1/media`, {
+      method: "POST",
+      headers: { Authorization: "Bearer dev-token" },
+      body: form,
+    });
+    const { id: mediaId } = (await uploadResp.json()) as { id: string };
+
+    const r = await h.api("POST", `/v1/chats/${chat.id}/messages`, {
+      content: "look at this",
+      attachments: [{ media_id: mediaId }],
+    });
+    expect(r.status).toBe(201);
+    const body = (await r.json()) as { attachments?: Array<{ filename?: string }> };
+    expect(body.attachments?.[0]?.filename).toBe("photo.png");
+  });
+
   it("CH-H-03 — POST /v1/chats/{id}/messages appends user message + triggers assistant reply", async () => {
     const agentId = await makeAgent();
     const chat = (await (
@@ -96,6 +154,36 @@ describe("HTTP — /v1/chats", () => {
     ).toBe(400);
   });
 
+  it("CH-H-09 — POST /v1/chats rejects theme longer than 280 chars", async () => {
+    const agentId = await makeAgent();
+    const r = await h.api("POST", "/v1/chats", { agent_id: agentId, theme: "x".repeat(281) });
+    expect(r.status).toBe(400);
+  });
+
+  it("CH-H-10 — attachments array with a null item returns 400", async () => {
+    const agentId = await makeAgent();
+    const chat = (await (
+      await h.api("POST", "/v1/chats", { agent_id: agentId, theme: "t" })
+    ).json()) as { id: string };
+    const r = await h.api("POST", `/v1/chats/${chat.id}/messages`, {
+      content: "hello",
+      attachments: [null],
+    });
+    expect(r.status).toBe(400);
+  });
+
+  it("CH-H-11 — attachments array with object missing media_id returns 400", async () => {
+    const agentId = await makeAgent();
+    const chat = (await (
+      await h.api("POST", "/v1/chats", { agent_id: agentId, theme: "t" })
+    ).json()) as { id: string };
+    const r = await h.api("POST", `/v1/chats/${chat.id}/messages`, {
+      content: "hello",
+      attachments: [{ not_media_id: "something" }],
+    });
+    expect(r.status).toBe(400);
+  });
+
   it("CH-H-05 — attachment with unknown media_id returns 404", async () => {
     const agentId = await makeAgent();
     const chat = (await (
@@ -106,6 +194,33 @@ describe("HTTP — /v1/chats", () => {
       attachments: [{ media_id: "no-such" }],
     });
     expect(r.status).toBe(404);
+  });
+
+  it("CH-H-12 — attachment with no filename omits filename field (line 113 false branch)", async () => {
+    const agentId = await makeAgent();
+    const chat = (await (
+      await h.api("POST", "/v1/chats", { agent_id: agentId, theme: "t" })
+    ).json()) as { id: string };
+
+    // Mock media.get to return a record without filename
+    const mediaId = "mock-media-no-filename";
+    const spy = vi.spyOn(h.running.core.storage.media, "get").mockResolvedValueOnce({
+      id: mediaId,
+      type: "image",
+      mime_type: "image/png",
+      size: 100,
+      sha256: "abc123",
+      created_at: new Date().toISOString(),
+    });
+
+    const r = await h.api("POST", `/v1/chats/${chat.id}/messages`, {
+      content: "with nameless file",
+      attachments: [{ media_id: mediaId }],
+    });
+    spy.mockRestore();
+    expect(r.status).toBe(201);
+    const body = (await r.json()) as { attachments?: Array<{ media_id: string; filename?: string }> };
+    expect(body.attachments?.[0]?.filename).toBeUndefined();
   });
 
   it("CH-H-06 — SSE streaming: yields user_message → delta(s) → done, persists assistant reply", async () => {
@@ -309,6 +424,264 @@ describe("HTTP — /v1/chats", () => {
       expect(events.some((e) => e.type === "error" && String(e.error).includes("ZZ_AGENT_PROVIDER_ERROR"))).toBe(true);
       expect(events.some((e) => e.type === "delta")).toBe(false);
     } finally {
+      await sh.stop();
+    }
+  });
+
+  it("CH-STOR-01 — GET /v1/chats storage error falls through to 500", async () => {
+    vi.spyOn(h.running.core.storage.chats, "list").mockRejectedValueOnce(new Error("db crash"));
+    const r = await h.api("GET", "/v1/chats");
+    expect(r.status).toBe(500);
+    vi.restoreAllMocks();
+  });
+
+  it("CH-STOR-02 — DELETE /v1/chats/:id storage error falls through to 500", async () => {
+    const agentId = await makeAgent();
+    const chat = (await (
+      await h.api("POST", "/v1/chats", { agent_id: agentId, theme: "t" })
+    ).json()) as { id: string };
+    vi.spyOn(h.running.core.storage.chats, "delete").mockRejectedValueOnce(new Error("db crash"));
+    const r = await h.api("DELETE", `/v1/chats/${chat.id}`);
+    expect(r.status).toBe(500);
+    vi.restoreAllMocks();
+  });
+
+  it("CH-STOR-03 — GET /v1/chats/:id/messages storage error falls through to 500", async () => {
+    const agentId = await makeAgent();
+    const chat = (await (
+      await h.api("POST", "/v1/chats", { agent_id: agentId, theme: "t" })
+    ).json()) as { id: string };
+    vi.spyOn(h.running.core.storage.messages, "listByChat").mockRejectedValueOnce(new Error("db crash"));
+    const r = await h.api("GET", `/v1/chats/${chat.id}/messages`);
+    expect(r.status).toBe(500);
+    vi.restoreAllMocks();
+  });
+
+  it("CH-H-07 — SSE streaming with usage chunk sets prompt_tokens + completion_tokens on persisted message", async () => {
+    const sseBody =
+      `data: {"choices":[{"delta":{"content":"Hi"}}]}\n\n` +
+      `data: {"choices":[],"usage":{"prompt_tokens":5,"completion_tokens":3}}\n\n` +
+      `data: [DONE]\n\n`;
+    const streamingFetcher = vi.fn(async () =>
+      new Response(sseBody, { status: 200, headers: { "Content-Type": "text/event-stream" } }),
+    ) as unknown as typeof fetch;
+
+    const sh = await bootHarness({ agentFetcher: streamingFetcher });
+    try {
+      const agentId = (await (
+        await sh.api("POST", "/v1/agents", { name: "U", provider: "openai", model: "gpt-4o", api_key: "sk-test" })
+      ).json()) as { id: string };
+      const chat = (await (
+        await sh.api("POST", "/v1/chats", { agent_id: agentId.id, theme: "usage-sse" })
+      ).json()) as { id: string };
+
+      const res = await fetch(`${sh.running.url}/v1/chats/${chat.id}/messages`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: "Bearer dev-token", Accept: "text/event-stream" },
+        body: JSON.stringify({ content: "ping" }),
+      });
+      await res.text(); // drain the SSE response
+
+      // Poll for persisted assistant message with token data
+      let found = false;
+      for (let i = 0; i < 30; i++) {
+        await new Promise((r) => setTimeout(r, 50));
+        const msgs = (await (await sh.api("GET", `/v1/chats/${chat.id}/messages`)).json()) as {
+          data: Array<{ role: string; status: string; prompt_tokens?: number; completion_tokens?: number }>;
+        };
+        const assistant = msgs.data.find((m) => m.role === "assistant" && m.status === "ok");
+        if (assistant) {
+          expect(assistant.prompt_tokens).toBe(5);
+          expect(assistant.completion_tokens).toBe(3);
+          found = true;
+          break;
+        }
+      }
+      expect(found).toBe(true);
+    } finally {
+      await sh.stop();
+    }
+  });
+
+  it("CH-SSE-04 — SSE path with agent that has no api_key covers line 167 false branch", async () => {
+    const sseBody =
+      `data: {"choices":[{"delta":{"content":"hi"}}]}\n\n` +
+      `data: [DONE]\n\n`;
+    const streamFetcher = vi.fn(async () =>
+      new Response(sseBody, { status: 200, headers: { "Content-Type": "text/event-stream" } }),
+    ) as unknown as typeof fetch;
+    const sh = await bootHarness({ agentFetcher: streamFetcher });
+    try {
+      const agentId = (await (
+        await sh.api("POST", "/v1/agents", {
+          name: "Ollama", provider: "ollama", model: "llama3",
+          base_url: "https://api.example.com/v1",
+        })
+      ).json()) as { id: string };
+      const chat = (await (
+        await sh.api("POST", "/v1/chats", { agent_id: agentId.id, theme: "t" })
+      ).json()) as { id: string };
+
+      const res = await fetch(`${sh.running.url}/v1/chats/${chat.id}/messages`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: "Bearer dev-token", Accept: "text/event-stream" },
+        body: JSON.stringify({ content: "hi" }),
+      });
+      expect(res.status).toBe(200);
+      await res.text();
+    } finally {
+      await sh.stop();
+    }
+  });
+
+  it("CH-SSE-05 — SSE path with empty provider response uses '(empty response)' (line 180 false branch)", async () => {
+    const sseBody = `data: [DONE]\n\n`;
+    const streamFetcher = vi.fn(async () =>
+      new Response(sseBody, { status: 200, headers: { "Content-Type": "text/event-stream" } }),
+    ) as unknown as typeof fetch;
+    const sh = await bootHarness({ agentFetcher: streamFetcher });
+    try {
+      const agentId = (await (
+        await sh.api("POST", "/v1/agents", { name: "A", provider: "openai", model: "gpt-4o", api_key: "sk-test" })
+      ).json()) as { id: string };
+      const chat = (await (
+        await sh.api("POST", "/v1/chats", { agent_id: agentId.id, theme: "t" })
+      ).json()) as { id: string };
+
+      const res = await fetch(`${sh.running.url}/v1/chats/${chat.id}/messages`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: "Bearer dev-token", Accept: "text/event-stream" },
+        body: JSON.stringify({ content: "hi" }),
+      });
+      expect(res.status).toBe(200);
+      const text = await res.text();
+      const events = parseSseEvents(text);
+      const done = events.find((e) => e.type === "done");
+      expect((done?.message as { content: string } | undefined)?.content).toBe("(empty response)");
+    } finally {
+      await sh.stop();
+    }
+  });
+
+  it("CH-SSE-06 — SSE path with attachments covers line 134 true branch", async () => {
+    const sseBody =
+      `data: {"choices":[{"delta":{"content":"hi"}}]}\n\n` +
+      `data: [DONE]\n\n`;
+    const streamFetcher = vi.fn(async () =>
+      new Response(sseBody, { status: 200, headers: { "Content-Type": "text/event-stream" } }),
+    ) as unknown as typeof fetch;
+    const sh = await bootHarness({ agentFetcher: streamFetcher });
+    try {
+      // Upload media first
+      const form = new FormData();
+      const blob = new Blob(
+        [Uint8Array.from([0x89, 0x50, 0x4e, 0x47])],
+        { type: "image/png" },
+      );
+      form.append("file", blob, "attach.png");
+      form.append("type", "image");
+      const uploadResp = await fetch(`${sh.running.url}/v1/media`, {
+        method: "POST",
+        headers: { Authorization: "Bearer dev-token" },
+        body: form,
+      });
+      const { id: mediaId } = (await uploadResp.json()) as { id: string };
+
+      const agentId = (await (
+        await sh.api("POST", "/v1/agents", { name: "A", provider: "openai", model: "gpt-4o", api_key: "sk-test" })
+      ).json()) as { id: string };
+      const chat = (await (
+        await sh.api("POST", "/v1/chats", { agent_id: agentId.id, theme: "t" })
+      ).json()) as { id: string };
+
+      const res = await fetch(`${sh.running.url}/v1/chats/${chat.id}/messages`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: "Bearer dev-token", Accept: "text/event-stream" },
+        body: JSON.stringify({ content: "look", attachments: [{ media_id: mediaId }] }),
+      });
+      expect(res.status).toBe(200);
+      await res.text();
+    } finally {
+      await sh.stop();
+    }
+  });
+
+  it("CH-SSE-07 — SSE catch with non-Error thrown covers line 190 false branch", async () => {
+    // controller.error("string") causes the ReadableStream iteration to throw a non-Error
+    const throwingFetcher = vi.fn(async () => {
+      const stream = new ReadableStream({
+        start(controller) {
+          controller.error("string-not-an-Error");
+        },
+      });
+      return new Response(stream, { status: 200, headers: { "Content-Type": "text/event-stream" } });
+    }) as unknown as typeof fetch;
+    const sh = await bootHarness({ agentFetcher: throwingFetcher });
+    try {
+      const agentId = (await (
+        await sh.api("POST", "/v1/agents", { name: "A", provider: "openai", model: "gpt-4o", api_key: "sk-test" })
+      ).json()) as { id: string };
+      const chat = (await (
+        await sh.api("POST", "/v1/chats", { agent_id: agentId.id, theme: "t" })
+      ).json()) as { id: string };
+
+      const res = await fetch(`${sh.running.url}/v1/chats/${chat.id}/messages`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: "Bearer dev-token", Accept: "text/event-stream" },
+        body: JSON.stringify({ content: "hi" }),
+      });
+      expect(res.status).toBe(200);
+      const text = await res.text();
+      const events = parseSseEvents(text);
+      // non-Error → reason contains "unknown"
+      expect(events.some((e) => e.type === "error" && String(e.error).includes("unknown"))).toBe(true);
+    } finally {
+      await sh.stop();
+    }
+  });
+
+  it("CH-SSE-08 — SSE without opts.fetcher uses global fetch (line 170 false branch)", async () => {
+    const sh = await bootHarness(); // no agentFetcher → opts.fetcher undefined → line 170 false branch
+    const serverUrl = sh.running.url;
+
+    const originalFetch = globalThis.fetch;
+    const sseBody =
+      `data: {"choices":[{"delta":{"content":"from-global"}}]}\n\n` +
+      `data: [DONE]\n\n`;
+    const smartMock = vi.fn(async (input: string | URL | Request, init?: RequestInit) => {
+      const urlStr = input instanceof Request ? input.url : String(input);
+      if (urlStr.startsWith(serverUrl)) {
+        return originalFetch(input as Parameters<typeof fetch>[0], init);
+      }
+      return new Response(
+        new ReadableStream({ start(c) { c.enqueue(new TextEncoder().encode(sseBody)); c.close(); } }),
+        { status: 200, headers: { "Content-Type": "text/event-stream" } },
+      );
+    }) as unknown as typeof fetch;
+    vi.stubGlobal("fetch", smartMock);
+
+    try {
+      const agentId = (await (
+        await sh.api("POST", "/v1/agents", {
+          name: "A", provider: "custom", model: "m",
+          base_url: "https://llm.example.com/v1",
+        })
+      ).json()) as { id: string };
+      const chat = (await (
+        await sh.api("POST", "/v1/chats", { agent_id: agentId.id, theme: "t" })
+      ).json()) as { id: string };
+
+      const res = await fetch(`${serverUrl}/v1/chats/${chat.id}/messages`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: "Bearer dev-token", Accept: "text/event-stream" },
+        body: JSON.stringify({ content: "hi" }),
+      });
+      expect(res.status).toBe(200);
+      const text = await res.text();
+      const events = parseSseEvents(text);
+      expect(events.some((e) => e.type === "done")).toBe(true);
+    } finally {
+      vi.unstubAllGlobals();
       await sh.stop();
     }
   });

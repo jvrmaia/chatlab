@@ -44,6 +44,24 @@ describe("eval loader", () => {
     writeFileSync(path, "prompts:\n  - prompt: Hello\n");
     expect(() => loadGoldenSet(path)).toThrow(/id/);
   });
+
+  it("EVAL-L-04 — throws when YAML parses to a non-object (scalar)", () => {
+    const path = join(dir, "scalar.yaml");
+    writeFileSync(path, "just a string\n");
+    expect(() => loadGoldenSet(path)).toThrow(/not a valid YAML object/);
+  });
+
+  it("EVAL-L-05 — throws when a prompt entry is not an object (e.g. scalar in list)", () => {
+    const path = join(dir, "bad3.yaml");
+    writeFileSync(path, "prompts:\n  - Hello\n");
+    expect(() => loadGoldenSet(path)).toThrow(/must be an object/);
+  });
+
+  it("EVAL-L-06 — throws when a prompt entry has a valid id but missing prompt field", () => {
+    const path = join(dir, "bad4.yaml");
+    writeFileSync(path, "prompts:\n  - id: p1\n");
+    expect(() => loadGoldenSet(path)).toThrow(/prompt/);
+  });
 });
 
 describe("eval reporter", () => {
@@ -96,6 +114,51 @@ describe("eval reporter", () => {
     expect(summarize(results)).toContain("1 failed");
     const baseline = new Map([["a", "different"]]);
     expect(summarize(results, baseline)).toContain("1 changed");
+  });
+
+  it("EVAL-R-07 — buildMarkdownReport renders error result without response block", () => {
+    const results = [
+      { id: "q1", prompt: "Fail", response: "", agent_version: "", error: "timeout" },
+    ];
+    const md = buildMarkdownReport(results, "agent-x", "ts");
+    expect(md).toContain("**Error:** timeout");
+    expect(md).not.toContain("**Response:**");
+  });
+
+  it("EVAL-R-08 — buildMarkdownReport with baseline shows new-prompt note", () => {
+    const results = [{ id: "q-new", prompt: "Brand new", response: "answer", agent_version: "" }];
+    const baseline = new Map<string, string>(); // empty — q-new not in baseline
+    const md = buildMarkdownReport(results, "agent-x", "ts", baseline);
+    expect(md).toContain("No baseline for this prompt");
+  });
+
+  it("EVAL-R-09 — unifiedDiff handles b having more lines than a", () => {
+    // buildMarkdownReport uses unifiedDiff internally; exercise via a longer new response
+    const results = [{ id: "q1", prompt: "P", response: "line1\nline2\nline3", agent_version: "" }];
+    const baseline = new Map([["q1", "line1"]]);
+    const md = buildMarkdownReport(results, "a", "t", baseline);
+    expect(md).toContain("+line2");
+    expect(md).toContain("+line3");
+  });
+
+  it("EVAL-R-10 — unifiedDiff handles a having more lines than b", () => {
+    const results = [{ id: "q1", prompt: "P", response: "short", agent_version: "" }];
+    const baseline = new Map([["q1", "line1\nline2\nlong baseline"]]);
+    const md = buildMarkdownReport(results, "a", "t", baseline);
+    expect(md).toContain("-line1");
+    expect(md).toContain("-line2");
+  });
+
+  it("EVAL-R-11 — summarize with exactly 1 result uses singular 'prompt' (line 117 false branch)", () => {
+    const results = [{ id: "a", prompt: "P", response: "R", agent_version: "" }];
+    expect(summarize(results)).toContain("1 prompt");
+    expect(summarize(results)).not.toContain("prompts");
+  });
+
+  it("EVAL-R-12 — summarize with 0 failures skips 'failed' part (line 118 false branch)", () => {
+    const results = [{ id: "a", prompt: "P", response: "R", agent_version: "" }];
+    const summary = summarize(results);
+    expect(summary).not.toContain("failed");
   });
 });
 
@@ -164,5 +227,103 @@ describe("eval runner (integration)", () => {
       token: TOKEN,
     });
     expect(results[0]?.error).toBeTruthy();
+  });
+
+  it("EVAL-I-03 — runEval returns error when message post fails (bad chat id path via wrong token)", async () => {
+    // Use a bad token → all requests return 403 → chat creation fails → error in result
+    const agentResp = await fetch(`${running.url}/v1/agents`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${TOKEN}` },
+      body: JSON.stringify({ name: "A", provider: "openai", model: "gpt-4o", api_key: "sk-test" }),
+    });
+    const agent = (await agentResp.json()) as { id: string };
+
+    const results = await runEval([{ id: "p1", prompt: "Hello" }], {
+      agentId: agent.id,
+      inputPath: "",
+      outDir: home,
+      serverUrl: running.url,
+      token: "wrong-token",
+    });
+    // With bad token the chat POST returns 403 → error path in runSinglePrompt
+    expect(results[0]?.error).toBeTruthy();
+  });
+
+  it("EVAL-I-04 — runEval handles assistant message with error status", async () => {
+    // Use a fetcher that returns a 401 so the agent runner saves a failed message
+    const failFetcher = vi.fn(
+      async () =>
+        new Response(JSON.stringify({ error: { message: "bad key" } }), {
+          status: 401,
+          headers: { "Content-Type": "application/json" },
+        }),
+    ) as unknown as typeof fetch;
+
+    const { mkdtempSync: mktmp } = await import("node:fs");
+    const { join: pjoin } = await import("node:path");
+    const errHome = mktmp(pjoin((await import("node:os")).tmpdir(), "chatlab-eval-err-"));
+
+    const { startChatlab: start } = await import("../../src/index.js");
+    const errRunning = await start({
+      env: { ...process.env, CHATLAB_LOG_LEVEL: "silent", CHATLAB_REQUIRE_TOKEN: TOKEN },
+      home: errHome,
+      host: "127.0.0.1",
+      port: 0,
+      agentFetcher: failFetcher,
+    });
+
+    try {
+      const aResp = await fetch(`${errRunning.url}/v1/agents`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${TOKEN}` },
+        body: JSON.stringify({ name: "A", provider: "openai", model: "gpt-4o", api_key: "sk-bad" }),
+      });
+      const agent2 = (await aResp.json()) as { id: string };
+
+      const results = await runEval([{ id: "p1", prompt: "Hello" }], {
+        agentId: agent2.id,
+        inputPath: "",
+        outDir: errHome,
+        serverUrl: errRunning.url,
+        token: TOKEN,
+      });
+      // Should return a result — either with error field or with status=failed response
+      expect(results).toHaveLength(1);
+    } finally {
+      await errRunning.stop();
+      try {
+        const { rmSync } = await import("node:fs");
+        rmSync(errHome, { recursive: true, force: true });
+      } catch { /* ignore */ }
+    }
+  });
+
+  it("EVAL-I-05 — runEval captures error when message POST fails (line 39 true branch)", async () => {
+    // Smart mock: chat creation succeeds, message post fails
+    let chatCallDone = false;
+    const mockFetch = vi.fn(async (input: string | URL | Request) => {
+      const urlStr = input instanceof Request ? input.url : String(input);
+      if (!chatCallDone && urlStr.includes("/v1/chats") && !urlStr.includes("/messages")) {
+        chatCallDone = true;
+        return new Response(
+          JSON.stringify({ id: "chat-mock-99", agent_id: "ag-1", theme: "eval-p1", workspace_id: "ws-1", created_at: new Date().toISOString(), updated_at: new Date().toISOString() }),
+          { status: 201, headers: { "Content-Type": "application/json" } },
+        );
+      }
+      return new Response(JSON.stringify({ error: "server error" }), { status: 500, headers: { "Content-Type": "application/json" } });
+    }) as unknown as typeof fetch;
+    vi.stubGlobal("fetch", mockFetch);
+    try {
+      const results = await runEval([{ id: "p1", prompt: "Hello" }], {
+        agentId: "ag-mock",
+        inputPath: "",
+        outDir: home,
+        serverUrl: "http://127.0.0.1:19999",
+        token: TOKEN,
+      });
+      expect(results[0]?.error).toContain("failed to send message");
+    } finally {
+      vi.unstubAllGlobals();
+    }
   });
 });

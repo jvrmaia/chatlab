@@ -82,6 +82,82 @@ describe("AgentRunner — per-chat agent reply", () => {
     expect(agentFetcher).toHaveBeenCalled();
   });
 
+  it("RUN-05 — provider returns usage → message is persisted with token counts", async () => {
+    // Use a fetcher that returns usage fields
+    await running.stop();
+    home = join(tmpdir(), `chatlab-runner5-${Date.now()}-${Math.random().toString(36).slice(2)}`);
+    mkdirSync(home, { recursive: true });
+    const usageFetcher = vi.fn(
+      async () =>
+        new Response(
+          JSON.stringify({
+            choices: [{ message: { role: "assistant", content: "reply with usage" } }],
+            usage: { prompt_tokens: 10, completion_tokens: 20 },
+          }),
+          { status: 200, headers: { "Content-Type": "application/json" } },
+        ),
+    ) as unknown as typeof fetch;
+    running = await startChatlab({
+      env: { ...process.env, CHATLAB_LOG_LEVEL: "silent" },
+      home,
+      host: "127.0.0.1",
+      port: 0,
+      agentFetcher: usageFetcher,
+    });
+
+    const agent = (await (
+      await api("POST", "/v1/agents", { name: "U", provider: "openai", model: "gpt-4o", api_key: "sk-test" })
+    ).json()) as { id: string };
+    const chat = (await (
+      await api("POST", "/v1/chats", { agent_id: agent.id, theme: "usage-test" })
+    ).json()) as { id: string };
+
+    await api("POST", `/v1/chats/${chat.id}/messages`, { content: "ping" });
+
+    for (let i = 0; i < 50; i++) {
+      await new Promise((r) => setTimeout(r, 50));
+      const msgs = (await (await api("GET", `/v1/chats/${chat.id}/messages`)).json()) as {
+        data: Array<{ role: string; status: string; prompt_tokens?: number; completion_tokens?: number }>;
+      };
+      const reply = msgs.data.find((m) => m.role === "assistant" && m.status === "ok");
+      if (reply) {
+        expect(reply.prompt_tokens).toBe(10);
+        expect(reply.completion_tokens).toBe(20);
+        break;
+      }
+    }
+  });
+
+  it("RUN-04 — successful reply includes response_time_ms", async () => {
+    const agent = (await (
+      await api("POST", "/v1/agents", {
+        name: "OpenAI",
+        provider: "openai",
+        model: "gpt-4o",
+        api_key: "sk-test",
+      })
+    ).json()) as { id: string };
+
+    const chat = (await (
+      await api("POST", "/v1/chats", { agent_id: agent.id, theme: "timing" })
+    ).json()) as { id: string };
+
+    await api("POST", `/v1/chats/${chat.id}/messages`, { content: "ping" });
+
+    for (let i = 0; i < 50; i++) {
+      await new Promise((r) => setTimeout(r, 50));
+      const msgs = (await (await api("GET", `/v1/chats/${chat.id}/messages`)).json()) as {
+        data: Array<{ role: string; status: string; response_time_ms?: number }>;
+      };
+      const reply = msgs.data.find((m) => m.role === "assistant" && m.status === "ok");
+      if (reply) {
+        expect(typeof reply.response_time_ms).toBe("number");
+        expect(reply.response_time_ms).toBeGreaterThanOrEqual(0);
+        break;
+      }
+    }
+  });
+
   it("RUN-02 — provider error persists a failed assistant message", async () => {
     const errorFetcher = vi.fn(
       async () =>

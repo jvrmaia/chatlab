@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import type { UiAgent, UiChat, UiFeedback, UiMessage } from "../api.js";
 import { AnnotationsPanel } from "./AnnotationsPanel.js";
@@ -15,6 +15,10 @@ interface Props {
   onSend: (text: string) => void;
   onSendFile: (file: File) => Promise<void>;
   onRate: (messageId: string, next: "up" | "down" | null) => void;
+}
+
+function fmtTokens(n: number): string {
+  return n >= 1000 ? `${(n / 1000).toFixed(1)}k` : String(n);
 }
 
 function initials(name: string): string {
@@ -34,6 +38,19 @@ export function ChatView({
 }: Props) {
   const { t } = useTranslation();
   const scrollRef = useRef<HTMLDivElement>(null);
+
+  const tokenTotals = useMemo(() => {
+    let prompt = 0;
+    let completion = 0;
+    let hasData = false;
+    for (const m of messages) {
+      if (m.role === "assistant") {
+        if (m.prompt_tokens != null) { prompt += m.prompt_tokens; hasData = true; }
+        if (m.completion_tokens != null) completion += m.completion_tokens;
+      }
+    }
+    return hasData ? { prompt, completion } : null;
+  }, [messages]);
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -56,6 +73,18 @@ export function ChatView({
                 <span className="badge badge--info">{agent.model}</span>
                 <span className="badge">{agent.provider}</span>
               </>
+            )}
+            {tokenTotals && (
+              <span
+                className="badge"
+                aria-label={t("chatView.totalTokens")}
+                title={t("chatView.totalTokens")}
+              >
+                {t("chatView.totalTokensValue", {
+                  prompt: fmtTokens(tokenTotals.prompt),
+                  completion: fmtTokens(tokenTotals.completion),
+                })}
+              </span>
             )}
           </div>
         </div>

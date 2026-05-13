@@ -50,7 +50,9 @@
     "selectChat": "Select a chat to start.",
     "noChatsNoAgents": "no chats yet — go to admin → agents to configure your first agent",
     "noChatsHasAgents": "no chats yet — click + in the sidebar to start one",
-    "tokenInfo": "Token usage and response time"
+    "tokenInfo": "Token usage and response time",
+    "totalTokens": "Total tokens in this conversation",
+    "totalTokensValue": "↑{{prompt}} ↓{{completion}}"
   },
   "composer": {
     "attachAria": "Attach file",

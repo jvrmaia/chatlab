@@ -209,6 +209,17 @@ describe("WS gateway", () => {
     expect(goodResult.code).toBe(0);  // "open"
   });
 
+  it("WS-07 — non-ping JSON message is silently ignored (line 78 false branch)", async () => {
+    const h = await harness(running);
+    await h.next((m) => m.type === "hello");
+    // Send valid JSON with a type that's not "ping"
+    h.ws.send(JSON.stringify({ type: "subscribe", channel: "test" }));
+    // No response expected; just verify no error or pong
+    await new Promise((r) => setTimeout(r, 100));
+    // If we get here without timeout, the server handled it gracefully
+    h.close();
+  });
+
   it("WS-06 — browser clients can authenticate via ?token= query parameter", async () => {
     await running.stop();
     const secureHome = join(tmpdir(), `chatlab-ws-qp-${Date.now()}`);

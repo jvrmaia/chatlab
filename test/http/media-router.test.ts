@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { bootHarness, type Harness } from "./_harness.js";
 
 const TOKEN = "dev-token";
@@ -84,5 +84,19 @@ describe("HTTP — /v1/media", () => {
         headers: { Authorization: `Bearer ${TOKEN}` },
       })).status,
     ).toBe(200);
+  });
+
+  it("MED-V-07 — download when content is missing returns 404 (line 76)", async () => {
+    const upload = await uploadPng("image");
+    expect(upload.status).toBe(201);
+    const { id } = (await upload.json()) as { id: string };
+
+    // Mock getContent to return null (simulates missing binary after meta exists)
+    const spy = vi.spyOn(h.running.core.storage.media, "getContent").mockResolvedValueOnce(null);
+    const r = await fetch(`${h.running.url}/v1/media/${id}/download`, {
+      headers: { Authorization: `Bearer ${TOKEN}` },
+    });
+    spy.mockRestore();
+    expect(r.status).toBe(404);
   });
 });
