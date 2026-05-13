@@ -1,5 +1,9 @@
 import { useTranslation } from "react-i18next";
 
+export function formatDuration(ms: number): string {
+  return ms < 1000 ? `${ms}ms` : `${(ms / 1000).toFixed(1)}s`;
+}
+
 export function useLocaleFormat(): {
   formatTime: (date: Date | string | number) => string;
   formatDateTime: (date: Date | string | number) => string;

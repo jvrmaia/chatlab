@@ -1,7 +1,7 @@
 import { Router } from "express";
 import type { Core } from "../../core/core.js";
 import { effectiveBaseUrl, effectiveModel, providerFor } from "../../agents/factory.js";
-import { LlmError } from "../../agents/provider.js";
+import { LlmError, type LlmUsage } from "../../agents/provider.js";
 import { ApiError } from "../error-handler.js";
 import type { Attachment } from "../../types/domain.js";
 import { buildLlmMessages } from "../../agents/executor.js";
@@ -155,6 +155,8 @@ export function chatsRouter(core: Core, opts: { fetcher?: typeof fetch } = {}): 
 
         core.beginInflight();
         let fullContent = "";
+        let streamUsage: LlmUsage | undefined;
+        const startMs = Date.now();
         try {
           const messages = await buildLlmMessages(core.storage.messages, agent, chat.theme, req.params.id!);
           const provider = providerFor(agent.provider);
@@ -166,16 +168,20 @@ export function chatsRouter(core: Core, opts: { fetcher?: typeof fetch } = {}): 
             temperature: agent.temperature ?? 0.7,
             signal: controller.signal,
             ...(opts.fetcher ? { fetcher: opts.fetcher } : {}),
+            onUsage: (u) => { streamUsage = u; },
           })) {
             fullContent += chunk;
             sseWrite({ type: "delta", content: chunk });
           }
+          const response_time_ms = Date.now() - startMs;
           const assistantMsg = await core.storage.messages.append({
             chat_id: req.params.id!,
             role: "assistant",
             content: fullContent.trim() || "(empty response)",
             status: "ok",
             agent_version: `${agent.provider}/${effectiveModel(agent)}`,
+            ...(streamUsage ? { prompt_tokens: streamUsage.prompt_tokens, completion_tokens: streamUsage.completion_tokens } : {}),
+            response_time_ms,
           });
           core.emitEvent({ type: "chat.assistant-replied", message: assistantMsg });
           sseWrite({ type: "done", message: assistantMsg });

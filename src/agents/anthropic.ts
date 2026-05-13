@@ -1,4 +1,4 @@
-import { LlmError, type LlmProvider, type LlmRequest, type LlmResponse } from "./provider.js";
+import { LlmError, type LlmProvider, type LlmRequest, type LlmResponse, type LlmUsage } from "./provider.js";
 import { parseSseLines } from "../lib/sse.js";
 
 export class AnthropicProvider implements LlmProvider {
@@ -57,7 +57,12 @@ export class AnthropicProvider implements LlmProvider {
         parsed,
       );
     }
-    return { content };
+    const rawUsage = (parsed as { usage?: { input_tokens?: number; output_tokens?: number } }).usage;
+    const usage: LlmUsage | undefined =
+      rawUsage && typeof rawUsage.input_tokens === "number" && typeof rawUsage.output_tokens === "number"
+        ? { prompt_tokens: rawUsage.input_tokens, completion_tokens: rawUsage.output_tokens }
+        : undefined;
+    return { content, ...(usage ? { usage } : {}) };
   }
 
   async *chatStream(req: LlmRequest): AsyncIterable<string> {
@@ -100,10 +105,25 @@ export class AnthropicProvider implements LlmProvider {
     }
     if (!res.body) throw new LlmError("ZZ_AGENT_PROVIDER_ERROR", "No response body for stream");
 
+    let inputTokens = 0;
+    let outputTokens = 0;
     for await (const json of parseSseLines(res.body)) {
       try {
-        const chunk = JSON.parse(json) as { type?: string; delta?: { type?: string; text?: unknown } };
-        if (chunk?.type === "content_block_delta" && chunk.delta?.type === "text_delta") {
+        const chunk = JSON.parse(json) as {
+          type?: string;
+          delta?: { type?: string; text?: unknown; usage?: { output_tokens?: number } };
+          message?: { usage?: { input_tokens?: number } };
+          usage?: { output_tokens?: number };
+        };
+        if (chunk?.type === "message_start" && chunk.message?.usage) {
+          inputTokens = chunk.message.usage.input_tokens ?? 0;
+        } else if (chunk?.type === "message_delta" && chunk.usage) {
+          outputTokens = chunk.usage.output_tokens ?? 0;
+        } else if (chunk?.type === "message_stop") {
+          if (inputTokens > 0 || outputTokens > 0) {
+            req.onUsage?.({ prompt_tokens: inputTokens, completion_tokens: outputTokens });
+          }
+        } else if (chunk?.type === "content_block_delta" && chunk.delta?.type === "text_delta") {
           const text = chunk.delta.text;
           if (typeof text === "string" && text) yield text;
         }

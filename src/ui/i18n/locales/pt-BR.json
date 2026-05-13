@@ -49,7 +49,8 @@
     "documentAlt": "documento",
     "selectChat": "Selecione uma conversa para começar.",
     "noChatsNoAgents": "sem conversas ainda — vá em admin → agentes para configurar seu primeiro agente",
-    "noChatsHasAgents": "sem conversas ainda — clique em + na barra lateral para iniciar uma"
+    "noChatsHasAgents": "sem conversas ainda — clique em + na barra lateral para iniciar uma",
+    "tokenInfo": "Uso de tokens e tempo de resposta"
   },
   "composer": {
     "attachAria": "Anexar arquivo",

@@ -38,6 +38,9 @@ CREATE TABLE IF NOT EXISTS messages (
   status VARCHAR NOT NULL,
   error VARCHAR,
   agent_version VARCHAR,
+  prompt_tokens INTEGER,
+  completion_tokens INTEGER,
+  response_time_ms INTEGER,
   created_at VARCHAR NOT NULL
 );
 
@@ -116,6 +119,15 @@ export class DuckDbAdapter implements StorageAdapter {
     ).map((r) => r.column_name);
     if (!msgCols.includes("agent_version")) {
       await this.exec("ALTER TABLE messages ADD COLUMN agent_version VARCHAR");
+    }
+    if (!msgCols.includes("prompt_tokens")) {
+      await this.exec("ALTER TABLE messages ADD COLUMN prompt_tokens INTEGER");
+    }
+    if (!msgCols.includes("completion_tokens")) {
+      await this.exec("ALTER TABLE messages ADD COLUMN completion_tokens INTEGER");
+    }
+    if (!msgCols.includes("response_time_ms")) {
+      await this.exec("ALTER TABLE messages ADD COLUMN response_time_ms INTEGER");
     }
   }
 
@@ -212,6 +224,9 @@ export class DuckDbAdapter implements StorageAdapter {
       status?: MessageStatus;
       error?: string;
       agent_version?: string;
+      prompt_tokens?: number;
+      completion_tokens?: number;
+      response_time_ms?: number;
     }): Promise<Message> => {
       const ts = nowIso();
       const id = newId();
@@ -219,9 +234,9 @@ export class DuckDbAdapter implements StorageAdapter {
         args.attachments && args.attachments.length > 0 ? JSON.stringify(args.attachments) : null;
       const status: MessageStatus = args.status ?? "ok";
       await this.exec(
-        `INSERT INTO messages (id, chat_id, role, content, attachments_json, status, error, agent_version, created_at)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        [id, args.chat_id, args.role, args.content, attachments_json, status, args.error ?? null, args.agent_version ?? null, ts],
+        `INSERT INTO messages (id, chat_id, role, content, attachments_json, status, error, agent_version, prompt_tokens, completion_tokens, response_time_ms, created_at)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [id, args.chat_id, args.role, args.content, attachments_json, status, args.error ?? null, args.agent_version ?? null, args.prompt_tokens ?? null, args.completion_tokens ?? null, args.response_time_ms ?? null, ts],
       );
       await this.exec(`UPDATE chats SET updated_at = ? WHERE id = ?`, [ts, args.chat_id]);
       const msg: Message = {
@@ -235,6 +250,9 @@ export class DuckDbAdapter implements StorageAdapter {
         status,
         ...(args.error !== undefined ? { error: args.error } : {}),
         ...(args.agent_version !== undefined ? { agent_version: args.agent_version } : {}),
+        ...(args.prompt_tokens !== undefined ? { prompt_tokens: args.prompt_tokens } : {}),
+        ...(args.completion_tokens !== undefined ? { completion_tokens: args.completion_tokens } : {}),
+        ...(args.response_time_ms !== undefined ? { response_time_ms: args.response_time_ms } : {}),
         created_at: ts,
       };
       return msg;
@@ -580,6 +598,9 @@ interface MessageRowDuck {
   status: MessageStatus;
   error: string | null;
   agent_version: string | null;
+  prompt_tokens: number | null;
+  completion_tokens: number | null;
+  response_time_ms: number | null;
   created_at: string;
 }
 
@@ -622,6 +643,9 @@ function messageFromRow(row: MessageRowDuck): Message {
   }
   if (row.error) out.error = row.error;
   if (row.agent_version !== null) out.agent_version = row.agent_version;
+  if (row.prompt_tokens !== null) out.prompt_tokens = Number(row.prompt_tokens);
+  if (row.completion_tokens !== null) out.completion_tokens = Number(row.completion_tokens);
+  if (row.response_time_ms !== null) out.response_time_ms = Number(row.response_time_ms);
   return out;
 }
 

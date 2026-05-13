@@ -3,6 +3,11 @@ export interface LlmMessage {
   content: string;
 }
 
+export interface LlmUsage {
+  prompt_tokens: number;
+  completion_tokens: number;
+}
+
 export interface LlmRequest {
   messages: LlmMessage[];
   model: string;
@@ -11,10 +16,12 @@ export interface LlmRequest {
   temperature?: number;
   signal?: AbortSignal;
   fetcher?: typeof fetch;
+  onUsage?: (usage: LlmUsage) => void;
 }
 
 export interface LlmResponse {
   content: string;
+  usage?: LlmUsage;
 }
 
 export interface LlmProvider {

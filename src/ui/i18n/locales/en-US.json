@@ -49,7 +49,8 @@
     "documentAlt": "document",
     "selectChat": "Select a chat to start.",
     "noChatsNoAgents": "no chats yet — go to admin → agents to configure your first agent",
-    "noChatsHasAgents": "no chats yet — click + in the sidebar to start one"
+    "noChatsHasAgents": "no chats yet — click + in the sidebar to start one",
+    "tokenInfo": "Token usage and response time"
   },
   "composer": {
     "attachAria": "Attach file",

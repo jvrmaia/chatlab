@@ -60,6 +60,7 @@ export class AgentRunner {
     try {
       const messages = await buildLlmMessages(this.core.storage.messages, agent, chat.theme, userMessage.chat_id);
       const provider = providerFor(agent.provider);
+      const startMs = Date.now();
       const res = await provider.chat({
         messages,
         model: effectiveModel(agent),
@@ -69,6 +70,7 @@ export class AgentRunner {
         signal: controller.signal,
         ...(this.fetcher ? { fetcher: this.fetcher } : {}),
       });
+      const response_time_ms = Date.now() - startMs;
       const text = res.content.trim();
       const persisted = await this.core.storage.messages.append({
         chat_id: userMessage.chat_id,
@@ -76,6 +78,8 @@ export class AgentRunner {
         content: text.length > 0 ? text : "(empty response)",
         status: "ok",
         agent_version: `${agent.provider}/${effectiveModel(agent)}`,
+        ...(res.usage ? { prompt_tokens: res.usage.prompt_tokens, completion_tokens: res.usage.completion_tokens } : {}),
+        response_time_ms,
       });
       this.core.emitEvent({ type: "chat.assistant-replied", message: persisted });
     } catch (err) {

@@ -96,6 +96,9 @@ export class MemoryAdapter implements StorageAdapter {
       status?: MessageStatus;
       error?: string;
       agent_version?: string;
+      prompt_tokens?: number;
+      completion_tokens?: number;
+      response_time_ms?: number;
     }): Promise<Message> => {
       const msg: Message = {
         id: newId(),
@@ -108,6 +111,9 @@ export class MemoryAdapter implements StorageAdapter {
         status: args.status ?? "ok",
         ...(args.error !== undefined ? { error: args.error } : {}),
         ...(args.agent_version !== undefined ? { agent_version: args.agent_version } : {}),
+        ...(args.prompt_tokens !== undefined ? { prompt_tokens: args.prompt_tokens } : {}),
+        ...(args.completion_tokens !== undefined ? { completion_tokens: args.completion_tokens } : {}),
+        ...(args.response_time_ms !== undefined ? { response_time_ms: args.response_time_ms } : {}),
         created_at: nowIso(),
       };
       this.messagesMap.set(msg.id, msg);

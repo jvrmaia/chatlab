@@ -1,7 +1,7 @@
 import type { JSX } from "react";
 import { useTranslation } from "react-i18next";
 import { mediaDownloadUrl, type UiFeedback, type UiMessage } from "../api.js";
-import { useLocaleFormat } from "../i18n/format.js";
+import { formatDuration, useLocaleFormat } from "../i18n/format.js";
 import { Icon } from "./Icon.js";
 import { MarkdownContent } from "./MarkdownContent.js";
 
@@ -48,8 +48,15 @@ export function MessageBubble({ message, feedback, onRate }: Props) {
             {message.content && <MarkdownContent content={message.content} />}
           </>
         )}
-        <div className="mt-1 text-right font-mono text-[11px] text-ink-3">
-          {formatTime(message.created_at)}
+        <div className="mt-1 flex items-center justify-end gap-2 font-mono text-[11px] text-ink-3">
+          {isAssistant && !failed && (message.prompt_tokens != null || message.response_time_ms != null) && (
+            <span aria-label={t("chatView.tokenInfo")}>
+              {message.prompt_tokens != null && `↑${message.prompt_tokens} ↓${message.completion_tokens ?? "?"}`}
+              {message.prompt_tokens != null && message.response_time_ms != null && " · "}
+              {message.response_time_ms != null && formatDuration(message.response_time_ms)}
+            </span>
+          )}
+          <span>{formatTime(message.created_at)}</span>
         </div>
       </div>
       {isAssistant && !failed && (

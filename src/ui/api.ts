@@ -74,6 +74,10 @@ export interface UiMessage {
   attachments?: UiAttachment[];
   status: "ok" | "failed";
   error?: string;
+  agent_version?: string;
+  prompt_tokens?: number;
+  completion_tokens?: number;
+  response_time_ms?: number;
   created_at: string;
 }
 

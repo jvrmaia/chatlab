@@ -1,4 +1,4 @@
-import { LlmError, type LlmProvider, type LlmRequest, type LlmResponse } from "./provider.js";
+import { LlmError, type LlmProvider, type LlmRequest, type LlmResponse, type LlmUsage } from "./provider.js";
 import { parseSseLines } from "../lib/sse.js";
 
 export class OpenAiCompatProvider implements LlmProvider {
@@ -45,7 +45,12 @@ export class OpenAiCompatProvider implements LlmProvider {
         parsed,
       );
     }
-    return { content };
+    const rawUsage = (parsed as { usage?: { prompt_tokens?: number; completion_tokens?: number } }).usage;
+    const usage: LlmUsage | undefined =
+      rawUsage && typeof rawUsage.prompt_tokens === "number" && typeof rawUsage.completion_tokens === "number"
+        ? { prompt_tokens: rawUsage.prompt_tokens, completion_tokens: rawUsage.completion_tokens }
+        : undefined;
+    return { content, ...(usage ? { usage } : {}) };
   }
 
   async *chatStream(req: LlmRequest): AsyncIterable<string> {
@@ -62,6 +67,7 @@ export class OpenAiCompatProvider implements LlmProvider {
       messages: req.messages,
       ...(typeof req.temperature === "number" ? { temperature: req.temperature } : {}),
       stream: true,
+      stream_options: { include_usage: true },
     });
 
     const fetchInit: RequestInit = { method: "POST", headers, body };
@@ -78,9 +84,19 @@ export class OpenAiCompatProvider implements LlmProvider {
     for await (const json of parseSseLines(res.body)) {
       if (json === "[DONE]") return;
       try {
-        const chunk = JSON.parse(json) as { choices?: Array<{ delta?: { content?: unknown } }> };
+        const chunk = JSON.parse(json) as {
+          choices?: Array<{ delta?: { content?: unknown } }>;
+          usage?: { prompt_tokens?: number; completion_tokens?: number };
+        };
         const text = chunk?.choices?.[0]?.delta?.content;
         if (typeof text === "string" && text) yield text;
+        if (
+          chunk?.usage &&
+          typeof chunk.usage.prompt_tokens === "number" &&
+          typeof chunk.usage.completion_tokens === "number"
+        ) {
+          req.onUsage?.({ prompt_tokens: chunk.usage.prompt_tokens, completion_tokens: chunk.usage.completion_tokens });
+        }
       } catch { /* malformed chunk — skip */ }
     }
   }

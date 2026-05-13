@@ -41,6 +41,9 @@ CREATE TABLE IF NOT EXISTS messages (
   status TEXT NOT NULL CHECK(status IN ('ok','failed')),
   error TEXT,
   agent_version TEXT,
+  prompt_tokens INTEGER,
+  completion_tokens INTEGER,
+  response_time_ms INTEGER,
   created_at TEXT NOT NULL
 );
 CREATE INDEX IF NOT EXISTS idx_messages_chat_created ON messages(chat_id, created_at);
@@ -107,6 +110,9 @@ interface MessageRow {
   status: MessageStatus;
   error: string | null;
   agent_version: string | null;
+  prompt_tokens: number | null;
+  completion_tokens: number | null;
+  response_time_ms: number | null;
   created_at: string;
 }
 
@@ -177,6 +183,15 @@ export class SqliteAdapter implements StorageAdapter {
     ).map((r) => r.name);
     if (!msgCols.includes("agent_version")) {
       this.db.exec("ALTER TABLE messages ADD COLUMN agent_version TEXT");
+    }
+    if (!msgCols.includes("prompt_tokens")) {
+      this.db.exec("ALTER TABLE messages ADD COLUMN prompt_tokens INTEGER");
+    }
+    if (!msgCols.includes("completion_tokens")) {
+      this.db.exec("ALTER TABLE messages ADD COLUMN completion_tokens INTEGER");
+    }
+    if (!msgCols.includes("response_time_ms")) {
+      this.db.exec("ALTER TABLE messages ADD COLUMN response_time_ms INTEGER");
     }
   }
 
@@ -262,6 +277,9 @@ export class SqliteAdapter implements StorageAdapter {
       status?: MessageStatus;
       error?: string;
       agent_version?: string;
+      prompt_tokens?: number;
+      completion_tokens?: number;
+      response_time_ms?: number;
     }): Promise<Message> => {
       const ts = nowIso();
       const msg: Message = {
@@ -275,6 +293,9 @@ export class SqliteAdapter implements StorageAdapter {
         status: args.status ?? "ok",
         ...(args.error !== undefined ? { error: args.error } : {}),
         ...(args.agent_version !== undefined ? { agent_version: args.agent_version } : {}),
+        ...(args.prompt_tokens !== undefined ? { prompt_tokens: args.prompt_tokens } : {}),
+        ...(args.completion_tokens !== undefined ? { completion_tokens: args.completion_tokens } : {}),
+        ...(args.response_time_ms !== undefined ? { response_time_ms: args.response_time_ms } : {}),
         created_at: ts,
       };
       const attachmentsJson =
@@ -282,8 +303,8 @@ export class SqliteAdapter implements StorageAdapter {
       const tx = this.db.transaction(() => {
         this.db
           .prepare(
-            `INSERT INTO messages (id, chat_id, role, content, attachments, status, error, agent_version, created_at)
-             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            `INSERT INTO messages (id, chat_id, role, content, attachments, status, error, agent_version, prompt_tokens, completion_tokens, response_time_ms, created_at)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
           )
           .run(
             msg.id,
@@ -294,6 +315,9 @@ export class SqliteAdapter implements StorageAdapter {
             msg.status,
             msg.error ?? null,
             msg.agent_version ?? null,
+            msg.prompt_tokens ?? null,
+            msg.completion_tokens ?? null,
+            msg.response_time_ms ?? null,
             msg.created_at,
           );
         this.db.prepare(`UPDATE chats SET updated_at = ? WHERE id = ?`).run(ts, msg.chat_id);
@@ -635,6 +659,9 @@ function rowToMessage(row: MessageRow): Message {
   if (attachments && attachments.length > 0) out.attachments = attachments;
   if (row.error) out.error = row.error;
   if (row.agent_version !== null) out.agent_version = row.agent_version;
+  if (row.prompt_tokens !== null) out.prompt_tokens = row.prompt_tokens;
+  if (row.completion_tokens !== null) out.completion_tokens = row.completion_tokens;
+  if (row.response_time_ms !== null) out.response_time_ms = row.response_time_ms;
   return out;
 }
 
