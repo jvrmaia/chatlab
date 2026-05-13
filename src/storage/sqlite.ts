@@ -3,7 +3,7 @@ import { mkdirSync } from "node:fs";
 import { dirname } from "node:path";
 import { newId } from "../lib/id.js";
 import { nowIso } from "../lib/time.js";
-import { decryptString, encryptString, isEncrypted } from "../lib/crypto.js";
+import { encryptAgentKey, decryptAgent } from "../lib/agent-crypto.js";
 import type {
   Attachment,
   Chat,
@@ -161,31 +161,6 @@ export class SqliteAdapter implements StorageAdapter {
     this.db.pragma("journal_mode = WAL");
     this.db.pragma("synchronous = NORMAL");
     this.db.pragma("foreign_keys = ON");
-  }
-
-  private encryptKey(plain: string | undefined): string | undefined {
-    if (plain === undefined) return undefined;
-    if (!this.masterKey || isEncrypted(plain)) return plain;
-    return encryptString(plain, this.masterKey);
-  }
-
-  private decryptKey(stored: string | undefined): string | undefined {
-    if (stored === undefined) return undefined;
-    if (!this.masterKey || !isEncrypted(stored)) return stored;
-    try {
-      return decryptString(stored, this.masterKey);
-    } catch {
-      return stored;
-    }
-  }
-
-  private decryptAgent(a: Agent): Agent {
-    if (a.api_key === undefined) return a;
-    const decrypted = this.decryptKey(a.api_key);
-    if (decrypted === a.api_key) return a;
-    const { api_key: _, ...rest } = a;
-    void _;
-    return decrypted !== undefined ? { ...rest, api_key: decrypted } : rest;
   }
 
   async init(): Promise<void> {
@@ -358,7 +333,7 @@ export class SqliteAdapter implements StorageAdapter {
   agents = {
     create: async (args: AgentCreate & { workspace_id: WorkspaceId }): Promise<Agent> => {
       const ts = nowIso();
-      const encKey = this.encryptKey(args.api_key);
+      const encKey = encryptAgentKey(args.api_key, this.masterKey);
       const a: Agent = {
         id: args.id ?? newId(),
         workspace_id: args.workspace_id,
@@ -392,17 +367,17 @@ export class SqliteAdapter implements StorageAdapter {
           a.created_at,
           a.updated_at,
         );
-      return this.decryptAgent(a);
+      return decryptAgent(a, this.masterKey);
     },
     get: async (id: string): Promise<Agent | null> => {
       const row = this.db.prepare(`SELECT * FROM agents WHERE id = ?`).get(id) as AgentRow | undefined;
-      return row ? this.decryptAgent(rowToAgent(row)) : null;
+      return row ? decryptAgent(rowToAgent(row), this.masterKey) : null;
     },
     list: async (): Promise<Agent[]> => {
       const rows = this.db
         .prepare(`SELECT * FROM agents ORDER BY created_at ASC`)
         .all() as AgentRow[];
-      return rows.map((r) => this.decryptAgent(rowToAgent(r)));
+      return rows.map((r) => decryptAgent(rowToAgent(r), this.masterKey));
     },
     update: async (id: string, patch: AgentPatch): Promise<Agent | null> => {
       const row = this.db.prepare(`SELECT * FROM agents WHERE id = ?`).get(id) as AgentRow | undefined;
@@ -410,7 +385,7 @@ export class SqliteAdapter implements StorageAdapter {
       const existing = rowToAgent(row); // api_key still stored ciphertext
       const newKey =
         patch.api_key !== undefined && patch.api_key.length > 0
-          ? this.encryptKey(patch.api_key)
+          ? encryptAgentKey(patch.api_key, this.masterKey)
           : undefined;
       const updated: Agent = {
         ...existing,
@@ -442,7 +417,7 @@ export class SqliteAdapter implements StorageAdapter {
           updated.updated_at,
           id,
         );
-      return this.decryptAgent(updated);
+      return decryptAgent(updated, this.masterKey);
     },
     delete: async (id: string): Promise<boolean> => {
       const r = this.db.prepare(`DELETE FROM agents WHERE id = ?`).run(id);

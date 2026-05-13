@@ -3,7 +3,7 @@ import { mkdirSync } from "node:fs";
 import { dirname } from "node:path";
 import { newId } from "../lib/id.js";
 import { nowIso } from "../lib/time.js";
-import { decryptString, encryptString, isEncrypted } from "../lib/crypto.js";
+import { encryptAgentKey, decryptAgent } from "../lib/agent-crypto.js";
 import type {
   Attachment,
   Chat,
@@ -92,31 +92,6 @@ export class DuckDbAdapter implements StorageAdapter {
   constructor(filePath: string, private readonly masterKey?: Buffer) {
     mkdirSync(dirname(filePath), { recursive: true });
     this.dbPath = filePath;
-  }
-
-  private encryptKey(plain: string | undefined): string | undefined {
-    if (plain === undefined) return undefined;
-    if (!this.masterKey || isEncrypted(plain)) return plain;
-    return encryptString(plain, this.masterKey);
-  }
-
-  private decryptKey(stored: string | undefined): string | undefined {
-    if (stored === undefined) return undefined;
-    if (!this.masterKey || !isEncrypted(stored)) return stored;
-    try {
-      return decryptString(stored, this.masterKey);
-    } catch {
-      return stored;
-    }
-  }
-
-  private decryptAgent(a: Agent): Agent {
-    if (a.api_key === undefined) return a;
-    const decrypted = this.decryptKey(a.api_key);
-    if (decrypted === a.api_key) return a;
-    const { api_key: _, ...rest } = a;
-    void _;
-    return decrypted !== undefined ? { ...rest, api_key: decrypted } : rest;
   }
 
   async init(): Promise<void> {
@@ -298,7 +273,7 @@ export class DuckDbAdapter implements StorageAdapter {
   agents = {
     create: async (args: AgentCreate & { workspace_id: WorkspaceId }): Promise<Agent> => {
       const ts = nowIso();
-      const encKey = this.encryptKey(args.api_key);
+      const encKey = encryptAgentKey(args.api_key, this.masterKey);
       const a: Agent = {
         id: args.id ?? newId(),
         workspace_id: args.workspace_id,
@@ -331,15 +306,15 @@ export class DuckDbAdapter implements StorageAdapter {
           a.updated_at,
         ],
       );
-      return this.decryptAgent(a);
+      return decryptAgent(a, this.masterKey);
     },
     get: async (id: string): Promise<Agent | null> => {
       const rows = await this.query<AgentRowDuck>(`SELECT * FROM agents WHERE id = ?`, [id]);
-      return rows[0] ? this.decryptAgent(agentFromRow(rows[0])) : null;
+      return rows[0] ? decryptAgent(agentFromRow(rows[0]), this.masterKey) : null;
     },
     list: async (): Promise<Agent[]> => {
       const rows = await this.query<AgentRowDuck>(`SELECT * FROM agents ORDER BY created_at ASC`);
-      return rows.map((r) => this.decryptAgent(agentFromRow(r)));
+      return rows.map((r) => decryptAgent(agentFromRow(r), this.masterKey));
     },
     update: async (id: string, patch: AgentPatch): Promise<Agent | null> => {
       const rows = await this.query<AgentRowDuck>(`SELECT * FROM agents WHERE id = ?`, [id]);
@@ -347,7 +322,7 @@ export class DuckDbAdapter implements StorageAdapter {
       const existing = agentFromRow(rows[0]!); // api_key still ciphertext
       const newKey =
         patch.api_key !== undefined && patch.api_key.length > 0
-          ? this.encryptKey(patch.api_key)
+          ? encryptAgentKey(patch.api_key, this.masterKey)
           : undefined;
       const updated: Agent = {
         ...existing,
@@ -376,7 +351,7 @@ export class DuckDbAdapter implements StorageAdapter {
           id,
         ],
       );
-      return this.decryptAgent(updated);
+      return decryptAgent(updated, this.masterKey);
     },
     delete: async (id: string): Promise<boolean> => {
       const before = await this.query<{ id: string }>(`SELECT id FROM agents WHERE id = ?`, [id]);

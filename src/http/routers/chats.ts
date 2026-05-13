@@ -4,6 +4,7 @@ import { effectiveBaseUrl, effectiveModel, providerFor } from "../../agents/fact
 import { LlmError } from "../../agents/provider.js";
 import { ApiError } from "../error-handler.js";
 import type { Attachment } from "../../types/domain.js";
+import { buildLlmMessages } from "../../agents/executor.js";
 
 const MAX_THEME = 280;
 const MAX_CONTENT = 16 * 1024;
@@ -155,7 +156,7 @@ export function chatsRouter(core: Core, opts: { fetcher?: typeof fetch } = {}): 
         core.beginInflight();
         let fullContent = "";
         try {
-          const messages = await buildMessages(core, agent, chat.theme, req.params.id!);
+          const messages = await buildLlmMessages(core.storage.messages, agent, chat.theme, req.params.id!);
           const provider = providerFor(agent.provider);
           for await (const chunk of provider.chatStream({
             messages,
@@ -217,25 +218,3 @@ export function chatsRouter(core: Core, opts: { fetcher?: typeof fetch } = {}): 
   return router;
 }
 
-async function buildMessages(
-  core: Core,
-  agent: Awaited<ReturnType<Core["storage"]["agents"]["get"]>>,
-  theme: string,
-  chatId: string,
-) {
-  if (!agent) return [];
-  const limit = Math.max(1, agent.context_window || 20);
-  const recent = await core.storage.messages.listByChat(chatId, { limit });
-  const messages: { role: "system" | "user" | "assistant"; content: string }[] = [];
-  const themeLine = theme ? `Topic of this conversation: ${theme}` : "";
-  const systemBody =
-    agent.system_prompt && themeLine
-      ? `${agent.system_prompt}\n\n${themeLine}`
-      : agent.system_prompt ?? themeLine;
-  if (systemBody) messages.push({ role: "system", content: systemBody });
-  for (const m of recent) {
-    if (m.status !== "ok") continue;
-    messages.push({ role: m.role, content: m.content });
-  }
-  return messages;
-}

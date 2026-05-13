@@ -1,8 +1,8 @@
 import type { Core, CoreEvent } from "../core/core.js";
-import type { Agent } from "../types/agent.js";
 import type { Message } from "../types/domain.js";
 import { effectiveBaseUrl, effectiveModel, providerFor } from "./factory.js";
-import { LlmError, type LlmMessage } from "./provider.js";
+import { LlmError } from "./provider.js";
+import { buildLlmMessages } from "./executor.js";
 
 /**
  * Subscribes to `chat.user-message-appended` events and produces an
@@ -58,7 +58,7 @@ export class AgentRunner {
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), this.timeoutMs);
     try {
-      const messages = await this.buildMessages(agent, chat.theme, userMessage.chat_id);
+      const messages = await buildLlmMessages(this.core.storage.messages, agent, chat.theme, userMessage.chat_id);
       const provider = providerFor(agent.provider);
       const res = await provider.chat({
         messages,
@@ -105,27 +105,4 @@ export class AgentRunner {
     }
   }
 
-  private async buildMessages(
-    agent: Agent,
-    theme: string,
-    chatId: string,
-  ): Promise<LlmMessage[]> {
-    const history = await this.core.storage.messages.listByChat(chatId);
-    const limit = Math.max(1, agent.context_window || 20);
-    const recent = history.slice(-limit);
-    const messages: LlmMessage[] = [];
-    const themeLine = theme ? `Topic of this conversation: ${theme}` : "";
-    const systemBody =
-      agent.system_prompt && themeLine
-        ? `${agent.system_prompt}\n\n${themeLine}`
-        : agent.system_prompt
-          ? agent.system_prompt
-          : themeLine;
-    if (systemBody) messages.push({ role: "system", content: systemBody });
-    for (const m of recent) {
-      if (m.status !== "ok") continue;
-      messages.push({ role: m.role, content: m.content });
-    }
-    return messages;
-  }
 }

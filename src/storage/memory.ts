@@ -1,6 +1,6 @@
 import { newId } from "../lib/id.js";
 import { nowIso } from "../lib/time.js";
-import { decryptString, encryptString, isEncrypted } from "../lib/crypto.js";
+import { encryptAgentKey, decryptAgentKey, decryptAgent } from "../lib/agent-crypto.js";
 import type {
   Attachment,
   Chat,
@@ -26,31 +26,6 @@ export class MemoryAdapter implements StorageAdapter {
   private annotationsMap = new Map<ChatId, Annotation>();
 
   constructor(private readonly masterKey?: Buffer) {}
-
-  private encryptKey(plain: string | undefined): string | undefined {
-    if (plain === undefined) return undefined;
-    if (!this.masterKey || isEncrypted(plain)) return plain;
-    return encryptString(plain, this.masterKey);
-  }
-
-  private decryptKey(stored: string | undefined): string | undefined {
-    if (stored === undefined) return undefined;
-    if (!this.masterKey || !isEncrypted(stored)) return stored;
-    try {
-      return decryptString(stored, this.masterKey);
-    } catch {
-      return stored;
-    }
-  }
-
-  private decryptAgent(a: Agent): Agent {
-    if (a.api_key === undefined) return a;
-    const decrypted = this.decryptKey(a.api_key);
-    if (decrypted === a.api_key) return a;
-    const { api_key: _, ...rest } = a;
-    void _;
-    return decrypted !== undefined ? { ...rest, api_key: decrypted } : rest;
-  }
 
   async init(): Promise<void> {}
   async close(): Promise<void> {}
@@ -160,7 +135,7 @@ export class MemoryAdapter implements StorageAdapter {
   agents = {
     create: async (args: AgentCreate & { workspace_id: WorkspaceId }): Promise<Agent> => {
       const ts = nowIso();
-      const encKey = this.encryptKey(args.api_key);
+      const encKey = encryptAgentKey(args.api_key, this.masterKey);
       const a: Agent = {
         id: args.id ?? newId(),
         workspace_id: args.workspace_id,
@@ -176,22 +151,22 @@ export class MemoryAdapter implements StorageAdapter {
         updated_at: ts,
       };
       this.agentsMap.set(a.id, a);
-      return this.decryptAgent(a);
+      return decryptAgent(a, this.masterKey);
     },
     get: async (id: string): Promise<Agent | null> => {
       const a = this.agentsMap.get(id);
-      return a ? this.decryptAgent(a) : null;
+      return a ? decryptAgent(a, this.masterKey) : null;
     },
     list: async (): Promise<Agent[]> =>
       Array.from(this.agentsMap.values())
         .sort((a, b) => a.created_at.localeCompare(b.created_at))
-        .map((a) => this.decryptAgent(a)),
+        .map((a) => decryptAgent(a, this.masterKey)),
     update: async (id: string, patch: AgentPatch): Promise<Agent | null> => {
       const existing = this.agentsMap.get(id);
       if (!existing) return null;
       const newKey =
         patch.api_key !== undefined && patch.api_key.length > 0
-          ? this.encryptKey(patch.api_key)
+          ? encryptAgentKey(patch.api_key, this.masterKey)
           : undefined;
       const updated: Agent = {
         ...existing,
@@ -206,7 +181,7 @@ export class MemoryAdapter implements StorageAdapter {
         updated_at: nowIso(),
       };
       this.agentsMap.set(id, updated);
-      return this.decryptAgent(updated);
+      return decryptAgent(updated, this.masterKey);
     },
     delete: async (id: string): Promise<boolean> => {
       if (!this.agentsMap.has(id)) return false;

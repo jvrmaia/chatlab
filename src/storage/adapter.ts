@@ -97,6 +97,10 @@ export interface StorageAdapter {
   };
 }
 
+export type ChatStore     = StorageAdapter["chats"];
+export type MessageStore  = StorageAdapter["messages"];
+export type AgentStore    = StorageAdapter["agents"];
+
 export class StorageError extends Error {
   constructor(public readonly code: string, message: string) {
     super(message);
