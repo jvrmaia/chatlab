@@ -4,7 +4,7 @@ Esta página foi traduzida inicialmente com auxílio de IA. Sugestões de melhor
 
 # 4. Múltiplas conversas, múltiplos temas
 
-A manchete do chatlab v0.1.x: **o mesmo agente pode ter várias conversas com temas diferentes, todas perfeitamente separadas**.
+A manchete do chatlab v0.2.x: **o mesmo agente pode ter várias conversas com temas diferentes, todas perfeitamente separadas**.
 
 ## Por que isso importa
 
@@ -27,7 +27,7 @@ Se você volta pra primeira conversa, o histórico está intacto. O agente não 
 
 ## E quanto a multi-agente / mesa-redonda?
 
-Conversas têm exatamente um agente assistente na v0.1.0. Dois assistentes, mesa-redonda multi-usuário, etc., estão fora de escopo — veja [capability 0003 §Out of scope](https://github.com/jvrmaia/chatlab/blob/main/docs/specs/capabilities/0003-chats-and-messages.md#out-of-scope). Se você quer comparar dois agentes, rode-os em duas conversas.
+Conversas têm exatamente um agente assistente. Dois assistentes, mesa-redonda multi-usuário, etc., estão fora de escopo — veja [capability 0003 §Out of scope](https://github.com/jvrmaia/chatlab/blob/main/docs/specs/capabilities/0003-chats-and-messages.md#out-of-scope). Se você quer comparar dois agentes, rode-os em duas conversas.
 
 ## E daqui pra frente
 

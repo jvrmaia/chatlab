@@ -46,16 +46,15 @@ registry.setActive(ws.id);
 
 O registry é só um arquivo JSON com semântica de escrita atômica. Útil pra seedar fixtures em testes E2E.
 
-## O que o chatlab v0.1.0 ainda não faz
+## O que o chatlab v0.2.x ainda não faz
 
 Estas são adiadas — veja o [Roadmap](https://github.com/jvrmaia/chatlab/blob/main/docs/ROADMAP.md):
 
-- **Respostas em streaming (SSE)** — o runner faz buffer da resposta completa do provedor.
-- **Encaminhamento multimodal** — anexos são armazenados mas não enviados ao LLM.
-- **Chamada de tool / função.**
-- **Conversas multi-usuário / multi-agente** (testes em mesa-redonda).
-- **Tracking de token / custo.**
-- **Adapters de plataforma** (Telegram, Slack, Discord, WhatsApp Cloud API). Vindo em v0.3.0+.
+- **Encaminhamento multimodal** — anexos são armazenados mas não encaminhados ao LLM (planejado para v0.4.0).
+- **Chamada de tool / função** — planejado para v0.4.0.
+- **Tracking de token / custo** — planejado para v0.4.0.
+- **Conversas multi-usuário / multi-agente** (testes em mesa-redonda) — fora de escopo por ora.
+- **Adapters de plataforma** (Telegram, Slack, Discord, WhatsApp Cloud API) — planejado para v0.5.0.
 
 ## O que o chatlab não é
 

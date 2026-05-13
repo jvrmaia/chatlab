@@ -4,7 +4,7 @@ Esta página foi traduzida inicialmente com auxílio de IA. Sugestões de melhor
 
 # Guia do usuário
 
-Um passo a passo narrativo do chatlab v0.1.x, do início ao fim.
+Um passo a passo narrativo do chatlab v0.2.x, do início ao fim.
 
 Se quer a versão de 5 minutos sem comentários, leia o [`quickstart.md`](/quickstart).
 

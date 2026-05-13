@@ -1,6 +1,6 @@
 # 5. Feedback and export
 
-The whole point of chatlab is making agent iteration fast. Iteration without feedback is just typing — you'd have no signal which replies worked and which didn't. v0.1.x gives you two affordances:
+The whole point of chatlab is making agent iteration fast. Iteration without feedback is just typing — you'd have no signal which replies worked and which didn't. chatlab gives you two affordances:
 
 - **Per-message ratings** (👍 / 👎 + optional comment) on assistant bubbles.
 - **Per-chat annotations** — a free-text Markdown note about the conversation as a whole.
@@ -50,7 +50,7 @@ curl -H "Authorization: Bearer $TOKEN" \
 - API keys (never).
 - Cleared ratings (deleted, not retained as null).
 - User messages that don't have an adjacent rated assistant reply.
-- Token / cost data (out of scope for v0.1.0).
+- Token / cost data (out of scope for v0.2.x — planned for v0.4.0).
 
 ## What's next
 

@@ -1,6 +1,6 @@
 # 4. Multiple chats, multiple themes
 
-The headline of chatlab v0.1.x: **the same agent can have many chats with different themes, all kept perfectly separate**.
+The headline of chatlab v0.2.x: **the same agent can have many chats with different themes, all kept perfectly separate**.
 
 ## Why this matters
 
@@ -23,7 +23,7 @@ If you flip back to the first chat, its history is intact. The agent has no idea
 
 ## What about multi-agent / round-table?
 
-Chats have exactly one assistant agent in v0.1.0. Two assistants, multi-user round-table, etc., are out of scope — see [capability 0003 §Out of scope](../specs/capabilities/0003-chats-and-messages.md#out-of-scope). If you want to compare two agents, run them in two chats.
+Chats have exactly one assistant agent. Two assistants, multi-user round-table, etc., are out of scope — see [capability 0003 §Out of scope](../specs/capabilities/0003-chats-and-messages.md#out-of-scope). If you want to compare two agents, run them in two chats.
 
 ## What's next
 

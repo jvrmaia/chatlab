@@ -238,7 +238,7 @@ Your agent replies with:
 }
 ```
 
-That's the entire contract. Streaming, tool calls, and multimodal attachments are out of scope for v0.1.0 (deferred to v0.2.0) — your agent should ignore those fields gracefully.
+That's the non-streaming contract. chatlab will call your endpoint without `stream: true`; tool calls and multimodal attachments remain out of scope (deferred to v0.4.0). Your agent should ignore unknown fields gracefully.
 
 ### Wire it up
 
@@ -316,6 +316,6 @@ When in doubt: if `curl <your-agent>/chat/completions -d '{"model":"x","messages
 | Best general capability, willing to pay | `openai/gpt-4o` or `anthropic/claude-sonnet-4-6`. |
 | Strong reasoning, willing to pay | `openai/o1-preview` or `anthropic/claude-opus-4-7`. |
 | Bulk synthetic-data generation, low cost | `deepseek/deepseek-chat`. |
-| Multimodal images (when v0.2.0 multimodal lands) | `openai/gpt-4o`, `anthropic/claude-sonnet-4-6`, `gemini/gemini-2.5-flash`. |
+| Multimodal images (when v0.4.0 multimodal lands) | `openai/gpt-4o`, `anthropic/claude-sonnet-4-6`, `gemini/gemini-2.5-flash`. |
 
 If a provider you need isn't on the list, the right next step is a capability proposal that adds an adapter — see [`CONTRIBUTING.md`](https://github.com/jvrmaia/chatlab/blob/main/CONTRIBUTING.md).

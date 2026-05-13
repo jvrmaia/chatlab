@@ -4,7 +4,7 @@ Esta página foi traduzida inicialmente com auxílio de IA. Sugestões de melhor
 
 # 5. Avaliações e export
 
-A razão de ser do chatlab é tornar a iteração no agente rápida. Iteração sem feedback é só digitação — você não teria sinal de quais respostas funcionaram e quais não. A v0.1.x dá duas affordances:
+A razão de ser do chatlab é tornar a iteração no agente rápida. Iteração sem feedback é só digitação — você não teria sinal de quais respostas funcionaram e quais não. O chatlab dá duas affordances:
 
 - **Avaliações por mensagem** (👍 / 👎 + comentário opcional) nos balões do assistente.
 - **Anotações por conversa** — uma nota livre em Markdown sobre a conversa como um todo.
@@ -54,7 +54,7 @@ curl -H "Authorization: Bearer $TOKEN" \
 - Chaves de API (nunca).
 - Avaliações limpas (deletadas, não retidas como null).
 - Mensagens de usuário que não têm uma resposta de assistente avaliada adjacente.
-- Dados de token / custo (fora de escopo pra v0.1.0).
+- Dados de token / custo (fora de escopo para v0.2.x — planejado para v0.4.0).
 
 ## E daqui pra frente
 

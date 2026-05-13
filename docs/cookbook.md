@@ -11,6 +11,16 @@ For exhaustive endpoint reference see [`recipes.md`](/recipes). For walkthroughs
 > export TOKEN=dev-token   # any non-empty token unless CHATLAB_REQUIRE_TOKEN is set
 > ```
 
+## Contents
+
+- [Workspaces](#workspaces)
+- [Agents](#agents)
+- [Chats and messages](#chats-and-messages)
+- [Feedback and export](#feedback-and-export)
+- [Programmatic (TypeScript)](#programmatic-typescript)
+- [UI tweaks](#ui-tweaks)
+- [CI integration](#ci-integration)
+
 ---
 
 ## Workspaces

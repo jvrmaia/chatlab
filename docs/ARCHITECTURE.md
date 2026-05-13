@@ -1,6 +1,6 @@
 # Architecture
 
-> Status: Implemented for v0.1.0.
+> Status: Updated through v0.2.2.
 
 This document describes how chatlab is wired up. For deeper contracts see [`docs/specs/`](./specs/).
 
@@ -106,7 +106,7 @@ A skeleton benchmark lives at [`test/perf/storage-bench.test.ts`](https://github
 CHATLAB_TEST_PERF=1 npm test -- test/perf/storage-bench.test.ts
 ```
 
-It inserts 10 000 messages and reads them back per adapter. The first published numbers will land here when v0.2.0 closes — until then, the table is intentionally empty so it doesn't drift silently.
+It inserts 10 000 messages and reads them back per adapter. The table is intentionally empty until a dedicated performance sprint runs the benchmark — numbers will be published then so they don't drift silently.
 
 | Adapter | Insert total | Insert/row | Read total | Read/row |
 | --- | ---: | ---: | ---: | ---: |
@@ -167,5 +167,5 @@ The interface is identical across all three; the test battery in `test/storage/_
 
 ## What's not in this diagram
 
-- **Streaming**: deferred to v0.2.0.
-- **Tool calling**: deferred.
+- **SSE streaming**: shipped in v0.2.2 — `chatStream()` in both provider adapters.
+- **Tool calling**: deferred to v0.4.0.

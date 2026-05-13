@@ -1,6 +1,6 @@
 # User Guide
 
-A narrative walkthrough of chatlab v0.1.x, end to end.
+A narrative walkthrough of chatlab v0.2.x, end to end.
 
 If you want the 5-minute version with no commentary, read [`../quickstart.md`](../quickstart.md).
 
