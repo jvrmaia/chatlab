@@ -6,9 +6,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [0.3.0] — 2026-05-13
+
 ### Added
 
 - **Eval harness** (`0007`) — `chatlab eval --agent <id>` CLI subcommand. Reads a golden-set YAML (`<home>/eval/golden.yaml`), runs each prompt through the configured agent, writes a Markdown report, and diffs against a `--baseline`. Exits non-zero on any provider failure without writing a partial report. Implemented in `src/eval/` (loader, runner, reporter, types). CLI architecture per [ADR 0015](./docs/specs/adr/0015-cli-subcommand-architecture.md).
+- **Token usage and response time** — assistant message bubbles now display `↑{prompt} ↓{completion} · {time}` in the footer when the provider returns usage data. `prompt_tokens`, `completion_tokens`, and `response_time_ms` fields added to the `Message` domain type, all three storage adapters (SQLite, DuckDB, Memory), the OpenAPI schema, and the UI `UiMessage` type. Both the SSE streaming path and the non-streaming `AgentRunner` path capture and persist the data. OpenAI-compat requests include `stream_options: {include_usage: true}`; Anthropic accumulates input tokens from `message_start` and output tokens from `message_delta` events.
 - **SSE extraction** — `src/lib/sse.ts` exports `parseSseLines`; both provider adapters (`openai-compat`, `anthropic`) now share the same SSE parsing logic instead of duplicated `ReadableStreamDefaultReader` loops.
 - **CLI subcommand guard** — `detectUnknownSubcommand` in `src/cli.ts` exits 1 with a clear message for unrecognised first-positional arguments. Per [ADR 0015](./docs/specs/adr/0015-cli-subcommand-architecture.md).
 - **ADR 0015** — CLI subcommand architecture: flag-based parsing, no external parser dependency, explicit allowlist guard.
@@ -20,6 +23,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - **SSRF RFC-1918 gap** — SSRF blocklist now covers the full RFC-1918 and link-local ranges (169.254.x.x, fc00::/7 ULA). Closed the open finding from the post-security-sprint TRB review (per [ADR 0014](./docs/specs/adr/0014-ssrf-and-mime-mitigation.md)).
 - **LocaleToggle ARIA** — `aria-pressed` → `aria-selected`, `role="group"` → `role="tablist"`, `role="tab"` added to language buttons. Aligns with the tab pattern used in `App.tsx` and the `.tab[aria-selected="true"]` CSS selector in the design system.
 - **CI lychee** — `conventionalcommits.org` added to the Markdown link-checker exclusion list; GitHub Actions IPs are blocked by this host, causing false-positive CI failures.
+
+### Tests
+
+- 414 Vitest tests across 39 files (up from ~290 in v0.2.2). Branch coverage 94.82%; statement coverage 96.9%.
 
 ### Reviews
 
@@ -116,7 +123,8 @@ Initial public release of chatlab — a local development platform for chat agen
 - 113 Vitest tests across 21 files. Coverage gate: 80% lines / statements / functions, 65% branches.
 - E2E Playwright skeleton under `test/e2e/` (opt-in via `CHATLAB_TEST_E2E=1`).
 
-[Unreleased]: https://github.com/jvrmaia/chatlab/compare/v0.2.2...HEAD
+[Unreleased]: https://github.com/jvrmaia/chatlab/compare/v0.3.0...HEAD
+[0.3.0]: https://github.com/jvrmaia/chatlab/compare/v0.2.2...v0.3.0
 [0.2.2]: https://github.com/jvrmaia/chatlab/compare/v0.2.1...v0.2.2
 [0.2.1]: https://github.com/jvrmaia/chatlab/compare/v0.2.0...v0.2.1
 [0.2.0]: https://github.com/jvrmaia/chatlab/releases/tag/v0.2.0

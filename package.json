@@ -1,6 +1,6 @@
 {
   "name": "@jvrmaia/chatlab",
-  "version": "0.2.2",
+  "version": "0.3.0",
   "description": "Local development platform for chat agents — workspaces, multi-provider LLMs, feedback corpus.",
   "license": "Elastic-2.0",
   "author": "João Víctor Rocon Maia",

@@ -4,7 +4,7 @@ Guidance for Claude Code (and other AI coding assistants) working in this reposi
 
 ## What this project is
 
-`chatlab` is a source-available local development platform for chat agents. It lets you configure six LLM clients (OpenAI, Anthropic, DeepSeek, Gemini, Maritaca, Ollama) plus a **`custom`** provider that points at the agent **the developer is building** (any OpenAI-compat endpoint), open chats with chosen agents and themes, exchange messages, rate replies, and export a JSONL feedback corpus. Six capabilities `Implemented` in v0.1.0 (`0007-eval-harness` drafted for v0.3.0); the project's current cut is **v0.2.2** (released 2026-05-11) — includes bilingual en-US / pt-BR for the Web UI and the public-facing docs subset.
+`chatlab` is a source-available local development platform for chat agents. It lets you configure six LLM clients (OpenAI, Anthropic, DeepSeek, Gemini, Maritaca, Ollama) plus a **`custom`** provider that points at the agent **the developer is building** (any OpenAI-compat endpoint), open chats with chosen agents and themes, exchange messages, rate replies, and export a JSONL feedback corpus. Seven capabilities `Implemented` through v0.3.0 (`0007-eval-harness` shipped in v0.3.0); the project's current cut is **v0.3.0** (released 2026-05-13) — includes bilingual en-US / pt-BR for the Web UI and the public-facing docs subset.
 
 > **Working directory.** The local clone path is `/Users/jvrmaia/Workspace/jvrmaia/zapzap-emulator/` even though the GitHub repo is `chatlab`. Don't try to rename the working directory.
 
@@ -24,7 +24,7 @@ Read the [README](./README.md) and [`docs/ROADMAP.md`](./docs/ROADMAP.md) before
 | `src/ui/` | React + Tailwind + Vite browser UI (served at `/ui`). |
 | `test/` | Vitest suites. 80% coverage on lines/statements/functions, 65% on branches. |
 | `docs/specs/api/openapi.yaml` | **Source of truth** for the HTTP contract — OpenAPI 3.1. |
-| `docs/specs/capabilities/` | 7 capability specs (6 Implemented in v0.1.0, `0007-eval-harness` Implemented in v0.2.x). |
+| `docs/specs/capabilities/` | 7 capability specs (all Implemented; 6 in v0.1.0, `0007-eval-harness` in v0.3.0). |
 | `docs/specs/adr/` | 17 ADRs (MADR-lite, 0001–0017). |
 | `docs/reviews/` | Project status and open action items — [`CURRENT.md`](./docs/reviews/CURRENT.md) is the live document. |
 | `docs/_design/` | Design system: `tokens.css`, `components.css`, `icons.js`, `Design System.html`. |
